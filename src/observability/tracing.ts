@@ -1,9 +1,11 @@
 import {
   SpanKind,
   SpanStatusCode,
+  context,
   isSpanContextValid,
   trace,
   type Attributes,
+  type Context,
   type Span,
 } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -38,6 +40,7 @@ export const registerTracing = (app: FastifyInstance): void => {
       kind: SpanKind.SERVER,
       attributes: { 'http.request.method': request.method },
     });
+    request.serviceContext = trace.setSpan(context.active(), request.serviceSpan);
     const spanContext = request.serviceSpan.spanContext();
     request.traceId = isSpanContextValid(spanContext) ? spanContext.traceId : undefined;
     done();
@@ -57,22 +60,26 @@ export const withSpan = async <T>(
   name: string,
   attributes: Attributes,
   operation: () => Promise<T>,
+  parentContext: Context = context.active(),
 ): Promise<T> =>
-  trace.getTracer('supercool-ledger').startActiveSpan(name, { attributes }, async (span) => {
-    try {
-      return await operation();
-    } catch (error) {
-      span.recordException(error as Error);
-      span.setStatus({ code: SpanStatusCode.ERROR });
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
+  trace
+    .getTracer('supercool-ledger')
+    .startActiveSpan(name, { attributes }, parentContext, async (span) => {
+      try {
+        return await operation();
+      } catch (error) {
+        span.recordException(error as Error);
+        span.setStatus({ code: SpanStatusCode.ERROR });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
 
 declare module 'fastify' {
   interface FastifyRequest {
     serviceSpan: Span;
+    serviceContext: Context;
     traceId: string | undefined;
   }
 }

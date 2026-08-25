@@ -12,6 +12,7 @@ let app: FastifyInstance;
 let database: Database;
 let pool: Pool;
 let token: string;
+let tenantId: string;
 
 beforeAll(async () => {
   pool = createTestPool();
@@ -25,7 +26,7 @@ beforeAll(async () => {
   const tenant = await pool.query<{ id: string }>(
     "INSERT INTO tenants (name) VALUES ('Operations Test') RETURNING id",
   );
-  const tenantId = tenant.rows[0]?.id;
+  tenantId = tenant.rows[0]?.id ?? '';
   if (!tenantId) throw new Error('tenant_fixture_failed');
   token = await signDevelopmentToken(
     { subject: 'operator', tenantId, scopes: ['operations:read'] },
@@ -49,6 +50,18 @@ test('runs reconciliation and records the clean outcome', async () => {
   });
   expect(response.statusCode).toBe(200);
   expect(JSON.parse(response.body)).toEqual({ checkedAccounts: 0, discrepancies: [] });
+
+  const audit = await pool.query<{ action: string; outcome: string; metadata: unknown }>(
+    "SELECT action, outcome, metadata FROM audit_events WHERE tenant_id = $1 AND action = 'reconciliation.checked'",
+    [tenantId],
+  );
+  expect(audit.rows).toEqual([
+    {
+      action: 'reconciliation.checked',
+      outcome: 'clean',
+      metadata: { discrepancy_count: 0 },
+    },
+  ]);
 
   const metrics = await app.inject({
     method: 'GET',

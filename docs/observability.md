@@ -14,7 +14,7 @@ Labels contain bounded categories. Account, transfer, tenant, request, and idemp
 
 ## Traces
 
-OpenTelemetry spans cover every request, transfer creation, and reconciliation run without attaching amounts or account identifiers. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to activate batched HTTP export to a collector or compatible backend.
+OpenTelemetry spans cover every request, transfer creation, and reconciliation run without attaching amounts or account identifiers. Financial operation spans are explicit children of their request span. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to activate batched HTTP export to a collector or compatible backend.
 
 ## Errors
 

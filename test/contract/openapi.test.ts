@@ -22,7 +22,7 @@ test('publishes the account and transfer contract', async () => {
   expect(response.statusCode).toBe(200);
   const document = JSON.parse(response.body) as {
     info: { title: string };
-    paths: Record<string, unknown>;
+    paths: Record<string, { post?: { requestBody?: unknown; responses?: unknown } }>;
   };
   expect(document.info.title).toBe('SuperCool Ledger API');
   const paths = Object.keys(document.paths);
@@ -33,5 +33,24 @@ test('publishes the account and transfer contract', async () => {
     '/v1/transfers/{transferId}',
   ]) {
     expect(paths).toContain(path);
+  }
+  expect(JSON.stringify(document.paths['/v1/accounts']?.post?.requestBody)).toContain(
+    'Operating USD',
+  );
+  expect(JSON.stringify(document.paths['/v1/transfers']?.post?.requestBody)).toContain('250.00');
+  expect(JSON.stringify(document.paths['/v1/transfers']?.post?.responses)).toContain(
+    'insufficient_funds',
+  );
+
+  const docs = await app.inject({ method: 'GET', url: '/docs' });
+  expect(docs.statusCode).toBe(301);
+  expect(docs.headers.location).toBe('/docs/');
+  const docsPage = await app.inject({ method: 'GET', url: '/docs/' });
+  expect(docsPage.statusCode).toBe(200);
+  expect(docsPage.body).toContain('scalar');
+  for (const path of ['/docs/../package.json', '/docs/%2e%2e/package.json']) {
+    const traversal = await app.inject({ method: 'GET', url: path });
+    expect(traversal.statusCode).not.toBe(200);
+    expect(traversal.body).not.toContain('supercool-ledger');
   }
 });

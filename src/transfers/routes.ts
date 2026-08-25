@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
 import { requireScope } from '../auth/plugin.ts';
 import type { Database } from '../platform/database.ts';
+import { ProblemSchema } from '../platform/problem.ts';
 import { withSpan } from '../observability/tracing.ts';
 import {
   CreateTransferSchema,
@@ -33,7 +34,16 @@ export const registerTransferRoutes = (app: FastifyInstance, database: Database)
           'idempotency-key': Type.String({ minLength: 8, maxLength: 128 }),
         }),
         body: CreateTransferSchema,
-        response: { 200: TransferSchema, 201: TransferSchema },
+        response: {
+          200: TransferSchema,
+          201: TransferSchema,
+          400: ProblemSchema,
+          401: ProblemSchema,
+          403: ProblemSchema,
+          404: ProblemSchema,
+          409: ProblemSchema,
+          422: ProblemSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -49,6 +59,7 @@ export const registerTransferRoutes = (app: FastifyInstance, database: Database)
             request.body as CreateTransferInput,
             request.headers['idempotency-key'] as string | undefined,
           ),
+        request.serviceContext,
       );
       if (result.replayed) {
         return reply.header('Idempotent-Replayed', 'true').status(200).send(result.transfer);
@@ -65,7 +76,13 @@ export const registerTransferRoutes = (app: FastifyInstance, database: Database)
         tags: ['Transfers'],
         security: [{ bearerAuth: [] }],
         params: TransferIdParamsSchema,
-        response: { 200: TransferSchema },
+        response: {
+          200: TransferSchema,
+          400: ProblemSchema,
+          401: ProblemSchema,
+          403: ProblemSchema,
+          404: ProblemSchema,
+        },
       },
     },
     async (request) => {

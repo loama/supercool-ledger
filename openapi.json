@@ -33,7 +33,8 @@
                     ]
                   }
                 }
-              }
+              },
+              "example": { "name": "Operating USD", "currency": "USD" }
             }
           }
         },
@@ -53,6 +54,137 @@
                     "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
                     "status": { "type": "string" },
                     "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "name": "Operating USD",
+                  "currency": "USD",
+                  "balance": "1000.00",
+                  "status": "active",
+                  "createdAt": "2026-08-25T20:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
                   }
                 }
               }
@@ -89,6 +221,178 @@
                     "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
                     "status": { "type": "string" },
                     "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "name": "Operating USD",
+                  "currency": "USD",
+                  "balance": "1000.00",
+                  "status": "active",
+                  "createdAt": "2026-08-25T20:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
                   }
                 }
               }
@@ -162,6 +466,170 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -188,6 +656,12 @@
                     ]
                   }
                 }
+              },
+              "example": {
+                "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                "amount": "250.00",
+                "currency": "USD"
               }
             }
           }
@@ -226,6 +700,15 @@
                     "status": { "type": "string", "enum": ["completed"] },
                     "createdAt": { "type": "string" }
                   }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
                 }
               }
             }
@@ -253,6 +736,261 @@
                     "currency": { "type": "string" },
                     "status": { "type": "string", "enum": ["completed"] },
                     "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
                   }
                 }
               }
@@ -299,6 +1037,179 @@
                     "status": { "type": "string", "enum": ["completed"] },
                     "createdAt": { "type": "string" }
                   }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
                 }
               }
             }
@@ -332,6 +1243,89 @@
                           "ledgerMinor": { "type": "string" }
                         }
                       }
+                    }
+                  }
+                },
+                "example": { "checkedAccounts": 3, "discrepancies": [] }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 422,
+                      "detail": "The source account has insufficient funds.",
+                      "instance": "/v1/transfers",
+                      "code": "insufficient_funds"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request Rejected",
+                      "status": 409,
+                      "detail": "The key was already used for another request.",
+                      "instance": "/v1/transfers",
+                      "code": "idempotency_conflict"
                     }
                   }
                 }

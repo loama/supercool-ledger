@@ -1,6 +1,38 @@
 import type { FastifyInstance } from 'fastify';
 import * as Sentry from '@sentry/node';
+import { Type } from '@sinclair/typebox';
 import { AuthenticationError, AuthorizationError } from '../auth/plugin.ts';
+
+export const ProblemSchema = Type.Object(
+  {
+    type: Type.String(),
+    title: Type.String(),
+    status: Type.Integer(),
+    detail: Type.String(),
+    instance: Type.String(),
+    code: Type.String(),
+  },
+  {
+    examples: [
+      {
+        type: 'about:blank',
+        title: 'Request Rejected',
+        status: 422,
+        detail: 'The source account has insufficient funds.',
+        instance: '/v1/transfers',
+        code: 'insufficient_funds',
+      },
+      {
+        type: 'about:blank',
+        title: 'Request Rejected',
+        status: 409,
+        detail: 'The key was already used for another request.',
+        instance: '/v1/transfers',
+        code: 'idempotency_conflict',
+      },
+    ],
+  },
+);
 
 export interface ProblemDetails {
   type: string;

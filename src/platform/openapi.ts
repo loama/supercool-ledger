@@ -1,5 +1,5 @@
 import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
+import apiReference from '@scalar/fastify-api-reference';
 import type { FastifyInstance } from 'fastify';
 
 export const registerOpenApi = async (app: FastifyInstance): Promise<void> => {
@@ -18,8 +18,12 @@ export const registerOpenApi = async (app: FastifyInstance): Promise<void> => {
       },
     },
   });
-  await app.register(swaggerUi, {
+  await app.register(apiReference, {
     routePrefix: '/docs',
-    uiConfig: { docExpansion: 'list', deepLinking: true },
+    configuration: {
+      theme: 'kepler',
+      layout: 'modern',
+      defaultOpenAllTags: false,
+    },
   });
 };
