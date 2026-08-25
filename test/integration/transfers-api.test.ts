@@ -106,6 +106,22 @@ test('replays the stored response without another transfer', async () => {
   expect(JSON.parse(second.body)).toEqual(JSON.parse(first.body));
 });
 
+test('serializes concurrent requests with the same idempotency key', async () => {
+  const before = await pool.query<{ count: string }>(
+    'SELECT count(*)::text AS count FROM transfers',
+  );
+  const responses = await Promise.all([
+    transfer('transfer-concurrent-replay-001', '25.00'),
+    transfer('transfer-concurrent-replay-001', '25.00'),
+  ]);
+  expect(responses.map((response) => response.statusCode).sort()).toEqual([200, 201]);
+  expect(JSON.parse(responses[0].body)).toEqual(JSON.parse(responses[1].body));
+  const after = await pool.query<{ count: string }>(
+    'SELECT count(*)::text AS count FROM transfers',
+  );
+  expect(BigInt(after.rows[0]?.count ?? '0') - BigInt(before.rows[0]?.count ?? '0')).toBe(1n);
+});
+
 test('rejects reuse of a key with a different request', async () => {
   await transfer('transfer-conflict-001', '50.00');
   const response = await transfer('transfer-conflict-001', '51.00');
@@ -124,4 +140,63 @@ test('rolls back insufficient funds without ledger entries', async () => {
     'SELECT count(*)::text AS count FROM transfers',
   );
   expect(after.rows[0]).toEqual(before.rows[0]);
+});
+
+test('rolls back every financial record when posting insertion fails', async () => {
+  await pool.query(`
+    CREATE FUNCTION fail_test_posting() RETURNS trigger LANGUAGE plpgsql AS $$
+    BEGIN
+      RAISE EXCEPTION 'injected posting failure';
+    END;
+    $$;
+    CREATE TRIGGER fail_test_posting
+      BEFORE INSERT ON postings
+      FOR EACH ROW EXECUTE FUNCTION fail_test_posting();
+  `);
+  const before = await pool.query<{ transfers: string; journals: string; postings: string }>(`
+    SELECT
+      (SELECT count(*)::text FROM transfers) AS transfers,
+      (SELECT count(*)::text FROM journal_transactions) AS journals,
+      (SELECT count(*)::text FROM postings) AS postings
+  `);
+  try {
+    const response = await transfer('injected-posting-failure', '10.00');
+    expect(response.statusCode).toBe(500);
+    expect(JSON.parse(response.body)).toMatchObject({ code: 'internal_error' });
+  } finally {
+    await pool.query(`
+      DROP TRIGGER fail_test_posting ON postings;
+      DROP FUNCTION fail_test_posting();
+    `);
+  }
+  const after = await pool.query<{ transfers: string; journals: string; postings: string }>(`
+    SELECT
+      (SELECT count(*)::text FROM transfers) AS transfers,
+      (SELECT count(*)::text FROM journal_transactions) AS journals,
+      (SELECT count(*)::text FROM postings) AS postings
+  `);
+  expect(after.rows[0]).toEqual(before.rows[0]);
+  const idempotency = await pool.query(
+    "SELECT 1 FROM idempotency_records WHERE key = 'injected-posting-failure'",
+  );
+  expect(idempotency.rowCount).toBe(0);
+});
+
+test('rejects zero and excessive amounts as client errors', async () => {
+  for (const amount of ['0', '0.00', '92233720368547758.08']) {
+    const response = await transfer(`invalid-amount-${amount}`, amount);
+    expect(response.statusCode).toBe(422);
+    expect(JSON.parse(response.body)).toMatchObject({ code: 'invalid_amount' });
+  }
+});
+
+test('rejects transfers for a suspended tenant', async () => {
+  await pool.query("UPDATE tenants SET status = 'suspended' WHERE id = $1", [tenantId]);
+  try {
+    const response = await transfer('suspended-tenant-transfer', '10.00');
+    expect(response.statusCode).toBe(403);
+    expect(JSON.parse(response.body)).toMatchObject({ code: 'tenant_suspended' });
+  } finally {
+    await pool.query("UPDATE tenants SET status = 'active' WHERE id = $1", [tenantId]);
+  }
 });

@@ -29,7 +29,7 @@ export const reconcile = async (
       a.balance_minor::text AS cached_minor,
       COALESCE(sum(p.amount_minor), 0)::text AS ledger_minor
     FROM accounts a
-    LEFT JOIN postings p ON p.account_id = a.id
+    LEFT JOIN postings p ON p.account_id = a.id AND p.currency = a.currency
     WHERE ($1::uuid IS NULL OR a.tenant_id = $1)
     GROUP BY a.id, a.balance_minor
     ORDER BY a.id

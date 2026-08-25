@@ -126,7 +126,12 @@ export class TransferService {
     rawKey: string | undefined,
   ): Promise<TransferResult> {
     const key = validateIdempotencyKey(rawKey);
-    const money = parseMoney(input);
+    let money: ReturnType<typeof parseMoney>;
+    try {
+      money = parseMoney(input);
+    } catch {
+      throw new ServiceError(422, 'invalid_amount', 'The transfer amount is invalid.');
+    }
     if (input.sourceAccountId === input.destinationAccountId) {
       throw new ServiceError(422, 'same_account', 'Source and destination accounts must differ.');
     }
@@ -136,6 +141,14 @@ export class TransferService {
       const result = await this.database.transaction(async (client) => {
         const replay = await claim(client, tenantId, key, requestHash, this.observer);
         if (replay) return { replayed: true, transfer: replay };
+
+        const tenant = await client.query<{ status: 'active' | 'suspended' }>(
+          'SELECT status FROM tenants WHERE id = $1 FOR SHARE',
+          [tenantId],
+        );
+        if (tenant.rows[0]?.status !== 'active') {
+          throw new ServiceError(403, 'tenant_suspended', 'The tenant cannot move funds.');
+        }
 
         const locked = await client.query<LockedAccount>(
           `SELECT id, currency, balance_minor, status

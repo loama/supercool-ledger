@@ -1,5 +1,6 @@
 import type { QueryResultRow } from 'pg';
 import type { Database } from '../platform/database.ts';
+import { ServiceError } from '../platform/problem.ts';
 
 export interface AccountRow extends QueryResultRow {
   id: string;
@@ -31,15 +32,24 @@ export class AccountRepository {
   constructor(private readonly database: Database) {}
 
   async create(tenantId: string, name: string, currency: 'USD' | 'MXN'): Promise<AccountRow> {
-    const result = await this.database.query<AccountRow>(
-      `INSERT INTO accounts (tenant_id, name, currency)
-       VALUES ($1, $2, $3)
-       RETURNING id, tenant_id, name, currency, balance_minor, status, created_at`,
-      [tenantId, name, currency],
-    );
-    const row = result.rows[0];
-    if (!row) throw new Error('account_insert_failed');
-    return row;
+    return this.database.transaction(async (client) => {
+      const tenant = await client.query<{ status: 'active' | 'suspended' }>(
+        'SELECT status FROM tenants WHERE id = $1 FOR SHARE',
+        [tenantId],
+      );
+      if (tenant.rows[0]?.status !== 'active') {
+        throw new ServiceError(403, 'tenant_suspended', 'The tenant cannot create accounts.');
+      }
+      const result = await client.query<AccountRow>(
+        `INSERT INTO accounts (tenant_id, name, currency)
+         VALUES ($1, $2, $3)
+         RETURNING id, tenant_id, name, currency, balance_minor, status, created_at`,
+        [tenantId, name, currency],
+      );
+      const row = result.rows[0];
+      if (!row) throw new Error('account_insert_failed');
+      return row;
+    });
   }
 
   async find(tenantId: string, accountId: string): Promise<AccountRow | null> {

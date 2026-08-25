@@ -6,11 +6,15 @@ Render builds the Dockerfile, runs `bun run db:migrate`, starts the new instance
 
 ## Migrations
 
-Migrations are ordered SQL files. The runner records each applied file inside the database transaction. Financial schema changes require compatible application rollout and a tested recovery procedure.
+Migrations are ordered SQL files. The runner takes a PostgreSQL advisory lock, checks applied files, and records each new file inside its database transaction. Concurrent runners therefore serialize. Financial schema changes require compatible application rollout and a tested recovery procedure.
+
+Readiness checks the latest expected migration in addition to database connectivity. A reachable but stale database does not receive traffic.
 
 ## Reconciliation
 
 Run `bun run reconcile`. A clean run exits with zero. Any discrepancy produces a failure result. Do not repair the cached balance until the ledger and incident history explain the mismatch.
+
+The authenticated reconciliation endpoint writes an immutable audit outcome with only the discrepancy count. It does not place account identifiers or balances in audit metadata.
 
 ## Incident sequence
 

@@ -10,6 +10,8 @@ This boundary keeps the financial commit inside one database transaction. Splitt
 
 Immutable postings are the financial record. `accounts.balance_minor` is a cached value for fast reads. The transfer transaction updates both in one commit, and reconciliation compares the cache with the signed posting sum.
 
+Postings carry the journal tenant. Composite foreign keys require every posting, transfer account, and transfer journal to share the same tenant and currency. A reversal trigger requires the original journal and reversal to belong to the same tenant. These checks protect the ledger even when a future script bypasses the HTTP layer.
+
 Every monetary value is an integer minor unit. The API accepts decimal strings and returns decimal strings. JavaScript floating point values never represent money.
 
 ## Concurrency
@@ -17,6 +19,8 @@ Every monetary value is an integer minor unit. The API accepts decimal strings a
 The service uses `READ COMMITTED` with explicit account row locks. A transfer locks both account rows in sorted identifier order. Competing writes to the same account serialize, and opposite direction transfers use the same order to reduce deadlocks.
 
 The second transfer reads the balance only after it obtains the lock. It cannot spend a stale value.
+
+Financial writes also take a shared lock on the tenant. Suspending a tenant waits for current work, then prevents new account creation and transfers.
 
 ## Idempotency
 
@@ -31,6 +35,8 @@ An identical replay returns the stored result. A different payload returns a con
 3. A database outage rejects writes instead of buffering money operations in memory.
 4. An unbalanced journal fails at commit through a deferred database trigger.
 5. A reconciliation mismatch emits an operational failure and never repairs history automatically.
+
+Migration runners serialize through a PostgreSQL advisory lock. Readiness requires both database access and the latest expected migration.
 
 ## Availability choice
 

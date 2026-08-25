@@ -17,7 +17,14 @@ export const createDatabase = (connectionString: string): Database => {
     pool,
     close: async () => pool.end(),
     ping: async () => {
-      await pool.query('SELECT 1');
+      const table = await pool.query<{ relation: string | null }>(
+        "SELECT to_regclass('public.schema_migrations')::text AS relation",
+      );
+      if (!table.rows[0]?.relation) throw new Error('database_schema_not_ready');
+      const migration = await pool.query(
+        "SELECT 1 FROM schema_migrations WHERE name = '002_harden_ledger_boundaries.sql'",
+      );
+      if (!migration.rowCount) throw new Error('database_schema_not_ready');
     },
     query: async <T extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]) =>
       pool.query<T>(text, values),

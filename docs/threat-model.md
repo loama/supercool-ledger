@@ -14,7 +14,11 @@ The protected assets are balances, immutable ledger history, tenant boundaries, 
 6. An application defect could create an unbalanced journal. A deferred database constraint rejects the commit.
 7. A privileged process could alter history. Database triggers reject updates and deletion of posted journals and postings.
 8. A denial of service attempt could exhaust connections. The pool is bounded, payloads are schema limited, and deployment rate limits belong at the edge.
+9. A script could join records from different tenants or currencies. Composite database foreign keys bind postings and transfers to their journal, tenant, account, and currency.
+10. A suspended customer could reuse a valid token. Financial writes lock and verify tenant status inside their transaction.
+11. Concurrent deployment hooks could apply a migration twice. The migration runner holds a PostgreSQL advisory lock across discovery and execution.
+12. Audit history could be rewritten. Audit rows are append only, and reconciliation writes a durable outcome record.
 
 ## Residual risk
 
-The development JWT issuer is not a production identity system. The hosted assessment uses synthetic data. A production service would use a managed identity provider, key rotation, database role separation, network isolation, external rate limiting, and incident tested recovery.
+The development JWT issuer is not a production identity system. The hosted assessment uses synthetic data. Expected rejected requests remain structured logs and bounded metrics rather than durable financial events. A production service would use a managed identity provider, key rotation, database role separation, network isolation, external rate limiting, and incident tested recovery.

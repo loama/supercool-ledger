@@ -95,6 +95,22 @@ test('hides accounts owned by another tenant', async () => {
   expect(JSON.parse(response.body)).toMatchObject({ code: 'account_not_found' });
 });
 
+test('rejects account creation for a suspended tenant', async () => {
+  await pool.query("UPDATE tenants SET status = 'suspended' WHERE id = $1", [tenantId]);
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/accounts',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { name: 'Blocked', currency: 'USD' },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(JSON.parse(response.body)).toMatchObject({ code: 'tenant_suspended' });
+  } finally {
+    await pool.query("UPDATE tenants SET status = 'active' WHERE id = $1", [tenantId]);
+  }
+});
+
 test('lists immutable ledger entries for an account', async () => {
   const created = await app.inject({
     method: 'POST',
