@@ -42,12 +42,17 @@ export const buildApp = async (options: AppOptions): Promise<FastifyInstance> =>
   }
 
   app.get('/health/live', () => ({ status: 'alive' }));
-  app.get('/health/ready', async (_request, reply) => {
+  app.get('/health/ready', async (request, reply) => {
     if (!options.database) {
       return reply.status(503).send({ status: 'not_ready' });
     }
-    await options.database.ping();
-    return { status: 'ready' };
+    try {
+      await options.database.ping();
+      return { status: 'ready' };
+    } catch {
+      request.log.warn({ code: 'readiness_failed', request_id: request.id }, 'readiness failed');
+      return reply.status(503).send({ status: 'not_ready' });
+    }
   });
   app.get('/openapi.json', () => app.swagger());
 

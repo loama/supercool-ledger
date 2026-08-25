@@ -14,6 +14,11 @@ export const registerOpenApi = async (app: FastifyInstance): Promise<void> => {
       components: {
         securitySchemes: {
           bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+          metricsAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            description: 'Dedicated metrics token, separate from customer JWTs.',
+          },
         },
       },
     },

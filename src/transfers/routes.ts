@@ -2,7 +2,14 @@ import { Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
 import { requireScope } from '../auth/plugin.ts';
 import type { Database } from '../platform/database.ts';
-import { ProblemSchema } from '../platform/problem.ts';
+import {
+  AuthenticationProblemSchema,
+  AuthorizationProblemSchema,
+  ConflictProblemSchema,
+  NotFoundProblemSchema,
+  UnprocessableProblemSchema,
+  ValidationProblemSchema,
+} from '../platform/problem.ts';
 import { withSpan } from '../observability/tracing.ts';
 import {
   CreateTransferSchema,
@@ -37,12 +44,12 @@ export const registerTransferRoutes = (app: FastifyInstance, database: Database)
         response: {
           200: TransferSchema,
           201: TransferSchema,
-          400: ProblemSchema,
-          401: ProblemSchema,
-          403: ProblemSchema,
-          404: ProblemSchema,
-          409: ProblemSchema,
-          422: ProblemSchema,
+          400: ValidationProblemSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
+          404: NotFoundProblemSchema,
+          409: ConflictProblemSchema,
+          422: UnprocessableProblemSchema,
         },
       },
     },
@@ -78,10 +85,10 @@ export const registerTransferRoutes = (app: FastifyInstance, database: Database)
         params: TransferIdParamsSchema,
         response: {
           200: TransferSchema,
-          400: ProblemSchema,
-          401: ProblemSchema,
-          403: ProblemSchema,
-          404: ProblemSchema,
+          400: ValidationProblemSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
+          404: NotFoundProblemSchema,
         },
       },
     },

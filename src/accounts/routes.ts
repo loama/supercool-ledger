@@ -1,7 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { requireScope } from '../auth/plugin.ts';
 import type { Database } from '../platform/database.ts';
-import { ProblemSchema } from '../platform/problem.ts';
+import {
+  AuthenticationProblemSchema,
+  AuthorizationProblemSchema,
+  NotFoundProblemSchema,
+  ValidationProblemSchema,
+} from '../platform/problem.ts';
 import { AccountRepository } from './repository.ts';
 import {
   AccountEntriesQuerySchema,
@@ -26,9 +31,9 @@ export const registerAccountRoutes = (app: FastifyInstance, database: Database):
         body: CreateAccountSchema,
         response: {
           201: AccountSchema,
-          400: ProblemSchema,
-          401: ProblemSchema,
-          403: ProblemSchema,
+          400: ValidationProblemSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
         },
       },
     },
@@ -52,10 +57,10 @@ export const registerAccountRoutes = (app: FastifyInstance, database: Database):
         params: AccountIdParamsSchema,
         response: {
           200: AccountSchema,
-          400: ProblemSchema,
-          401: ProblemSchema,
-          403: ProblemSchema,
-          404: ProblemSchema,
+          400: ValidationProblemSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
+          404: NotFoundProblemSchema,
         },
       },
     },
@@ -77,10 +82,10 @@ export const registerAccountRoutes = (app: FastifyInstance, database: Database):
         querystring: AccountEntriesQuerySchema,
         response: {
           200: AccountEntriesSchema,
-          400: ProblemSchema,
-          401: ProblemSchema,
-          403: ProblemSchema,
-          404: ProblemSchema,
+          400: ValidationProblemSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
+          404: NotFoundProblemSchema,
         },
       },
     },

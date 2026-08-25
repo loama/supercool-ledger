@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
 import { Counter, Histogram, Registry } from 'prom-client';
 
 export interface ServiceMetrics {
@@ -84,12 +85,25 @@ export const registerMetrics = (app: FastifyInstance, token?: string): void => {
   });
 
   if (token) {
-    app.get('/metrics', async (request, reply) => {
-      if (request.headers.authorization !== `Bearer ${token}`) {
-        return reply.status(401).send({ status: 'unauthorized' });
-      }
-      return reply.type(metrics.registry.contentType).send(await metrics.registry.metrics());
-    });
+    app.get(
+      '/metrics',
+      {
+        schema: {
+          tags: ['Operations'],
+          security: [{ metricsAuth: [] }],
+          response: {
+            200: Type.String(),
+            401: Type.Object({ status: Type.Literal('unauthorized') }),
+          },
+        },
+      },
+      async (request, reply) => {
+        if (request.headers.authorization !== `Bearer ${token}`) {
+          return reply.status(401).send({ status: 'unauthorized' });
+        }
+        return reply.type(metrics.registry.contentType).send(await metrics.registry.metrics());
+      },
+    );
   }
 };
 

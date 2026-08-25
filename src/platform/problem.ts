@@ -3,35 +3,67 @@ import * as Sentry from '@sentry/node';
 import { Type } from '@sinclair/typebox';
 import { AuthenticationError, AuthorizationError } from '../auth/plugin.ts';
 
-export const ProblemSchema = Type.Object(
-  {
-    type: Type.String(),
-    title: Type.String(),
-    status: Type.Integer(),
-    detail: Type.String(),
-    instance: Type.String(),
-    code: Type.String(),
-  },
-  {
-    examples: [
-      {
-        type: 'about:blank',
-        title: 'Request Rejected',
-        status: 422,
-        detail: 'The source account has insufficient funds.',
-        instance: '/v1/transfers',
-        code: 'insufficient_funds',
-      },
-      {
-        type: 'about:blank',
-        title: 'Request Rejected',
-        status: 409,
-        detail: 'The key was already used for another request.',
-        instance: '/v1/transfers',
-        code: 'idempotency_conflict',
-      },
-    ],
-  },
+const problemFields = {
+  type: Type.String(),
+  title: Type.String(),
+  status: Type.Integer(),
+  detail: Type.String(),
+  instance: Type.String(),
+  code: Type.String(),
+};
+
+const documentedProblem = (
+  status: number,
+  title: string,
+  detail: string,
+  instance: string,
+  code: string,
+) =>
+  Type.Object(problemFields, {
+    examples: [{ type: 'about:blank', title, status, detail, instance, code }],
+  });
+
+export const ValidationProblemSchema = documentedProblem(
+  400,
+  'Bad Request',
+  'The request did not match the API contract.',
+  '/v1/transfers',
+  'validation_error',
+);
+export const AuthenticationProblemSchema = documentedProblem(
+  401,
+  'Unauthorized',
+  'Authentication is required.',
+  '/v1/transfers',
+  'authentication_required',
+);
+export const AuthorizationProblemSchema = documentedProblem(
+  403,
+  'Forbidden',
+  'The token does not grant this operation.',
+  '/v1/transfers',
+  'insufficient_scope',
+);
+export const NotFoundProblemSchema = documentedProblem(
+  404,
+  'Not Found',
+  'Account not found',
+  '/v1/accounts/3179592d-b63f-40c0-9c7f-1cfeb468379f',
+  'account_not_found',
+);
+export const ConflictProblemSchema = documentedProblem(
+  409,
+  'Request Rejected',
+  'The key was already used for another request.',
+  '/v1/transfers',
+  'idempotency_conflict',
+);
+export const UnprocessableProblemSchema = documentedProblem(
+  422,
+  'Request Rejected',
+  'The source account has insufficient funds.',
+  '/v1/transfers',
+  'insufficient_funds',
 );
 
 export interface ProblemDetails {

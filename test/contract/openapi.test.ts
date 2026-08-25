@@ -41,6 +41,10 @@ test('publishes the account and transfer contract', async () => {
   expect(JSON.stringify(document.paths['/v1/transfers']?.post?.responses)).toContain(
     'insufficient_funds',
   );
+  expect(JSON.stringify(document.paths['/v1/transfers']?.post?.responses)).toContain(
+    'authentication_required',
+  );
+  expect(JSON.stringify(document.paths['/metrics'])).toContain('metricsAuth');
 
   const docs = await app.inject({ method: 'GET', url: '/docs' });
   expect(docs.statusCode).toBe(301);

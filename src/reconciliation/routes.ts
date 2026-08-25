@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
 import { requireScope } from '../auth/plugin.ts';
 import type { Database } from '../platform/database.ts';
-import { ProblemSchema } from '../platform/problem.ts';
+import { AuthenticationProblemSchema, AuthorizationProblemSchema } from '../platform/problem.ts';
 import { withSpan } from '../observability/tracing.ts';
 import { reconcile } from './service.ts';
 
@@ -28,7 +28,11 @@ export const registerReconciliationRoutes = (app: FastifyInstance, database: Dat
         operationId: 'runReconciliation',
         tags: ['Operations'],
         security: [{ bearerAuth: [] }],
-        response: { 200: ReconciliationSchema, 401: ProblemSchema, 403: ProblemSchema },
+        response: {
+          200: ReconciliationSchema,
+          401: AuthenticationProblemSchema,
+          403: AuthorizationProblemSchema,
+        },
       },
     },
     async (request) => {

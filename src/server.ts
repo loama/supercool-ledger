@@ -21,7 +21,8 @@ const close = async (): Promise<void> => {
   await app.close();
   await database.close();
   await tracing?.shutdown();
-  process.exit(0);
+  if (config.sentryDsn) await Sentry.close(2_000);
+  process.exitCode = 0;
 };
 
 process.once('SIGINT', () => void close());
