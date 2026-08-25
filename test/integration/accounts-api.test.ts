@@ -6,12 +6,14 @@ import { signDevelopmentToken } from '../../src/auth/token.ts';
 import { createDatabase, type Database } from '../../src/platform/database.ts';
 import { migrate } from '../../src/platform/migrate.ts';
 import { createTestPool, resetDatabase, testDatabaseUrl } from '../helpers/database.ts';
+import { fundAccount } from '../helpers/ledger.ts';
 
 const authSecret = 'a-development-secret-with-more-than-32-characters';
 let app: FastifyInstance;
 let database: Database;
 let pool: Pool;
 let token: string;
+let tenantId: string;
 
 beforeAll(async () => {
   pool = createTestPool();
@@ -27,6 +29,7 @@ beforeAll(async () => {
   );
   const row = tenant.rows[0];
   if (!row) throw new Error('tenant_fixture_failed');
+  tenantId = row.id;
   token = await signDevelopmentToken(
     {
       subject: 'reviewer',
@@ -68,4 +71,34 @@ test('creates and reads a zero balance account', async () => {
 test('requires authentication', async () => {
   const response = await app.inject({ method: 'POST', url: '/v1/accounts', payload: {} });
   expect(response.statusCode).toBe(401);
+});
+
+test('lists immutable ledger entries for an account', async () => {
+  const created = await app.inject({
+    method: 'POST',
+    url: '/v1/accounts',
+    headers: { authorization: `Bearer ${token}` },
+    payload: { name: 'Statement USD', currency: 'USD' },
+  });
+  const account = JSON.parse(created.body) as { id: string };
+  await fundAccount(pool, tenantId, account.id, 'USD', 12_345n);
+
+  const response = await app.inject({
+    method: 'GET',
+    url: `/v1/accounts/${account.id}/entries?limit=10`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+  expect(response.statusCode).toBe(200);
+  expect(JSON.parse(response.body)).toMatchObject({
+    entries: [
+      {
+        accountId: account.id,
+        amount: '123.45',
+        currency: 'USD',
+        journalKind: 'opening',
+      },
+    ],
+    nextCursor: null,
+  });
 });

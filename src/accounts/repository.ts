@@ -11,6 +11,22 @@ export interface AccountRow extends QueryResultRow {
   created_at: Date;
 }
 
+export interface AccountEntryRow extends QueryResultRow {
+  id: string;
+  journal_id: string;
+  account_id: string;
+  journal_kind: string;
+  reference: string;
+  amount_minor: string;
+  currency: 'USD' | 'MXN';
+  created_at: Date;
+}
+
+export interface AccountEntryCursor {
+  createdAt: string;
+  id: string;
+}
+
 export class AccountRepository {
   constructor(private readonly database: Database) {}
 
@@ -33,5 +49,27 @@ export class AccountRepository {
       [tenantId, accountId],
     );
     return result.rows[0] ?? null;
+  }
+
+  async listEntries(
+    tenantId: string,
+    accountId: string,
+    limit: number,
+    cursor: AccountEntryCursor | null,
+  ): Promise<AccountEntryRow[]> {
+    const result = await this.database.query<AccountEntryRow>(
+      `SELECT p.id, p.journal_transaction_id AS journal_id, p.account_id,
+              j.kind AS journal_kind, j.reference, p.amount_minor::text,
+              p.currency, p.created_at
+       FROM postings p
+       JOIN journal_transactions j ON j.id = p.journal_transaction_id
+       JOIN accounts a ON a.id = p.account_id
+       WHERE a.tenant_id = $1 AND j.tenant_id = $1 AND p.account_id = $2
+         AND ($3::timestamptz IS NULL OR (p.created_at, p.id) < ($3::timestamptz, $4::uuid))
+       ORDER BY p.created_at DESC, p.id DESC
+       LIMIT $5`,
+      [tenantId, accountId, cursor?.createdAt ?? null, cursor?.id ?? null, limit + 1],
+    );
+    return result.rows;
   }
 }

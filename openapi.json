@@ -1,0 +1,348 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SuperCool Ledger API",
+    "description": "Account balances backed by an immutable double entry ledger.",
+    "version": "0.1.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/metrics": { "get": { "responses": { "200": { "description": "Default Response" } } } },
+    "/v1/accounts": {
+      "post": {
+        "operationId": "createAccount",
+        "tags": ["Accounts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "currency"],
+                "properties": {
+                  "name": { "minLength": 1, "maxLength": 120, "type": "string" },
+                  "currency": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["USD"] },
+                      { "type": "string", "enum": ["MXN"] }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "name", "currency", "balance", "status", "createdAt"],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "name": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
+                    "status": { "type": "string" },
+                    "createdAt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}": {
+      "get": {
+        "operationId": "getAccount",
+        "tags": ["Accounts"],
+        "parameters": [
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "accountId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "name", "currency", "balance", "status", "createdAt"],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "name": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
+                    "status": { "type": "string" },
+                    "createdAt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}/entries": {
+      "get": {
+        "operationId": "listAccountEntries",
+        "tags": ["Accounts"],
+        "parameters": [
+          {
+            "schema": { "minimum": 1, "maximum": 100, "default": 50, "type": "integer" },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "minLength": 1, "maxLength": 512, "type": "string" },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "accountId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["entries", "nextCursor"],
+                  "properties": {
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "journalId",
+                          "accountId",
+                          "journalKind",
+                          "reference",
+                          "amount",
+                          "currency",
+                          "postedAt"
+                        ],
+                        "properties": {
+                          "id": { "format": "uuid", "type": "string" },
+                          "journalId": { "format": "uuid", "type": "string" },
+                          "accountId": { "format": "uuid", "type": "string" },
+                          "journalKind": { "type": "string" },
+                          "reference": { "type": "string" },
+                          "amount": { "pattern": "^-?\\d+\\.\\d{2}$", "type": "string" },
+                          "currency": { "type": "string" },
+                          "postedAt": { "type": "string" }
+                        }
+                      }
+                    },
+                    "nextCursor": { "anyOf": [{ "type": "string" }, { "type": "null" }] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transfers": {
+      "post": {
+        "operationId": "createTransfer",
+        "tags": ["Transfers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sourceAccountId", "destinationAccountId", "amount", "currency"],
+                "properties": {
+                  "sourceAccountId": { "format": "uuid", "type": "string" },
+                  "destinationAccountId": { "format": "uuid", "type": "string" },
+                  "amount": { "pattern": "^(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?$", "type": "string" },
+                  "currency": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["USD"] },
+                      { "type": "string", "enum": ["MXN"] }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": { "minLength": 8, "maxLength": 128, "type": "string" },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transfers/{transferId}": {
+      "get": {
+        "operationId": "getTransfer",
+        "tags": ["Transfers"],
+        "parameters": [
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "transferId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operations/reconciliation": {
+      "get": {
+        "operationId": "runReconciliation",
+        "tags": ["Operations"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["checkedAccounts", "discrepancies"],
+                  "properties": {
+                    "checkedAccounts": { "minimum": 0, "type": "integer" },
+                    "discrepancies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["accountId", "cachedMinor", "ledgerMinor"],
+                        "properties": {
+                          "accountId": { "format": "uuid", "type": "string" },
+                          "cachedMinor": { "type": "string" },
+                          "ledgerMinor": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": { "get": { "responses": { "200": { "description": "Default Response" } } } },
+    "/health/ready": { "get": { "responses": { "200": { "description": "Default Response" } } } },
+    "/openapi.json": { "get": { "responses": { "200": { "description": "Default Response" } } } }
+  }
+}

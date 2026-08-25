@@ -1,11 +1,14 @@
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { registerAccountRoutes } from './accounts/routes.ts';
 import { registerAuthentication } from './auth/plugin.ts';
 import type { Database } from './platform/database.ts';
 import { createLoggerOptions } from './observability/logger.ts';
 import { registerMetrics } from './observability/metrics.ts';
+import { registerTracing } from './observability/tracing.ts';
+import { registerOpenApi } from './platform/openapi.ts';
 import { registerProblemHandler } from './platform/problem.ts';
 import { registerTransferRoutes } from './transfers/routes.ts';
+import { registerReconciliationRoutes } from './reconciliation/routes.ts';
 
 export interface DatabaseHealth {
   ping(): Promise<void>;
@@ -22,16 +25,20 @@ export const buildApp = async (options: AppOptions): Promise<FastifyInstance> =>
   const app = Fastify({
     logger: createLoggerOptions(options.logLevel ?? 'silent'),
     requestIdHeader: 'x-request-id',
+    logController: new LogController({ disableRequestLogging: true }),
   });
 
+  registerTracing(app);
   registerProblemHandler(app);
-  if (options.metricsToken) registerMetrics(app, options.metricsToken);
+  await registerOpenApi(app);
+  registerMetrics(app, options.metricsToken);
 
   if (options.database) {
     if (!options.authSecret) throw new Error('missing_app_option:authSecret');
     registerAuthentication(app, options.authSecret);
     registerAccountRoutes(app, options.database);
     registerTransferRoutes(app, options.database);
+    registerReconciliationRoutes(app, options.database);
   }
 
   app.get('/health/live', () => ({ status: 'alive' }));
@@ -42,6 +49,7 @@ export const buildApp = async (options: AppOptions): Promise<FastifyInstance> =>
     await options.database.ping();
     return { status: 'ready' };
   });
+  app.get('/openapi.json', () => app.swagger());
 
   await app.ready();
   return app;

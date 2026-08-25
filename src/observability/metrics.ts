@@ -54,7 +54,7 @@ export const createMetrics = (): ServiceMetrics => {
   };
 };
 
-export const registerMetrics = (app: FastifyInstance, token: string): void => {
+export const registerMetrics = (app: FastifyInstance, token?: string): void => {
   const metrics = createMetrics();
   app.decorate('serviceMetrics', metrics);
 
@@ -69,15 +69,28 @@ export const registerMetrics = (app: FastifyInstance, token: string): void => {
     metrics.httpRequests.inc(labels);
     const elapsed = Number(process.hrtime.bigint() - request.startTime) / 1_000_000_000;
     metrics.httpDuration.observe(labels, elapsed);
+    request.log.info(
+      {
+        request_id: request.id,
+        ...(request.traceId ? { trace_id: request.traceId } : {}),
+        method: request.method,
+        route,
+        status_code: reply.statusCode,
+        duration_ms: Number((elapsed * 1000).toFixed(3)),
+      },
+      'request completed',
+    );
     done();
   });
 
-  app.get('/metrics', async (request, reply) => {
-    if (request.headers.authorization !== `Bearer ${token}`) {
-      return reply.status(401).send({ status: 'unauthorized' });
-    }
-    return reply.type(metrics.registry.contentType).send(await metrics.registry.metrics());
-  });
+  if (token) {
+    app.get('/metrics', async (request, reply) => {
+      if (request.headers.authorization !== `Bearer ${token}`) {
+        return reply.status(401).send({ status: 'unauthorized' });
+      }
+      return reply.type(metrics.registry.contentType).send(await metrics.registry.metrics());
+    });
+  }
 };
 
 declare module 'fastify' {

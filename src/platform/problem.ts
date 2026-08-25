@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import * as Sentry from '@sentry/node';
 import { AuthenticationError, AuthorizationError } from '../auth/plugin.ts';
 
 export interface ProblemDetails {
@@ -76,6 +77,9 @@ export const registerProblemHandler = (app: FastifyInstance): void => {
         } satisfies ProblemDetails);
     }
     request.log.error({ err: error, code: 'internal_error' }, 'request failed');
+    Sentry.captureException(error, {
+      tags: { request_id: request.id, route: request.routeOptions.url ?? 'unmatched' },
+    });
     const body: ProblemDetails = {
       type: 'about:blank',
       title: 'Internal Server Error',

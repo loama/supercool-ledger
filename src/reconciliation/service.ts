@@ -18,17 +18,24 @@ export interface ReconciliationResult {
   discrepancies: ReconciliationDiscrepancy[];
 }
 
-export const reconcile = async (database: Database): Promise<ReconciliationResult> => {
-  const result = await database.query<ReconciliationRow>(`
+export const reconcile = async (
+  database: Database,
+  tenantId?: string,
+): Promise<ReconciliationResult> => {
+  const result = await database.query<ReconciliationRow>(
+    `
     SELECT
       a.id AS account_id,
       a.balance_minor::text AS cached_minor,
       COALESCE(sum(p.amount_minor), 0)::text AS ledger_minor
     FROM accounts a
     LEFT JOIN postings p ON p.account_id = a.id
+    WHERE ($1::uuid IS NULL OR a.tenant_id = $1)
     GROUP BY a.id, a.balance_minor
     ORDER BY a.id
-  `);
+  `,
+    [tenantId ?? null],
+  );
   const discrepancies = result.rows
     .filter((row) => row.cached_minor !== row.ledger_minor)
     .map((row) => ({

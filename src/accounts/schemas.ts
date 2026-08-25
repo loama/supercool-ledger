@@ -18,5 +18,27 @@ export const AccountSchema = Type.Object({
   createdAt: Type.String(),
 });
 
+export const AccountEntriesQuerySchema = Type.Object({
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100, default: 50 })),
+  cursor: Type.Optional(Type.String({ minLength: 1, maxLength: 512 })),
+});
+
+export const AccountEntrySchema = Type.Object({
+  id: Type.String({ format: 'uuid' }),
+  journalId: Type.String({ format: 'uuid' }),
+  accountId: Type.String({ format: 'uuid' }),
+  journalKind: Type.String(),
+  reference: Type.String(),
+  amount: Type.String({ pattern: '^-?\\d+\\.\\d{2}$' }),
+  currency: Type.String(),
+  postedAt: Type.String(),
+});
+
+export const AccountEntriesSchema = Type.Object({
+  entries: Type.Array(AccountEntrySchema),
+  nextCursor: Type.Union([Type.String(), Type.Null()]),
+});
+
 export type AccountIdParams = Static<typeof AccountIdParamsSchema>;
+export type AccountEntriesQuery = Static<typeof AccountEntriesQuerySchema>;
 export type CreateAccountInput = Static<typeof CreateAccountSchema>;
