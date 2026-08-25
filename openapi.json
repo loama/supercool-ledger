@@ -1,0 +1,1048 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SuperCool Ledger API",
+    "description": "Account balances backed by an immutable double entry ledger.",
+    "version": "0.1.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" },
+      "metricsAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Dedicated metrics token, separate from customer JWTs."
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/metrics": {
+      "get": {
+        "tags": ["Operations"],
+        "security": [{ "metricsAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": { "application/json": { "schema": { "type": "string" } } }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status"],
+                  "properties": { "status": { "type": "string", "enum": ["unauthorized"] } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts": {
+      "post": {
+        "operationId": "createAccount",
+        "tags": ["Accounts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "currency"],
+                "properties": {
+                  "name": { "minLength": 1, "maxLength": 120, "type": "string" },
+                  "currency": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["USD"] },
+                      { "type": "string", "enum": ["MXN"] }
+                    ]
+                  }
+                }
+              },
+              "example": { "name": "Operating USD", "currency": "USD" }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "name", "currency", "balance", "status", "createdAt"],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "name": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
+                    "status": { "type": "string" },
+                    "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "name": "Operating USD",
+                  "currency": "USD",
+                  "balance": "1000.00",
+                  "status": "active",
+                  "createdAt": "2026-08-25T20:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "detail": "The request did not match the API contract.",
+                  "instance": "/v1/transfers",
+                  "code": "validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}": {
+      "get": {
+        "operationId": "getAccount",
+        "tags": ["Accounts"],
+        "parameters": [
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "accountId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "name", "currency", "balance", "status", "createdAt"],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "name": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "balance": { "pattern": "^\\d+\\.\\d{2}$", "type": "string" },
+                    "status": { "type": "string" },
+                    "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "name": "Operating USD",
+                  "currency": "USD",
+                  "balance": "1000.00",
+                  "status": "active",
+                  "createdAt": "2026-08-25T20:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "detail": "The request did not match the API contract.",
+                  "instance": "/v1/transfers",
+                  "code": "validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Not Found",
+                  "status": 404,
+                  "detail": "Account not found",
+                  "instance": "/v1/accounts/3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "code": "account_not_found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}/entries": {
+      "get": {
+        "operationId": "listAccountEntries",
+        "tags": ["Accounts"],
+        "parameters": [
+          {
+            "schema": { "minimum": 1, "maximum": 100, "default": 50, "type": "integer" },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "minLength": 1, "maxLength": 512, "type": "string" },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "accountId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["entries", "nextCursor"],
+                  "properties": {
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "journalId",
+                          "accountId",
+                          "journalKind",
+                          "reference",
+                          "amount",
+                          "currency",
+                          "postedAt"
+                        ],
+                        "properties": {
+                          "id": { "format": "uuid", "type": "string" },
+                          "journalId": { "format": "uuid", "type": "string" },
+                          "accountId": { "format": "uuid", "type": "string" },
+                          "journalKind": { "type": "string" },
+                          "reference": { "type": "string" },
+                          "amount": { "pattern": "^-?\\d+\\.\\d{2}$", "type": "string" },
+                          "currency": { "type": "string" },
+                          "postedAt": { "type": "string" }
+                        }
+                      }
+                    },
+                    "nextCursor": { "anyOf": [{ "type": "string" }, { "type": "null" }] }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "detail": "The request did not match the API contract.",
+                  "instance": "/v1/transfers",
+                  "code": "validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Not Found",
+                  "status": 404,
+                  "detail": "Account not found",
+                  "instance": "/v1/accounts/3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "code": "account_not_found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transfers": {
+      "post": {
+        "operationId": "createTransfer",
+        "tags": ["Transfers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sourceAccountId", "destinationAccountId", "amount", "currency"],
+                "properties": {
+                  "sourceAccountId": { "format": "uuid", "type": "string" },
+                  "destinationAccountId": { "format": "uuid", "type": "string" },
+                  "amount": { "pattern": "^(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?$", "type": "string" },
+                  "currency": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["USD"] },
+                      { "type": "string", "enum": ["MXN"] }
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                "amount": "250.00",
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": { "minLength": 8, "maxLength": 128, "type": "string" },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "detail": "The request did not match the API contract.",
+                  "instance": "/v1/transfers",
+                  "code": "validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Not Found",
+                  "status": 404,
+                  "detail": "Account not found",
+                  "instance": "/v1/accounts/3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "code": "account_not_found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Request Rejected",
+                  "status": 409,
+                  "detail": "The key was already used for another request.",
+                  "instance": "/v1/transfers",
+                  "code": "idempotency_conflict"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Request Rejected",
+                  "status": 422,
+                  "detail": "The source account has insufficient funds.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_funds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transfers/{transferId}": {
+      "get": {
+        "operationId": "getTransfer",
+        "tags": ["Transfers"],
+        "parameters": [
+          {
+            "schema": { "format": "uuid", "type": "string" },
+            "in": "path",
+            "name": "transferId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sourceAccountId",
+                    "destinationAccountId",
+                    "amount",
+                    "currency",
+                    "status",
+                    "createdAt"
+                  ],
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "sourceAccountId": { "format": "uuid", "type": "string" },
+                    "destinationAccountId": { "format": "uuid", "type": "string" },
+                    "amount": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "status": { "type": "string", "enum": ["completed"] },
+                    "createdAt": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "id": "7fa2d351-7f5e-437c-ad3c-d64447266d43",
+                  "sourceAccountId": "3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "destinationAccountId": "8695b095-d7e2-4d77-9c6e-388c3efb1385",
+                  "amount": "250.00",
+                  "currency": "USD",
+                  "status": "completed",
+                  "createdAt": "2026-08-25T20:05:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "detail": "The request did not match the API contract.",
+                  "instance": "/v1/transfers",
+                  "code": "validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Not Found",
+                  "status": 404,
+                  "detail": "Account not found",
+                  "instance": "/v1/accounts/3179592d-b63f-40c0-9c7f-1cfeb468379f",
+                  "code": "account_not_found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operations/reconciliation": {
+      "get": {
+        "operationId": "runReconciliation",
+        "tags": ["Operations"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["checkedAccounts", "discrepancies"],
+                  "properties": {
+                    "checkedAccounts": { "minimum": 0, "type": "integer" },
+                    "discrepancies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["accountId", "cachedMinor", "ledgerMinor"],
+                        "properties": {
+                          "accountId": { "format": "uuid", "type": "string" },
+                          "cachedMinor": { "type": "string" },
+                          "ledgerMinor": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": { "checkedAccounts": 3, "discrepancies": [] }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Authentication is required.",
+                  "instance": "/v1/transfers",
+                  "code": "authentication_required"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "title", "status", "detail", "instance", "code"],
+                  "properties": {
+                    "type": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "instance": { "type": "string" },
+                    "code": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "type": "about:blank",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "detail": "The token does not grant this operation.",
+                  "instance": "/v1/transfers",
+                  "code": "insufficient_scope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": { "get": { "responses": { "200": { "description": "Default Response" } } } },
+    "/health/ready": { "get": { "responses": { "200": { "description": "Default Response" } } } },
+    "/openapi.json": { "get": { "responses": { "200": { "description": "Default Response" } } } }
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+video/out/frames/
+video/assets/narration*.mp3
+*.log
+.DS_Store

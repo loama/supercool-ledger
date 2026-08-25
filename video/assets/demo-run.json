@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-08-25T21:16:26.047Z",
+  "accounts": {
+    "sourceAccountId": "3c14fe39-ec40-42d9-9efc-b67d3d3e70b8",
+    "destinationAccountId": "60cf7743-a9f3-4d0d-8878-f479f2f44449",
+    "openingBalance": "1000.00"
+  },
+  "success": {
+    "status": 201,
+    "body": {
+      "id": "2e4af984-5c04-4bea-a54c-002aacefef5f",
+      "sourceAccountId": "3c14fe39-ec40-42d9-9efc-b67d3d3e70b8",
+      "destinationAccountId": "60cf7743-a9f3-4d0d-8878-f479f2f44449",
+      "amount": "250.00",
+      "currency": "USD",
+      "status": "completed",
+      "createdAt": "2026-08-25T21:16:26.013Z"
+    }
+  },
+  "replay": {
+    "status": 200,
+    "body": {
+      "id": "2e4af984-5c04-4bea-a54c-002aacefef5f",
+      "sourceAccountId": "3c14fe39-ec40-42d9-9efc-b67d3d3e70b8",
+      "destinationAccountId": "60cf7743-a9f3-4d0d-8878-f479f2f44449",
+      "amount": "250.00",
+      "currency": "USD",
+      "status": "completed",
+      "createdAt": "2026-08-25T21:16:26.013Z"
+    },
+    "sameTransfer": true
+  },
+  "overspend": {
+    "status": 422,
+    "code": "insufficient_funds"
+  },
+  "reconciliation": {
+    "checkedAccounts": 3,
+    "discrepancies": []
+  },
+  "postings": [
+    {
+      "accountId": "3c14fe39-ec40-42d9-9efc-b67d3d3e70b8",
+      "amountMinor": "-25000"
+    },
+    {
+      "accountId": "60cf7743-a9f3-4d0d-8878-f479f2f44449",
+      "amountMinor": "25000"
+    }
+  ]
+}
