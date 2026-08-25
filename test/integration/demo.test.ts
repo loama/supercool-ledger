@@ -26,6 +26,15 @@ afterAll(async () => {
 });
 
 test('captures success replay rejection and reconciliation from the running service', async () => {
+  const unrelatedTenant = await pool.query<{ id: string }>(
+    "INSERT INTO tenants (name) VALUES ('Unrelated Tenant') RETURNING id",
+  );
+  const unrelatedTenantId = unrelatedTenant.rows[0]?.id;
+  if (!unrelatedTenantId) throw new Error('tenant_fixture_failed');
+  await pool.query(
+    "INSERT INTO accounts (tenant_id, name, currency) VALUES ($1, 'Unrelated', 'USD')",
+    [unrelatedTenantId],
+  );
   const result = await runDemo(database, 'a-development-secret-with-more-than-32-characters');
   expect(result.success.status).toBe(201);
   expect(result.replay.status).toBe(200);
@@ -33,6 +42,7 @@ test('captures success replay rejection and reconciliation from the running serv
   expect(result.overspend.status).toBe(422);
   expect(result.overspend.code).toBe('insufficient_funds');
   expect(result.reconciliation.discrepancies).toEqual([]);
+  expect(result.reconciliation.checkedAccounts).toBe(3);
   expect(JSON.stringify(result)).not.toContain('Bearer ');
   expect(JSON.stringify(result)).not.toContain('demo-transfer-key');
 });

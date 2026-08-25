@@ -80,7 +80,7 @@ export const runDemo = async (database: Database, authSecret: string): Promise<D
         status: overspendResponse.statusCode,
         code: overspendBody.code ?? 'unknown_error',
       },
-      reconciliation: await reconcile(database),
+      reconciliation: await reconcile(database, seed.tenantId),
       postings: postingRows.rows.map((row) => ({
         accountId: row.account_id,
         amountMinor: row.amount_minor,
