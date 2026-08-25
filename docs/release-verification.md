@@ -15,7 +15,7 @@ This record describes the final evidence for the public assessment release on 26
 
 ## Local verification
 
-`bun run check` completed with 55 passing tests, 343 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 55 passing tests, 344 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
