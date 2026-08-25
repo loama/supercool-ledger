@@ -200,3 +200,16 @@ test('rejects transfers for a suspended tenant', async () => {
     await pool.query("UPDATE tenants SET status = 'active' WHERE id = $1", [tenantId]);
   }
 });
+
+test('rejects system accounts in customer initiated transfers', async () => {
+  for (const accountId of [sourceId, destinationId]) {
+    await pool.query("UPDATE accounts SET kind = 'system' WHERE id = $1", [accountId]);
+    try {
+      const response = await transfer(`system-account-${accountId}`, '10.00');
+      expect(response.statusCode).toBe(422);
+      expect(JSON.parse(response.body)).toMatchObject({ code: 'system_account_restricted' });
+    } finally {
+      await pool.query("UPDATE accounts SET kind = 'customer' WHERE id = $1", [accountId]);
+    }
+  }
+});

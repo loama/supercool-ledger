@@ -47,7 +47,12 @@ test('reports a clean ledger', async () => {
 });
 
 test('detects drift without repairing the cached balance', async () => {
-  await pool.query('UPDATE accounts SET balance_minor = 4999 WHERE id = $1', [accountId]);
+  await pool.query('ALTER TABLE accounts DISABLE TRIGGER account_balance_consistent');
+  try {
+    await pool.query('UPDATE accounts SET balance_minor = 4999 WHERE id = $1', [accountId]);
+  } finally {
+    await pool.query('ALTER TABLE accounts ENABLE TRIGGER account_balance_consistent');
+  }
   const result = await reconcile(database);
   expect(result.discrepancies).toEqual([{ accountId, cachedMinor: '4999', ledgerMinor: '5000' }]);
   const after = await pool.query<{ balance_minor: string }>(

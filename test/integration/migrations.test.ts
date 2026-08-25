@@ -56,11 +56,30 @@ test('migrates an empty database with the financial tables and triggers', async 
   expect(new Set(triggers.rows.map((row) => row.trigger_name))).toEqual(
     new Set([
       'audit_events_immutable',
+      'account_balance_consistent',
       'journal_transactions_immutable',
+      'journal_postings_complete',
+      'posting_balance_consistent',
       'posting_context_valid',
       'postings_balanced',
       'postings_immutable',
       'reversal_context_valid',
+      'transfer_postings_complete',
     ]),
   );
+
+  await pool.query(
+    "UPDATE schema_migrations SET checksum = repeat('0', 64) WHERE name = '001_initial.sql'",
+  );
+  let checksumError: unknown;
+  try {
+    await migrate(pool);
+  } catch (error) {
+    checksumError = error;
+  }
+  expect(checksumError).toMatchObject({
+    message: 'migration_checksum_mismatch:001_initial.sql',
+  });
+  await pool.query("UPDATE schema_migrations SET checksum = NULL WHERE name = '001_initial.sql'");
+  await migrate(pool);
 });

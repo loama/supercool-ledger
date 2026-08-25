@@ -12,6 +12,7 @@ interface LockedAccount extends QueryResultRow {
   currency: Currency;
   balance_minor: string;
   status: 'active' | 'closed';
+  kind: 'customer' | 'system';
 }
 
 interface IdempotencyRow extends QueryResultRow {
@@ -151,7 +152,7 @@ export class TransferService {
         }
 
         const locked = await client.query<LockedAccount>(
-          `SELECT id, currency, balance_minor, status
+          `SELECT id, currency, balance_minor, status, kind
          FROM accounts
          WHERE tenant_id = $1 AND id = ANY($2::uuid[])
          ORDER BY id FOR UPDATE`,
@@ -167,6 +168,13 @@ export class TransferService {
         if (!source || !destination) throw new Error('locked_account_mapping_failed');
         if (source.status !== 'active' || destination.status !== 'active') {
           throw new ServiceError(422, 'account_inactive', 'Both accounts must be active.');
+        }
+        if (source.kind !== 'customer' || destination.kind !== 'customer') {
+          throw new ServiceError(
+            422,
+            'system_account_restricted',
+            'Customer transfers cannot use system accounts.',
+          );
         }
         if (source.currency !== money.currency || destination.currency !== money.currency) {
           throw new ServiceError(
