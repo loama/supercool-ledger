@@ -23,6 +23,8 @@ services:
         value: 0.0.0.0
       - key: LOG_LEVEL
         value: info
+      - key: SANDBOX_ENABLED
+        value: true
 
 databases:
   - name: supercool-ledger-db

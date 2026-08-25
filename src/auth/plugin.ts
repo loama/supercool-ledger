@@ -21,7 +21,10 @@ export const registerAuthentication = (app: FastifyInstance, secret: string): vo
       request.url === '/docs' ||
       request.url.startsWith('/docs/') ||
       request.url === '/openapi.json' ||
-      request.url === '/metrics'
+      request.url === '/metrics' ||
+      request.url === '/v1/sandbox/sessions' ||
+      request.url === '/sandbox' ||
+      request.url.startsWith('/sandbox/')
     ) {
       return;
     }

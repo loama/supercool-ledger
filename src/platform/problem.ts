@@ -65,6 +65,13 @@ export const UnprocessableProblemSchema = documentedProblem(
   '/v1/transfers',
   'insufficient_funds',
 );
+export const TooManyRequestsProblemSchema = documentedProblem(
+  429,
+  'Request Rejected',
+  'The public sandbox is at capacity. Try again later.',
+  '/v1/sandbox/sessions',
+  'sandbox_capacity_reached',
+);
 
 export interface ProblemDetails {
   type: string;
