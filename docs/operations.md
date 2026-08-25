@@ -6,15 +6,17 @@ Render builds the Dockerfile, runs `bun run db:migrate`, starts the new instance
 
 ## Migrations
 
-Migrations are ordered SQL files. The runner takes a PostgreSQL advisory lock, checks applied files, and records each new file inside its database transaction. Concurrent runners therefore serialize. Financial schema changes require compatible application rollout and a tested recovery procedure.
+Migrations are ordered SQL files. The runner takes a PostgreSQL advisory lock, checks applied files, stores their SHA 256 checksums, and records each new file inside its database transaction. Concurrent runners therefore serialize. A changed applied file stops deployment and must be replaced by a new migration. Financial schema changes require compatible application rollout and a tested recovery procedure.
 
-Readiness checks the latest expected migration in addition to database connectivity. A reachable but stale database does not receive traffic.
+Readiness checks every migration shipped with the running artifact in addition to database connectivity. It uses a bounded connection attempt and returns `503` for an unavailable or stale database. A reachable but stale database does not receive traffic.
 
 ## Reconciliation
 
 Run `bun run reconcile`. A clean run exits with zero. Any discrepancy produces a failure result. Do not repair the cached balance until the ledger and incident history explain the mismatch.
 
 The authenticated reconciliation endpoint writes an immutable audit outcome with only the discrepancy count. It does not place account identifiers or balances in audit metadata.
+
+The Render Blueprint never seeds demonstration money automatically. Reviewers invoke `bun run demo` explicitly against an assessment database.
 
 ## Incident sequence
 

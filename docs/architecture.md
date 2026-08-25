@@ -12,6 +12,8 @@ Immutable postings are the financial record. `accounts.balance_minor` is a cache
 
 Postings carry the journal tenant. Composite foreign keys require every posting, transfer account, and transfer journal to share the same tenant and currency. A reversal trigger requires the original journal and reversal to belong to the same tenant. These checks protect the ledger even when a future script bypasses the HTTP layer.
 
+Deferred commit checks cover both sides of each relationship. Every journal must contain balanced postings, every completed transfer must contain exactly its declared debit and credit, and every cached account balance must equal the immutable posting sum. A script cannot create an empty journal, invent a completed transfer, insert postings without updating balances, or update a balance without postings.
+
 Every monetary value is an integer minor unit. The API accepts decimal strings and returns decimal strings. JavaScript floating point values never represent money.
 
 ## Concurrency
@@ -21,6 +23,8 @@ The service uses `READ COMMITTED` with explicit account row locks. A transfer lo
 The second transfer reads the balance only after it obtains the lock. It cannot spend a stale value.
 
 Financial writes also take a shared lock on the tenant. Suspending a tenant waits for current work, then prevents new account creation and transfers.
+
+The customer transfer API rejects system accounts on either side. Opening balances and future settlement flows require a separate privileged path rather than reusing customer authorization.
 
 ## Idempotency
 
@@ -36,7 +40,7 @@ An identical replay returns the stored result. A different payload returns a con
 4. An unbalanced journal fails at commit through a deferred database trigger.
 5. A reconciliation mismatch emits an operational failure and never repairs history automatically.
 
-Migration runners serialize through a PostgreSQL advisory lock. Readiness requires both database access and the latest expected migration.
+Migration runners serialize through a PostgreSQL advisory lock. Each applied file stores a SHA 256 checksum, and changed history stops deployment. Readiness compares the database with every migration included in the running artifact.
 
 ## Availability choice
 

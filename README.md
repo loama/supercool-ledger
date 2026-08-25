@@ -43,6 +43,9 @@ Request, response, replay, conflict, insufficient funds, and reconciliation exam
 7. Internal transfers conserve total money.
 8. Every query enforces the authenticated tenant.
 9. Reconciliation derives each cached balance from immutable postings.
+10. Every journal has at least two balanced postings, including journals created outside the API.
+11. Every completed transfer has exactly the declared source and destination postings.
+12. Every cached balance equals its immutable posting sum at commit.
 
 ## Transfer path
 
@@ -135,6 +138,10 @@ The risk evidence is direct:
 | Cross tenant ledger data | Composite database foreign keys                    | `test/integration/ledger-constraints.test.ts`   |
 | Suspended tenant writes  | Transactional tenant status lock                   | `test/integration/transfers-api.test.ts`        |
 | Concurrent migrations    | PostgreSQL advisory lock                           | `test/integration/migrations.test.ts`           |
+| Changed migration file   | Stored SHA 256 checksum                            | `test/integration/migrations.test.ts`           |
+| Empty journal            | Deferred journal constraint                        | `test/integration/ledger-constraints.test.ts`   |
+| Direct balance mutation  | Deferred balance to ledger constraint              | `test/integration/ledger-constraints.test.ts`   |
+| System account access    | Customer transfer policy                           | `test/integration/transfers-api.test.ts`        |
 
 ## Observability
 
