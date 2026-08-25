@@ -76,7 +76,15 @@ export const registerProblemHandler = (app: FastifyInstance): void => {
           code: error.code,
         } satisfies ProblemDetails);
     }
-    request.log.error({ err: error, code: 'internal_error' }, 'request failed');
+    request.log.error(
+      {
+        err: error,
+        code: 'internal_error',
+        request_id: request.id,
+        ...(request.traceId ? { trace_id: request.traceId } : {}),
+      },
+      'request failed',
+    );
     Sentry.captureException(error, {
       tags: { request_id: request.id, route: request.routeOptions.url ?? 'unmatched' },
     });
