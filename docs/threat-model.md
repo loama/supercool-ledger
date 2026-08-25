@@ -1,0 +1,20 @@
+# Threat model
+
+## Protected assets
+
+The protected assets are balances, immutable ledger history, tenant boundaries, authentication material, database credentials, and operational evidence.
+
+## Threats and controls
+
+1. Duplicate requests could move money twice. A tenant scoped unique idempotency key and stored response prevent it.
+2. Concurrent debits could overspend an account. PostgreSQL row locks serialize balance mutation.
+3. A caller could name another tenant's account. Every resource query includes the authenticated tenant identifier and returns a generic not found response.
+4. SQL injection could alter ledger data. Every value uses a parameterized query and route schemas reject malformed input.
+5. A compromised log destination could reveal financial data. Logger redaction removes tokens, keys, request bodies, names, balances, and connection strings.
+6. An application defect could create an unbalanced journal. A deferred database constraint rejects the commit.
+7. A privileged process could alter history. Database triggers reject updates and deletion of posted journals and postings.
+8. A denial of service attempt could exhaust connections. The pool is bounded, payloads are schema limited, and deployment rate limits belong at the edge.
+
+## Residual risk
+
+The development JWT issuer is not a production identity system. The hosted assessment uses synthetic data. A production service would use a managed identity provider, key rotation, database role separation, network isolation, external rate limiting, and incident tested recovery.
