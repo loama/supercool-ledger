@@ -9,6 +9,7 @@
     "noImplicitOverride": true,
     "useUnknownInCatchVariables": true,
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "allowJs": true,

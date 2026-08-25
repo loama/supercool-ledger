@@ -1,0 +1,7 @@
+{
+  "provider": "ElevenLabs",
+  "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+  "modelId": "eleven_multilingual_v2",
+  "characters": 2034,
+  "output": "video/public/narration.mp3"
+}
