@@ -73,6 +73,28 @@ test('requires authentication', async () => {
   expect(response.statusCode).toBe(401);
 });
 
+test('hides accounts owned by another tenant', async () => {
+  const otherTenant = await pool.query<{ id: string }>(
+    "INSERT INTO tenants (name) VALUES ('Other Tenant') RETURNING id",
+  );
+  const otherTenantId = otherTenant.rows[0]?.id;
+  if (!otherTenantId) throw new Error('tenant_fixture_failed');
+  const otherAccount = await pool.query<{ id: string }>(
+    "INSERT INTO accounts (tenant_id, name, currency) VALUES ($1, 'Private', 'USD') RETURNING id",
+    [otherTenantId],
+  );
+  const otherAccountId = otherAccount.rows[0]?.id;
+  if (!otherAccountId) throw new Error('account_fixture_failed');
+
+  const response = await app.inject({
+    method: 'GET',
+    url: `/v1/accounts/${otherAccountId}`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+  expect(response.statusCode).toBe(404);
+  expect(JSON.parse(response.body)).toMatchObject({ code: 'account_not_found' });
+});
+
 test('lists immutable ledger entries for an account', async () => {
   const created = await app.inject({
     method: 'POST',
