@@ -531,7 +531,7 @@ const Closing = () => (
           <div style={{ marginTop: 42, fontSize: 31, lineHeight: 1.8 }}>
             Immutable ledger
             <br />
-            Real concurrency proof
+            Concurrency tests included
             <br />
             OpenAPI and Docker
             <br />
