@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: supercool-ledger
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    preDeployCommand: bun run db:migrate
+    initialDeployHook: bun run demo
+    healthCheckPath: /health/ready
+    maxShutdownDelaySeconds: 30
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: supercool-ledger-db
+          property: connectionString
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: METRICS_TOKEN
+        generateValue: true
+      - key: HOST
+        value: 0.0.0.0
+      - key: LOG_LEVEL
+        value: info
+
+databases:
+  - name: supercool-ledger-db
+    plan: basic-256mb
+    region: frankfurt
+    postgresMajorVersion: '17'
+    diskSizeGB: 15
+    storageAutoscalingEnabled: false
+    connectionPool: none
+    ipAllowList: []
