@@ -9,13 +9,17 @@ The service uses TypeScript, Bun, Fastify, and PostgreSQL. It is intentionally s
 1. Read the invariants below.
 2. Run `bun run demo` to watch success, replay, rejection, and reconciliation.
 3. Read `src/transfers/service.ts` for the complete write transaction.
-4. Read `migrations/001_initial.sql` for the database constraints and immutable ledger triggers.
+4. Read `migrations/` for the database constraints and immutable ledger triggers.
 5. Run `bun test test/integration/transfer-concurrency.test.ts` for the competing spend proof.
 6. Open `/docs` for the interactive API contract.
 7. Read `docs/ai-usage/` for the visible AI interaction record.
 8. Watch `video/out/supercool-ledger.mp4` for the narrated design and execution walkthrough.
 
 Public repository: https://github.com/loama/supercool-ledger
+
+Live service: https://supercool-ledger.onrender.com
+
+Interactive API reference: https://supercool-ledger.onrender.com/docs/
 
 ## API surface
 
@@ -159,6 +163,8 @@ See `docs/observability.md` for metrics and alert guidance.
 
 The Dockerfile pins Bun and uses the same application runtime locally, in CI, and on Render.
 
+The verified public deployment is https://supercool-ledger.onrender.com. Its release evidence is recorded in `docs/release-verification.md`.
+
 ## Deliberate exclusions
 
 This version does not implement foreign exchange, external bank settlement, cards, holds, interest, account deletion, distributed transactions, or a customer interface. Adding those features would require product policy that the assessment does not define.
@@ -174,6 +180,7 @@ This version does not implement foreign exchange, external bank settlement, card
 7. `docs/ai-usage/` records visible project prompts and responses.
 8. `docs/references.md` links the primary technical references used for the design.
 9. `docs/video.md` explains how the walkthrough is generated and verified.
+10. `docs/release-verification.md` records the final local, GitHub, container, media, and Render evidence.
 
 ## License
 
