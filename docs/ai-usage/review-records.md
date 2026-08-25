@@ -46,15 +46,15 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Put this sequence near the top:
 >
->    • One sentence describing the service and its correctness promise  
->    • A working demo link and local quickstart  
->    • A short architecture diagram  
->    • The ledger invariants  
->    • The transaction and locking model  
->    • API examples linked to the OpenAPI document  
->    • Test evidence  
->    • Security and operations  
->    • Tradeoffs and known limits  
+>    • One sentence describing the service and its correctness promise
+>    • A working demo link and local quickstart
+>    • A short architecture diagram
+>    • The ledger invariants
+>    • The transaction and locking model
+>    • API examples linked to the OpenAPI document
+>    • Test evidence
+>    • Security and operations
+>    • Tradeoffs and known limits
 >    • AI transcript appendix
 >
 >    Add a small “review this in ten minutes” section with exact files and commands. This makes the repository feel deliberate instead of expansive.
@@ -73,11 +73,11 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Write them as assertions a reviewer can test:
 >
->    • Every posted transaction has balanced debits and credits.  
->    • Ledger entries are append only.  
->    • A request key cannot produce two transfers.  
->    • A balance is never updated without corresponding ledger entries.  
->    • Concurrent transfers cannot spend the same available funds.  
+>    • Every posted transaction has balanced debits and credits.
+>    • Ledger entries are append only.
+>    • A request key cannot produce two transfers.
+>    • A balance is never updated without corresponding ledger entries.
+>    • Concurrent transfers cannot spend the same available funds.
 >    • Reconciliation detects divergence between the ledger and stored balances.
 >
 >    Then point to the schema, transaction code, and tests that enforce each one.
@@ -86,12 +86,12 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    The scripted demo should take about four minutes:
 >
->    • Create two accounts.  
->    • Fund one account.  
->    • Transfer funds and show both balances.  
->    • Repeat the same request key and show the same result without a second ledger entry.  
->    • Run concurrent transfers that compete for the same funds and show that only valid work commits.  
->    • Run reconciliation and show a clean result.  
+>    • Create two accounts.
+>    • Fund one account.
+>    • Transfer funds and show both balances.
+>    • Repeat the same request key and show the same result without a second ledger entry.
+>    • Run concurrent transfers that compete for the same funds and show that only valid work commits.
+>    • Run reconciliation and show a clean result.
 >    • Display the ledger entries and the balance change together.
 >
 >    Keep the commands in `demo.sh` or an equivalent script. The reviewer should not have to invent requests or guess expected output.
@@ -100,11 +100,11 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Show a compact table mapping risk to test:
 >
->    • Double entry, transaction invariant test  
->    • Duplicate requests, idempotency test  
->    • Concurrent spending, database concurrency test  
->    • Rollback, failure injection test  
->    • Reconciliation, ledger versus balance test  
+>    • Double entry, transaction invariant test
+>    • Duplicate requests, idempotency test
+>    • Concurrent spending, database concurrency test
+>    • Rollback, failure injection test
+>    • Reconciliation, ledger versus balance test
 >    • Authorization, cross account access test
 >
 >    Include the exact command and a short captured result. A large test suite without this map is weaker than a smaller suite tied to failure modes.
@@ -113,8 +113,8 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Three ADRs are enough:
 >
->    • Why the ledger is immutable  
->    • Why balances are stored or derived, and how locks protect them  
+>    • Why the ledger is immutable
+>    • Why balances are stored or derived, and how locks protect them
 >    • Why idempotency is implemented at the database boundary
 >
 >    Each ADR should include the rejected alternative and the cost accepted. Do not create an ADR for every library choice.
@@ -127,12 +127,12 @@ This file preserves every prompt and complete response from the three architectu
 >
 > I would cut or hide anything that does not strengthen the correctness argument:
 >
-> • Multiple currencies  
-> • Event driven processing  
-> • Distributed transactions  
-> • A full admin dashboard  
-> • Complex cloud orchestration  
-> • A large generated transcript  
+> • Multiple currencies
+> • Event driven processing
+> • Distributed transactions
+> • A full admin dashboard
+> • Complex cloud orchestration
+> • A large generated transcript
 > • A polished marketing site
 >
 > A Docker based local environment plus a small, reproducible cloud deployment is enough. Infrastructure should prove repeatability and safe configuration, not become a second project.
@@ -143,15 +143,15 @@ This file preserves every prompt and complete response from the three architectu
 >
 > The repository should clearly state:
 >
-> • Balances use integer minor units, never floating point values.  
-> • Currency support is either explicit or intentionally limited to one currency.  
-> • Idempotency keys are scoped and protected by a unique database constraint.  
-> • Lock acquisition has deterministic ordering to reduce deadlocks.  
-> • Account ownership and tenant boundaries are enforced before ledger work.  
-> • No endpoint can directly mutate a balance.  
-> • Database migrations and rollback expectations are documented.  
-> • Logs do not expose credentials, account secrets, or unnecessary financial data.  
-> • Health checks, structured errors, and basic metrics exist or are listed as non goals.  
+> • Balances use integer minor units, never floating point values.
+> • Currency support is either explicit or intentionally limited to one currency.
+> • Idempotency keys are scoped and protected by a unique database constraint.
+> • Lock acquisition has deterministic ordering to reduce deadlocks.
+> • Account ownership and tenant boundaries are enforced before ledger work.
+> • No endpoint can directly mutate a balance.
+> • Database migrations and rollback expectations are documented.
+> • Logs do not expose credentials, account secrets, or unnecessary financial data.
+> • Health checks, structured errors, and basic metrics exist or are listed as non goals.
 > • Reconciliation behavior is defined when it finds a mismatch.
 >
 > The most important missing proof would be a real database concurrency test. A mocked parallel test will not convince an experienced reviewer.
@@ -741,15 +741,15 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Put this sequence near the top:
 >
->    • One sentence describing the service and its correctness promise  
->    • A working demo link and local quickstart  
->    • A short architecture diagram  
->    • The ledger invariants  
->    • The transaction and locking model  
->    • API examples linked to the OpenAPI document  
->    • Test evidence  
->    • Security and operations  
->    • Tradeoffs and known limits  
+>    • One sentence describing the service and its correctness promise
+>    • A working demo link and local quickstart
+>    • A short architecture diagram
+>    • The ledger invariants
+>    • The transaction and locking model
+>    • API examples linked to the OpenAPI document
+>    • Test evidence
+>    • Security and operations
+>    • Tradeoffs and known limits
 >    • AI transcript appendix
 >
 >    Add a small “review this in ten minutes” section with exact files and commands. This makes the repository feel deliberate instead of expansive.
@@ -768,11 +768,11 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Write them as assertions a reviewer can test:
 >
->    • Every posted transaction has balanced debits and credits.  
->    • Ledger entries are append only.  
->    • A request key cannot produce two transfers.  
->    • A balance is never updated without corresponding ledger entries.  
->    • Concurrent transfers cannot spend the same available funds.  
+>    • Every posted transaction has balanced debits and credits.
+>    • Ledger entries are append only.
+>    • A request key cannot produce two transfers.
+>    • A balance is never updated without corresponding ledger entries.
+>    • Concurrent transfers cannot spend the same available funds.
 >    • Reconciliation detects divergence between the ledger and stored balances.
 >
 >    Then point to the schema, transaction code, and tests that enforce each one.
@@ -781,12 +781,12 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    The scripted demo should take about four minutes:
 >
->    • Create two accounts.  
->    • Fund one account.  
->    • Transfer funds and show both balances.  
->    • Repeat the same request key and show the same result without a second ledger entry.  
->    • Run concurrent transfers that compete for the same funds and show that only valid work commits.  
->    • Run reconciliation and show a clean result.  
+>    • Create two accounts.
+>    • Fund one account.
+>    • Transfer funds and show both balances.
+>    • Repeat the same request key and show the same result without a second ledger entry.
+>    • Run concurrent transfers that compete for the same funds and show that only valid work commits.
+>    • Run reconciliation and show a clean result.
 >    • Display the ledger entries and the balance change together.
 >
 >    Keep the commands in `demo.sh` or an equivalent script. The reviewer should not have to invent requests or guess expected output.
@@ -795,11 +795,11 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Show a compact table mapping risk to test:
 >
->    • Double entry, transaction invariant test  
->    • Duplicate requests, idempotency test  
->    • Concurrent spending, database concurrency test  
->    • Rollback, failure injection test  
->    • Reconciliation, ledger versus balance test  
+>    • Double entry, transaction invariant test
+>    • Duplicate requests, idempotency test
+>    • Concurrent spending, database concurrency test
+>    • Rollback, failure injection test
+>    • Reconciliation, ledger versus balance test
 >    • Authorization, cross account access test
 >
 >    Include the exact command and a short captured result. A large test suite without this map is weaker than a smaller suite tied to failure modes.
@@ -808,8 +808,8 @@ This file preserves every prompt and complete response from the three architectu
 >
 >    Three ADRs are enough:
 >
->    • Why the ledger is immutable  
->    • Why balances are stored or derived, and how locks protect them  
+>    • Why the ledger is immutable
+>    • Why balances are stored or derived, and how locks protect them
 >    • Why idempotency is implemented at the database boundary
 >
 >    Each ADR should include the rejected alternative and the cost accepted. Do not create an ADR for every library choice.
@@ -822,12 +822,12 @@ This file preserves every prompt and complete response from the three architectu
 >
 > I would cut or hide anything that does not strengthen the correctness argument:
 >
-> • Multiple currencies  
-> • Event driven processing  
-> • Distributed transactions  
-> • A full admin dashboard  
-> • Complex cloud orchestration  
-> • A large generated transcript  
+> • Multiple currencies
+> • Event driven processing
+> • Distributed transactions
+> • A full admin dashboard
+> • Complex cloud orchestration
+> • A large generated transcript
 > • A polished marketing site
 >
 > A Docker based local environment plus a small, reproducible cloud deployment is enough. Infrastructure should prove repeatability and safe configuration, not become a second project.
@@ -838,15 +838,15 @@ This file preserves every prompt and complete response from the three architectu
 >
 > The repository should clearly state:
 >
-> • Balances use integer minor units, never floating point values.  
-> • Currency support is either explicit or intentionally limited to one currency.  
-> • Idempotency keys are scoped and protected by a unique database constraint.  
-> • Lock acquisition has deterministic ordering to reduce deadlocks.  
-> • Account ownership and tenant boundaries are enforced before ledger work.  
-> • No endpoint can directly mutate a balance.  
-> • Database migrations and rollback expectations are documented.  
-> • Logs do not expose credentials, account secrets, or unnecessary financial data.  
-> • Health checks, structured errors, and basic metrics exist or are listed as non goals.  
+> • Balances use integer minor units, never floating point values.
+> • Currency support is either explicit or intentionally limited to one currency.
+> • Idempotency keys are scoped and protected by a unique database constraint.
+> • Lock acquisition has deterministic ordering to reduce deadlocks.
+> • Account ownership and tenant boundaries are enforced before ledger work.
+> • No endpoint can directly mutate a balance.
+> • Database migrations and rollback expectations are documented.
+> • Logs do not expose credentials, account secrets, or unnecessary financial data.
+> • Health checks, structured errors, and basic metrics exist or are listed as non goals.
 > • Reconciliation behavior is defined when it finds a mismatch.
 >
 > The most important missing proof would be a real database concurrency test. A mocked parallel test will not convince an experienced reviewer.

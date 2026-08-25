@@ -55,7 +55,7 @@ await Bun.write(
 const quoted = (value: string): string =>
   value
     .split('\n')
-    .map((line) => `> ${line}`)
+    .map((line) => `> ${line.replace(/[ \t]+$/g, '')}`)
     .join('\n');
 const markdown = [
   '# Visible AI conversation',
