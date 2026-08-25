@@ -10,6 +10,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import demo from './assets/demo-run.json';
+import { captionCues } from './captions.ts';
 
 const colors = {
   ink: '#171915',
@@ -544,6 +545,37 @@ const Closing = () => (
   </Shell>
 );
 
+const Captions = () => {
+  const frame = useCurrentFrame();
+  const cue = captionCues.find(({ from, to }) => frame >= from && frame < to);
+  if (!cue) return null;
+  const opacity = interpolate(frame, [cue.from, cue.from + 8, cue.to - 8, cue.to], [0, 1, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  return (
+    <div
+      style={{
+        ...base,
+        position: 'absolute',
+        left: '50%',
+        bottom: 28,
+        transform: 'translateX(-50%)',
+        width: 1380,
+        padding: '16px 28px',
+        background: 'rgba(23, 25, 21, 0.94)',
+        color: colors.paper,
+        fontSize: 24,
+        lineHeight: 1.35,
+        textAlign: 'center',
+        opacity,
+      }}
+    >
+      {cue.text}
+    </div>
+  );
+};
+
 export const SuperCoolLedger = () => (
   <AbsoluteFill style={{ background: colors.canvas }}>
     <Audio src={staticFile('narration.mp3')} volume={0.95} />
@@ -568,5 +600,6 @@ export const SuperCoolLedger = () => (
     <Sequence from={3390} durationInFrames={660} premountFor={30}>
       <Closing />
     </Sequence>
+    <Captions />
   </AbsoluteFill>
 );

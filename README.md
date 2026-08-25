@@ -30,6 +30,8 @@ Public repository: https://github.com/loama/supercool-ledger
 
 The OpenAPI document also covers liveness, readiness, metrics, and interactive documentation.
 
+Request, response, replay, conflict, insufficient funds, and reconciliation examples are embedded in the OpenAPI contract.
+
 ## Financial invariants
 
 1. Every journal transaction balances to zero in one currency.
@@ -72,6 +74,7 @@ flowchart LR
     Fastify --> Authentication
     Fastify --> Accounts
     Fastify --> Transfers
+    Fastify --> Reconciliation
     Transfers --> Idempotency
     Transfers --> PostgreSQL
     PostgreSQL --> Ledger
@@ -120,15 +123,18 @@ The complete gate runs formatting verification, linting, strict type checking, u
 
 The risk evidence is direct:
 
-| Risk                    | Control                                            | Executable evidence                             |
-| ----------------------- | -------------------------------------------------- | ----------------------------------------------- |
-| Duplicate movement      | Unique tenant scoped key and stored response       | `test/integration/transfers-api.test.ts`        |
-| Concurrent overspend    | Sorted row locks and funds check after locking     | `test/integration/transfer-concurrency.test.ts` |
-| Partial financial write | One PostgreSQL transaction                         | `test/integration/transfers-api.test.ts`        |
-| Ledger mutation         | Immutable triggers and deferred balance constraint | `test/integration/ledger-constraints.test.ts`   |
-| Cached balance drift    | Ledger reconciliation                              | `test/integration/reconciliation.test.ts`       |
-| Tenant data exposure    | Tenant predicates on resource queries              | `test/integration/accounts-api.test.ts`         |
-| Sensitive log exposure  | Structured field redaction                         | `test/unit/log-redaction.test.ts`               |
+| Risk                     | Control                                            | Executable evidence                             |
+| ------------------------ | -------------------------------------------------- | ----------------------------------------------- |
+| Duplicate movement       | Unique tenant scoped key and stored response       | `test/integration/transfers-api.test.ts`        |
+| Concurrent overspend     | Sorted row locks and funds check after locking     | `test/integration/transfer-concurrency.test.ts` |
+| Partial financial write  | One PostgreSQL transaction                         | `test/integration/transfers-api.test.ts`        |
+| Ledger mutation          | Immutable triggers and deferred balance constraint | `test/integration/ledger-constraints.test.ts`   |
+| Cached balance drift     | Ledger reconciliation                              | `test/integration/reconciliation.test.ts`       |
+| Tenant data exposure     | Tenant predicates on resource queries              | `test/integration/accounts-api.test.ts`         |
+| Sensitive log exposure   | Structured field redaction                         | `test/unit/log-redaction.test.ts`               |
+| Cross tenant ledger data | Composite database foreign keys                    | `test/integration/ledger-constraints.test.ts`   |
+| Suspended tenant writes  | Transactional tenant status lock                   | `test/integration/transfers-api.test.ts`        |
+| Concurrent migrations    | PostgreSQL advisory lock                           | `test/integration/migrations.test.ts`           |
 
 ## Observability
 
