@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Database } from '../platform/database.ts';
 import { TooManyRequestsProblemSchema } from '../platform/problem.ts';
 import { SandboxService } from './service.ts';
+import { registerSandboxPageRoutes } from './page.ts';
 
 const SandboxSessionSchema = Type.Object(
   {
@@ -31,6 +32,7 @@ export const registerSandboxRoutes = (
   authSecret: string,
 ): void => {
   const service = new SandboxService(database, authSecret);
+  registerSandboxPageRoutes(app);
 
   app.post(
     '/v1/sandbox/sessions',

@@ -8,12 +8,12 @@ import { SandboxService } from '../../src/sandbox/service.ts';
 import { createTestPool, resetDatabase, testDatabaseUrl } from '../helpers/database.ts';
 
 const authSecret = 'a-development-secret-with-more-than-32-characters';
-let database: Database;
-let pool: Pool;
+let database: Database | null = null;
+let pool: Pool | null = null;
 
 beforeEach(async () => {
-  if (database) await database.close();
-  if (pool) await pool.end();
+  await database?.close();
+  await pool?.end();
   pool = createTestPool();
   const client = await pool.connect();
   try {
@@ -26,11 +26,12 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  await database.close();
-  await pool.end();
+  await database?.close();
+  await pool?.end();
 });
 
 test('creates an isolated balanced reviewer session and scoped token', async () => {
+  if (!database || !pool) throw new Error('sandbox_test_setup_missing');
   const service = new SandboxService(database, authSecret, {
     dailyLimit: 20,
     totalLimit: 100,
@@ -66,6 +67,7 @@ test('creates an isolated balanced reviewer session and scoped token', async () 
 });
 
 test('serializes concurrent admission at the daily cap', async () => {
+  if (!database || !pool) throw new Error('sandbox_test_setup_missing');
   const service = new SandboxService(database, authSecret, {
     dailyLimit: 1,
     totalLimit: 10,
