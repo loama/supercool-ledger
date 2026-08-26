@@ -14,6 +14,9 @@ const redactCommon = (value: string): string =>
       /<(environment_context|in-app-browser-context)(?:\s[^>]*)?>[\s\S]*?<\/\1>/giu,
       PRIVATE_CONTEXT,
     )
+    .replace(/https?:\/\/dashboard\.render\.com\/[^\s)>\]]+/giu, '[REDACTED_HOSTING_URL]')
+    .replace(/https?:\/\/elevenlabs\.io\/app\/sign-in/giu, '[REDACTED_ACCOUNT_URL]')
+    .replace(/\bdep-[a-z0-9]{16,}\b/giu, '[REDACTED_DEPLOYMENT_ID]')
     .replace(/file:\/\/\/Users\/[^\s)>\]]+/giu, LOCAL_PATH)
     .replace(/\/Users\/[^\s)>\]]+/gu, LOCAL_PATH)
     .replace(/Eduardo López’s Workspace/giu, '[REDACTED_PRIVATE_WORKSPACE]')
@@ -30,7 +33,7 @@ const belongsToCredentialExchange = (value: string): boolean =>
   /credential search result|API key inventory|saved account state is redacted/iu.test(value);
 
 const containsPrivateHostingContext = (value: string): boolean =>
-  /Eduardo López’s Workspace|paid Render service|smallest paid PostgreSQL|paid PostgreSQL 17|basic_256mb|\$7 per month|saved Render login|saved credentials|authenticated Render (?:tab|dashboard)|Render.*signed in/iu.test(
+  /Eduardo López’s Workspace|paid Render service|smallest paid PostgreSQL|paid PostgreSQL 17|basic_256mb|\$7 per month|saved Render login|saved credentials|authenticated Render (?:tab|dashboard)|Render.*signed in|signed into github|enabled API keys/iu.test(
     value,
   );
 

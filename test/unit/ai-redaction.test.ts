@@ -40,6 +40,20 @@ test('redacts private hosting plan and workspace messages', () => {
   expect(result?.text).toBe('[REDACTED: private hosting account context]');
 });
 
+test('redacts authenticated account state and deployment identifiers', () => {
+  const result = redactConversationMessages([
+    { role: 'user' as const, text: 'signed into github' },
+    {
+      role: 'assistant' as const,
+      text: 'Deployment dep-da73ioe7bikc73epqtcg is visible at https://dashboard.render.com/example.',
+    },
+  ]);
+
+  expect(result[0]?.text).toBe('[REDACTED: private hosting account context]');
+  expect(result[1]?.text).not.toContain('dep-da73ioe7bikc73epqtcg');
+  expect(result[1]?.text).not.toContain('dashboard.render.com');
+});
+
 test('redacts local paths in independent review records', () => {
   const result = redactReviewRecord(
     '[source](/Users/person/work/project/src/app.ts:20) and [file](file:///Users/person/work/file.ts#L4)',
