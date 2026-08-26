@@ -64,9 +64,15 @@ Readiness compares the database with every migration shipped in the deployed art
 
 ## Media verification
 
-The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and complete sentence captions in Spanish. The MP4 contains H.264 video at 1920 by 1080 and AAC audio. Its duration is 148.544000 seconds and its SHA 256 digest is `495f9301e651b103c46885c0dc88812cc308124dafa7d64f29b8f8c23247cf30`.
+The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The raw MP3 lasts 145.214688 seconds. Playback at exactly 1.5 shortens it to 96.809792 seconds inside a 99 second composition, leaving a 2.190208 second closing hold.
 
-The poster SHA 256 digest is `3a145fbf7af6a32ad3d79378d88b7bfb14dd8de19b617e6b92b9de105d344110`. The narration asset lasts 145.214688 seconds and its SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
+The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,486,378 bytes, and its SHA 256 digest is `1115553a024d5037a763806190c5340b3b212518cf482c7957fbcde98853c5df`.
+
+The poster is a 1920 by 1080 RGB PNG with SHA 256 digest `024454647d40e810353b47bc23cf335418f08f7d924182ea059a21b494c61f49`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
+
+One full resolution frame from each of the ten scenes received visual inspection. Typography, connectors, captions, spacing, and safe margins remained readable. The AWS scene was also checked on both sides of its bootstrap, migration, and service state changes.
+
+The local preview returned native controls and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14486378`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
 
 The committed video evidence is generated from the same sanitized PostgreSQL scenario that the integration test executes and compares. Random identifiers and timestamps are excluded from equality checks by design.
 
