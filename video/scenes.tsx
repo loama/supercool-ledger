@@ -830,7 +830,7 @@ export const ObservabilityScene = () => {
 
 export const awsTrafficPaths = {
   inbound: ['Internet', 'Application Load Balancer', 'ECS Fargate', 'RDS writer endpoint'],
-  egress: ['ECS Fargate', 'NAT gateway', 'Internet'],
+  egress: ['ECS Fargate', 'NAT gateway per AZ', 'Internet'],
 } as const;
 
 export const awsReleasePhases = [
@@ -1084,7 +1084,7 @@ export const AwsTopologyScene = () => {
                       }}
                     >
                       {node}
-                      {index === 1 ? ' · zona A' : ''}
+                      {index === 1 ? ' · zona A o B' : ''}
                     </div>
                     {index < awsTrafficPaths.egress.length - 1 ? (
                       <Connector active={egressActive} length={34} tone="dark" />

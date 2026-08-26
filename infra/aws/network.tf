@@ -80,43 +80,51 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_eip" "nat" {
+  count = 2
+
   domain = "vpc"
 
   tags = {
-    Name = "${local.name_prefix}-nat"
+    Name = "${local.name_prefix}-nat-${count.index + 1}"
   }
 }
 
 resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
+  count = 2
+
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
 
   depends_on = [aws_internet_gateway.main]
 
   tags = {
-    Name = "${local.name_prefix}-nat"
+    Name = "${local.name_prefix}-nat-${count.index + 1}"
   }
 }
 
 resource "aws_route_table" "application" {
+  count = 2
+
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${local.name_prefix}-application"
+    Name = "${local.name_prefix}-application-${count.index + 1}"
   }
 }
 
 resource "aws_route" "application_internet" {
-  route_table_id         = aws_route_table.application.id
+  count = 2
+
+  route_table_id         = aws_route_table.application[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.main.id
+  nat_gateway_id         = aws_nat_gateway.main[count.index].id
 }
 
 resource "aws_route_table_association" "application" {
   count = 2
 
   subnet_id      = aws_subnet.application[count.index].id
-  route_table_id = aws_route_table.application.id
+  route_table_id = aws_route_table.application[count.index].id
 }
 
 resource "aws_route_table" "database" {

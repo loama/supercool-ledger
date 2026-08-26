@@ -161,9 +161,9 @@ test('AWS visuals separate inbound traffic, NAT egress, and migration order', as
 
   expect(scenes.awsTrafficPaths).toEqual({
     inbound: ['Internet', 'Application Load Balancer', 'ECS Fargate', 'RDS writer endpoint'],
-    egress: ['ECS Fargate', 'NAT gateway', 'Internet'],
+    egress: ['ECS Fargate', 'NAT gateway per AZ', 'Internet'],
   });
-  expect(scenes.awsTrafficPaths.inbound).not.toContain('NAT gateway');
+  expect(scenes.awsTrafficPaths.inbound).not.toContain('NAT gateway per AZ');
   expect(scenes.awsReleasePhases).toEqual([
     { id: 'bootstrap', migrationRuns: false, serviceExists: false },
     { id: 'migration', migrationRuns: true, serviceExists: false },

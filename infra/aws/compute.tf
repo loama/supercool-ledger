@@ -16,10 +16,11 @@ resource "aws_ecr_lifecycle_policy" "application" {
   policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Retain the newest 30 images"
+      description  = "Remove untagged images after 30 days"
       selection = {
-        tagStatus   = "any"
-        countType   = "imageCountMoreThan"
+        tagStatus   = "untagged"
+        countType   = "sinceImagePushed"
+        countUnit   = "days"
         countNumber = 30
       }
       action = {
