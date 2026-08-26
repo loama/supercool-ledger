@@ -858,3 +858,61 @@ This file preserves every prompt and complete response from the three architectu
 > If included, keep it silent or lightly narrated, under ninety seconds, and use it only as a landing page preview. Show the transfer, duplicate request, concurrent rejection, and reconciliation result. Do not animate architecture for its own sake. Never make the video the only way to understand the system.
 >
 > My recommendation is to build the repository walkthrough first. Add the video only if it can be generated from the same scripted demo and does not delay the tests, OpenAPI examples, or hosted sandbox.
+
+## 13. security_review
+
+### Prompt
+
+> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on financial correctness, sandbox authentication, tenant isolation, secret exposure, concurrency, API behavior, and production safety. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list the risks you checked.
+
+### Complete response
+
+> [High] Public sandbox admission can be permanently exhausted. `sandbox_sessions` counts all rows, including expired sessions, so 2,000 unauthenticated POST requests permanently force 429 responses. Add request rate limiting and expire or delete sandbox tenants before counting capacity.
+>
+> No other concrete findings found.
+
+## 14. ui_review
+
+### Prompt
+
+> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on sandbox UI behavior, English copy, response card correctness, accessibility, responsive layout, browser security, and reviewer usability. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
+
+### Complete response
+
+> Findings from the read only review:
+>
+> 1. Medium: the concurrent spending card can claim “Protected” for unrelated failures. In [app.ts](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/client/app.ts:458), `bothSucceeded` is the only condition used. If both requests return `401`, `500`, or both fail for insufficient funds, the UI still reports `Protected`. Check for the expected one success and one rejected transfer, ideally requiring the rejection code to be `insufficient_funds` or the relevant concurrency error. Otherwise show “Inconclusive” or “Failed”.
+>
+> 2. Low: the session countdown is inside a `section[aria-live="polite"]` in [index.html](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/public/index.html:76). Since `#session-time` changes every second, screen readers may announce the countdown continuously. Move `aria-live` to a small status element used only for session creation or expiry, and mark the timer itself `aria-live="off"`.
+>
+> 3. Low: “PostgreSQL connected” is static copy in [index.html](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/public/index.html:32), even when the API or database is unavailable. This can mislead reviewers during a live deployment. Populate it from a readiness check or label it as a configured backend rather than a live connection.
+>
+> Checks performed: complete diff against `origin/main`, current uncommitted diff, sandbox client and server routes, response schemas, `git diff --check`, `bun run typecheck`, `bun run lint`, and the sandbox contract and integration tests.
+
+## 15. deployment_review
+
+### Prompt
+
+> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on Render deployment, Docker and IaC, production environment assumptions, health checks, sandbox enablement, documentation and presentation readiness. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
+
+### Complete response
+
+> Findings
+>
+> 1. High. `README.md:21-25` advertises the hosted sandbox, but the live service currently returns `401` for [https://supercool-ledger.onrender.com/sandbox](https://supercool-ledger.onrender.com/sandbox). The deployed service is still the older commit `2212af834e91895b84e42c1fc4cbe9d36a735520`, so the branch feature is not live. `docs/release-verification.md:9-14` also records only that older deployment. Deploy the reviewed branch, verify the sandbox URL, then update the release evidence. Otherwise remove the live sandbox claim.
+>
+> 2. High. `docs/ai-usage/README.md:3-5` claims the export contains every visible prompt and response, but `docs/ai-usage/conversation.json` ends before the sandbox and Spanish video implementation. The implementation plan explicitly requires updating both AI files at `docs/superpowers/plans/2026-08-26-public-sandbox-and-spanish-video.md:205-220`, yet neither file changed. Regenerate the disclosure from the complete project interaction before publication.
+>
+> 3. Medium. `src/sandbox/service.ts:84-89` creates a tenant and ledger data for every session, while `migrations/004_sandbox_sessions.sql:1-5` provides no cleanup or retention mechanism. Expired sessions stop counting toward active capacity, but their tenants, accounts, journals, and postings remain indefinitely. With `render.yaml:34-35` using a fixed 15 GB database without storage autoscaling, public use can create unbounded retained data. Add controlled expiry cleanup for isolated sandbox tenants, or document and provision an explicit retention policy.
+>
+> 4. Medium. `.github/workflows/ci.yml:45-50` only builds and inspects the Docker image. CI does not start the image, run migrations, check `/health/live`, check `/health/ready`, or exercise `/sandbox`. A broken runtime command, missing artifact, migration failure, or deployment environment mismatch can therefore pass CI. Add a container smoke test with PostgreSQL and the required environment variables.
+>
+> 5. Low. `docs/superpowers/plans/2026-08-26-public-sandbox-and-spanish-video.md:38-236` leaves every implementation and verification checkbox unchecked even though the branch contains the implementation and passing tests. Mark completed work and record actual evidence, or archive the working plan before reviewer publication.
+>
+> Checks performed
+>
+> 1. Compared the complete branch and uncommitted changes against `origin/main`.
+> 2. Ran `git diff --check`.
+> 3. Ran the focused sandbox tests: 9 passed, 70 assertions.
+> 4. Ran `bun run check`: 64 tests passed, 421 assertions, formatting, lint, type checks, and production build passed.
+> 5. Checked the live deployment: `/health/ready` returns `200`; `/sandbox` returns `401`.

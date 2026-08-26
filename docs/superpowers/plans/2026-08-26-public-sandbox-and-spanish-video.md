@@ -45,7 +45,7 @@ Run `bun test test/integration/sandbox-service.test.ts` and confirm the missing 
 
 - [ ] **Step 3: Implement the migration and minimal service**
 
-Create `sandbox_sessions` with a tenant reference, creation time, and expiration. Acquire one advisory transaction lock, count daily and total sessions, create the tenant and balanced opening journal, insert the session, then sign a fifteen minute token.
+Create `sandbox_sessions` with a tenant reference, creation time, and expiration. Apply a process level burst limit before opening a transaction. Acquire one advisory transaction lock, purge up to twenty five synthetic tenants whose seven day retention has elapsed, count active and daily sessions, create the tenant and balanced opening journal, insert the session, then sign a fifteen minute token.
 
 - [ ] **Step 4: Verify the focused tests pass**
 

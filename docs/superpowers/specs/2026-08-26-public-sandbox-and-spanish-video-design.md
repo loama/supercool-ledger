@@ -10,7 +10,7 @@ The public experience is a reviewer console, not a customer product. A visitor e
 
 The session response contains a tenant scoped JWT with a fifteen minute expiration. The browser holds it only in memory. The signing secret never reaches the browser. The token grants only the account, transfer, and reconciliation scopes needed by the console.
 
-Sandbox creation is disabled unless `SANDBOX_ENABLED=true`. PostgreSQL serializes session admission with an advisory transaction lock. The service limits daily and total sessions before inserting more synthetic data. It stores no visitor address or other personal data.
+Sandbox creation is disabled unless `SANDBOX_ENABLED=true`. A process level burst limit rejects rapid creation before opening a database transaction. PostgreSQL serializes session admission with an advisory transaction lock and limits both active and daily sessions. Expired sessions no longer consume active capacity. Synthetic tenants are retained for seven days for debugging, then removed in bounded batches during admission. The service stores no visitor address or other personal data.
 
 ## Reviewer scenarios
 
@@ -29,7 +29,7 @@ Each action shows the HTTP status, response body, relevant balance change, and a
 
 ## Interface
 
-The page lives at `/sandbox`. It uses a restrained warm neutral palette with one green accent, minimal shadows, precise numeric typography, and an asymmetric desktop layout that collapses to one column on mobile. It includes loading, success, error, expired session, and empty states.
+The page lives at `/sandbox`. It uses a restrained black, white, and yellow financial interface with minimal shadows, precise numeric typography, and an asymmetric desktop layout that collapses to one column on mobile. The console copy is in English. Each action presents the HTTP status, important response fields, and an expandable raw JSON response. It includes loading, success, error, expired session, and empty states.
 
 The console uses local HTML, CSS, and browser JavaScript rather than a new application framework. That keeps the public artifact inside the existing Fastify service, avoids another deployment unit, and leaves the accounting code as the main subject of the assessment.
 
