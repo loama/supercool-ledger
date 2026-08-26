@@ -18,6 +18,8 @@ The approved script lives in `video/narration.ts`. Its 2,224 characters match th
 
 The raw narration lasts 145.214688 seconds. Remotion plays it at exactly 1.5, so the played duration is 96.809792 seconds. The composition lasts 99 seconds and leaves a 2.190208 second closing hold. Scene and caption ranges are contiguous from frame 0 through frame 2970 at 30 frames per second.
 
+The raw cue starts in `video/timing.ts` were transcribed from the committed MP3. `sourceMillisecondsToVideoFrame` divides each source timestamp by the 1.5 playback rate, converts it to 30 frames per second, and rounds once to the rendered frame. The video integrity test verifies every cue remains inside the visual scene that owns its narration section.
+
 The narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
 
 `scripts/video-voice.ts` is only needed when replacing the narration. It sends the reviewed text to ElevenLabs, reads the credential from the local environment, never prints it, and stores no credential in the repository.
