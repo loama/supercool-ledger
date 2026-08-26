@@ -44,7 +44,10 @@ jobs:
         run: docker run --rm -v "$PWD:/workspace" -w /workspace/infra/aws hashicorp/terraform:1.15.8 validate
       - name: Scan tracked text for secret patterns
         run: |
-          if git grep -nE '(ghp_[A-Za-z0-9]{20,}|xi-api-key[=:][[:space:]]*[A-Za-z0-9])' -- ':!docs/ai-usage/**'; then
+          if git grep -nE '(gh[pousr]_[A-Za-z0-9]{20,}|A(KIA|SIA)[A-Z0-9]{16}|xi-api-key[=:][[:space:]]*[A-Za-z0-9_-]{20,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)'; then
+            exit 1
+          fi
+          if git grep -niE '(dashboard\.render\.com/|elevenlabs\.io/app/sign-in|dep-[a-z0-9]{16,}|signed into github|enabled API keys)' -- docs/ai-usage/conversation.json docs/ai-usage/conversation.md; then
             exit 1
           fi
 

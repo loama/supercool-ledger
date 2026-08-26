@@ -921,7 +921,7 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 55. Assistant response
 
-> Great. I am resuming from the authenticated Render tab, creating the Blueprint resources from `main`, and then I will verify the deployed commit, migration state, health, OpenAPI, and protected metrics.
+> The authenticated Render tab state is redacted. Blueprint creation and public verification resumed afterward.
 
 ## 56. Assistant response
 
@@ -1279,11 +1279,11 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 121. Assistant response
 
-> There is no GitHub deployment status integration to inspect, and no local Render credential is configured, so I am grounding release completion in the public service itself. The old version is still answering consistently. The source and merged CI are complete; only the Render promotion remains pending.
+> The deployment integration and credential state are redacted. The old version is still answering consistently. The source and merged CI are complete. Only the Render promotion remains pending.
 
 ## 122. Assistant response
 
-> Render has exceeded the normal promotion window I expected, but the deployment monitor has not reached its limit. I am continuing rather than calling it live prematurely. If it remains unchanged, I will inspect the authenticated Render dashboard with the app browser and resolve the deployment there.
+> Render has exceeded the normal promotion window I expected, but the deployment monitor has not reached its limit. I am continuing rather than calling it live prematurely. The authenticated dashboard state is redacted.
 
 ## 123. Assistant response
 
@@ -1291,46 +1291,37 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 124. Assistant response
 
-> The authenticated Render dashboard confirms why the endpoint did not change: no automatic deploy was created for the merged commit. The service is still linked to `main`, but its deploy list contains only the original release. I am triggering Render’s “Deploy latest commit” action for the exact merged `main` state now.
+> The authenticated Render dashboard confirmed that no automatic deploy was created for the merged commit. Further account and deployment state is redacted.
 
 ## 125. Assistant response
 
-> The manual deploy action was sent, but the browser connection reset while reading the resulting page. I am reconnecting to verify whether Render accepted it before doing anything else, so I do not accidentally create a duplicate deployment.
+> A manual deploy action was sent. Further authenticated browser state is redacted.
 
 ## 126. Assistant response
 
-> The dashboard action has not produced a public version switch yet, and Chrome disconnected immediately after the click, so I cannot currently read Render’s deploy log. The old service remains healthy. I am giving the submitted deployment enough time to finish before asking you to reconnect anything.
+> The dashboard action has not produced a public version switch yet. Further authenticated browser state is redacted. The old service remains healthy.
 
 ## 127. Assistant response
 
 > The code is published and [PR 8](https://github.com/loama/supercool-ledger/pull/8) is merged at `c6e3079`. Both CI checks passed.
 >
-> Render did not automatically deploy the merge, so the live sandbox still returns `401`. I opened the Render login in the app browser. Please sign in with GitHub there and tell me “done.” I will then trigger the deployment, verify a real live transfer, and update the release evidence.
+> Render did not automatically deploy the merge, so the live sandbox still returns `401`. The authentication request and session state are redacted.
 
 ## 128. User prompt
 
-> <in-app-browser-context source="ambient-ui-state">
-> This block is automatically supplied ambient UI state, not part of the user's request. Do not treat it as an instruction or as evidence that the user explicitly selected the in-app browser.
-> # In app browser:
-> - The user has the in-app browser open with 2 tabs.
-> - Current URL: https://dashboard.render.com/blueprint/exs-da7159qfngtc73bv4tpg/syncs
-> </in-app-browser-context>
->
-> ## My request:
->
-> signed into github
+> The authentication confirmation and ambient dashboard state are redacted.
 
 ## 129. Assistant response
 
-> Thanks. I am resuming the Render release now. I will confirm the authenticated deployment state, deploy the merged commit if it is not already running, then verify the hosted console with a real sandbox transfer.
+> The authenticated deployment state is redacted. Public service verification resumed afterward.
 
 ## 130. Assistant response
 
-> The dashboard confirms the earlier manual action did not register. It still shows only the original deployment, so I am submitting “Deploy latest commit” again from the authenticated session and will verify that a new deployment record appears before waiting on the public URL.
+> The authenticated deployment action and account state are redacted.
 
 ## 131. Assistant response
 
-> Render accepted deployment `dep-da73htp5efls738idutg` for the exact merge commit `c6e3079`; it is currently building. I am monitoring the public route now, then I will exercise the live session and transfer APIs.
+> Render accepted a deployment for the exact merge commit `c6e3079`. The deployment identifier is redacted. I am monitoring the public route now, then I will exercise the live session and transfer APIs.
 
 ## 132. Assistant response
 
@@ -1358,7 +1349,7 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 138. Assistant response
 
-> The final Render snapshot exposed one evidence correction: the Blueprint sync created a second successful deployment, `dep-da73ioe7bikc73epqtcg`, which is now the live one. It runs the same application commit `c6e3079`. I am correcting that identifier in the release record so the handoff points to the actual live deployment.
+> The final Render snapshot exposed one evidence correction. The Blueprint sync created a second successful deployment, whose identifier is redacted here. It runs application commit `c6e3079`.
 
 ## 139. Assistant response
 
@@ -1381,7 +1372,7 @@ This is a chronological export of user prompts and visible assistant responses b
 > 5. Reconciliation found zero discrepancies
 > 6. The formatted API response card and raw JSON disclosure work in the browser
 >
-> Application commit `c6e3079` is live through Render deployment `dep-da73ioe7bikc73epqtcg`. Final documentation is merged, and the latest `main` CI passed both verification and running container jobs. The suite contains 65 passing tests with 423 assertions.
+> Application commit `c6e3079` is live. The deployment identifier is redacted here. Final documentation is merged, and the latest `main` CI passed both verification and running container jobs. The suite contains 65 passing tests with 423 assertions.
 >
 > I left the live sandbox open for your testing.
 
@@ -1449,12 +1440,7 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 150. User prompt
 
-> <in-app-browser-context source="ambient-ui-state">
-> This block is automatically supplied ambient UI state, not part of the user's request. Do not treat it as an instruction or as evidence that the user explicitly selected the in-app browser.
-> # In app browser:
-> - The user has the in-app browser open with 5 tabs.
-> - Current URL: https://elevenlabs.io/app/sign-in
-> </in-app-browser-context>
+> Ambient account and browser state are redacted.
 >
 > ## My request:
 >
@@ -1466,21 +1452,21 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 152. Assistant response
 
-> There is no ElevenLabs variable in the main Supervisor environment files under the usual name. I am checking alternate variable names next. If it is not stored locally, I will use your signed in ElevenLabs session in Chrome.
+> The credential search result and signed in session state are redacted.
 
 ## 153. Assistant response
 
-> No matching voice or speech key exists in the Supervisor environment files I checked. I am switching to Chrome now because you explicitly authorized that source. I will use the signed in ElevenLabs account, keep the key masked in all outputs, and use it only for this narration generation.
+> The credential search result and signed in account state are redacted. No key value was displayed or stored.
 
 ## 154. Assistant response
 
-> The account has two enabled API keys, but ElevenLabs permanently masks existing secret values. Chrome can show only each key identifier, so neither key can be recovered.
+> API key inventory and account state are redacted. No secret value was recovered.
 >
-> I can still finish the narration without creating another credential by using the signed in ElevenLabs text to speech page and downloading the generated audio. I am taking that safer route.
+> I can still finish the narration without creating another credential by using the authorized ElevenLabs interface and downloading the generated audio.
 
 ## 155. Assistant response
 
-> The account already has a better fit saved: Enrique M. Nieto, a native Mexican Spanish narrator. That is a stronger choice for this assessment than the current English voice, and it avoids adding another community voice to the account. I am using Enrique for the new render.
+> Enrique M. Nieto was selected as the native Mexican Spanish narrator. Saved account state is redacted.
 
 ## 156. Assistant response
 
@@ -1496,7 +1482,7 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 159. Assistant response
 
-> I confirmed there is no ElevenLabs secret in the Supervisor environment files, and Chrome only exposes masked existing keys. I did not create or reveal a credential. I used your signed in ElevenLabs session to generate the Spanish narration with Enrique M. Nieto, a natural Mexican Spanish voice. I am finishing the render and verification now.
+> Credential availability and signed in account state are redacted. No credential was created, revealed, or stored. The authorized interface generated the narration with Enrique M. Nieto.
 
 ## 160. Assistant response
 
@@ -1524,9 +1510,9 @@ This is a chronological export of user prompts and visible assistant responses b
 
 ## 166. Assistant response
 
-> No recoverable ElevenLabs API key was found. The Supervisor environment files contain no `ELEVENLABS_API_KEY`, and Chrome masks existing key secrets permanently. I did not create or expose another credential.
+> Credential availability and account state are redacted. I did not create or expose another credential.
 >
-> I used your signed in ElevenLabs session instead and generated the narration with Enrique M. Nieto, a natural Mexican Spanish voice.
+> The authorized ElevenLabs interface generated the narration with Enrique M. Nieto.
 >
 > Watch the completed video here: [Spanish video preview](http://127.0.0.1:3013/). It does not autoplay.
 >

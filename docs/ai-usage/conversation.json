@@ -219,7 +219,7 @@
     },
     {
       "role": "assistant",
-      "text": "Great. I am resuming from the authenticated Render tab, creating the Blueprint resources from `main`, and then I will verify the deployed commit, migration state, health, OpenAPI, and protected metrics."
+      "text": "The authenticated Render tab state is redacted. Blueprint creation and public verification resumed afterward."
     },
     {
       "role": "assistant",
@@ -483,11 +483,11 @@
     },
     {
       "role": "assistant",
-      "text": "There is no GitHub deployment status integration to inspect, and no local Render credential is configured, so I am grounding release completion in the public service itself. The old version is still answering consistently. The source and merged CI are complete; only the Render promotion remains pending."
+      "text": "The deployment integration and credential state are redacted. The old version is still answering consistently. The source and merged CI are complete. Only the Render promotion remains pending."
     },
     {
       "role": "assistant",
-      "text": "Render has exceeded the normal promotion window I expected, but the deployment monitor has not reached its limit. I am continuing rather than calling it live prematurely. If it remains unchanged, I will inspect the authenticated Render dashboard with the app browser and resolve the deployment there."
+      "text": "Render has exceeded the normal promotion window I expected, but the deployment monitor has not reached its limit. I am continuing rather than calling it live prematurely. The authenticated dashboard state is redacted."
     },
     {
       "role": "assistant",
@@ -495,35 +495,35 @@
     },
     {
       "role": "assistant",
-      "text": "The authenticated Render dashboard confirms why the endpoint did not change: no automatic deploy was created for the merged commit. The service is still linked to `main`, but its deploy list contains only the original release. I am triggering Render’s “Deploy latest commit” action for the exact merged `main` state now."
+      "text": "The authenticated Render dashboard confirmed that no automatic deploy was created for the merged commit. Further account and deployment state is redacted."
     },
     {
       "role": "assistant",
-      "text": "The manual deploy action was sent, but the browser connection reset while reading the resulting page. I am reconnecting to verify whether Render accepted it before doing anything else, so I do not accidentally create a duplicate deployment."
+      "text": "A manual deploy action was sent. Further authenticated browser state is redacted."
     },
     {
       "role": "assistant",
-      "text": "The dashboard action has not produced a public version switch yet, and Chrome disconnected immediately after the click, so I cannot currently read Render’s deploy log. The old service remains healthy. I am giving the submitted deployment enough time to finish before asking you to reconnect anything."
+      "text": "The dashboard action has not produced a public version switch yet. Further authenticated browser state is redacted. The old service remains healthy."
     },
     {
       "role": "assistant",
-      "text": "The code is published and [PR 8](https://github.com/loama/supercool-ledger/pull/8) is merged at `c6e3079`. Both CI checks passed.\n\nRender did not automatically deploy the merge, so the live sandbox still returns `401`. I opened the Render login in the app browser. Please sign in with GitHub there and tell me “done.” I will then trigger the deployment, verify a real live transfer, and update the release evidence."
+      "text": "The code is published and [PR 8](https://github.com/loama/supercool-ledger/pull/8) is merged at `c6e3079`. Both CI checks passed.\n\nRender did not automatically deploy the merge, so the live sandbox still returns `401`. The authentication request and session state are redacted."
     },
     {
       "role": "user",
-      "text": "\n<in-app-browser-context source=\"ambient-ui-state\">\nThis block is automatically supplied ambient UI state, not part of the user's request. Do not treat it as an instruction or as evidence that the user explicitly selected the in-app browser.\n# In app browser:\n- The user has the in-app browser open with 2 tabs.\n- Current URL: https://dashboard.render.com/blueprint/exs-da7159qfngtc73bv4tpg/syncs\n</in-app-browser-context>\n\n## My request:\nsigned into github\n"
+      "text": "The authentication confirmation and ambient dashboard state are redacted."
     },
     {
       "role": "assistant",
-      "text": "Thanks. I am resuming the Render release now. I will confirm the authenticated deployment state, deploy the merged commit if it is not already running, then verify the hosted console with a real sandbox transfer."
+      "text": "The authenticated deployment state is redacted. Public service verification resumed afterward."
     },
     {
       "role": "assistant",
-      "text": "The dashboard confirms the earlier manual action did not register. It still shows only the original deployment, so I am submitting “Deploy latest commit” again from the authenticated session and will verify that a new deployment record appears before waiting on the public URL."
+      "text": "The authenticated deployment action and account state are redacted."
     },
     {
       "role": "assistant",
-      "text": "Render accepted deployment `dep-da73htp5efls738idutg` for the exact merge commit `c6e3079`; it is currently building. I am monitoring the public route now, then I will exercise the live session and transfer APIs."
+      "text": "Render accepted a deployment for the exact merge commit `c6e3079`. The deployment identifier is redacted. I am monitoring the public route now, then I will exercise the live session and transfer APIs."
     },
     {
       "role": "assistant",
@@ -551,7 +551,7 @@
     },
     {
       "role": "assistant",
-      "text": "The final Render snapshot exposed one evidence correction: the Blueprint sync created a second successful deployment, `dep-da73ioe7bikc73epqtcg`, which is now the live one. It runs the same application commit `c6e3079`. I am correcting that identifier in the release record so the handoff points to the actual live deployment."
+      "text": "The final Render snapshot exposed one evidence correction. The Blueprint sync created a second successful deployment, whose identifier is redacted here. It runs application commit `c6e3079`."
     },
     {
       "role": "assistant",
@@ -559,7 +559,7 @@
     },
     {
       "role": "assistant",
-      "text": "Published successfully.\n\n1. [Live sandbox](https://supercool-ledger.onrender.com/sandbox)\n2. [API documentation](https://supercool-ledger.onrender.com/docs/)\n3. [GitHub repository](https://github.com/loama/supercool-ledger)\n\nLive verification passed:\n\n1. Sandbox session creation returned `201`\n2. Transfer returned `201 completed`\n3. Idempotent replay returned `200` with the same transfer\n4. Insufficient funds returned `422`\n5. Reconciliation found zero discrepancies\n6. The formatted API response card and raw JSON disclosure work in the browser\n\nApplication commit `c6e3079` is live through Render deployment `dep-da73ioe7bikc73epqtcg`. Final documentation is merged, and the latest `main` CI passed both verification and running container jobs. The suite contains 65 passing tests with 423 assertions.\n\nI left the live sandbox open for your testing."
+      "text": "Published successfully.\n\n1. [Live sandbox](https://supercool-ledger.onrender.com/sandbox)\n2. [API documentation](https://supercool-ledger.onrender.com/docs/)\n3. [GitHub repository](https://github.com/loama/supercool-ledger)\n\nLive verification passed:\n\n1. Sandbox session creation returned `201`\n2. Transfer returned `201 completed`\n3. Idempotent replay returned `200` with the same transfer\n4. Insufficient funds returned `422`\n5. Reconciliation found zero discrepancies\n6. The formatted API response card and raw JSON disclosure work in the browser\n\nApplication commit `c6e3079` is live. The deployment identifier is redacted here. Final documentation is merged, and the latest `main` CI passed both verification and running container jobs. The suite contains 65 passing tests with 423 assertions.\n\nI left the live sandbox open for your testing."
     },
     {
       "role": "user",
@@ -599,7 +599,7 @@
     },
     {
       "role": "user",
-      "text": "\n<in-app-browser-context source=\"ambient-ui-state\">\nThis block is automatically supplied ambient UI state, not part of the user's request. Do not treat it as an instruction or as evidence that the user explicitly selected the in-app browser.\n# In app browser:\n- The user has the in-app browser open with 5 tabs.\n- Current URL: https://elevenlabs.io/app/sign-in\n</in-app-browser-context>\n\n## My request:\nfind the api key in my supervisor project .env or from chrome\n"
+      "text": "Ambient account and browser state are redacted.\n\n## My request:\nfind the api key in my supervisor project .env or from chrome\n"
     },
     {
       "role": "assistant",
@@ -607,19 +607,19 @@
     },
     {
       "role": "assistant",
-      "text": "There is no ElevenLabs variable in the main Supervisor environment files under the usual name. I am checking alternate variable names next. If it is not stored locally, I will use your signed in ElevenLabs session in Chrome."
+      "text": "The credential search result and signed in session state are redacted."
     },
     {
       "role": "assistant",
-      "text": "No matching voice or speech key exists in the Supervisor environment files I checked. I am switching to Chrome now because you explicitly authorized that source. I will use the signed in ElevenLabs account, keep the key masked in all outputs, and use it only for this narration generation."
+      "text": "The credential search result and signed in account state are redacted. No key value was displayed or stored."
     },
     {
       "role": "assistant",
-      "text": "The account has two enabled API keys, but ElevenLabs permanently masks existing secret values. Chrome can show only each key identifier, so neither key can be recovered.\n\nI can still finish the narration without creating another credential by using the signed in ElevenLabs text to speech page and downloading the generated audio. I am taking that safer route."
+      "text": "API key inventory and account state are redacted. No secret value was recovered.\n\nI can still finish the narration without creating another credential by using the authorized ElevenLabs interface and downloading the generated audio."
     },
     {
       "role": "assistant",
-      "text": "The account already has a better fit saved: Enrique M. Nieto, a native Mexican Spanish narrator. That is a stronger choice for this assessment than the current English voice, and it avoids adding another community voice to the account. I am using Enrique for the new render."
+      "text": "Enrique M. Nieto was selected as the native Mexican Spanish narrator. Saved account state is redacted."
     },
     {
       "role": "assistant",
@@ -635,7 +635,7 @@
     },
     {
       "role": "assistant",
-      "text": "I confirmed there is no ElevenLabs secret in the Supervisor environment files, and Chrome only exposes masked existing keys. I did not create or reveal a credential. I used your signed in ElevenLabs session to generate the Spanish narration with Enrique M. Nieto, a natural Mexican Spanish voice. I am finishing the render and verification now."
+      "text": "Credential availability and signed in account state are redacted. No credential was created, revealed, or stored. The authorized interface generated the narration with Enrique M. Nieto."
     },
     {
       "role": "assistant",
@@ -663,7 +663,7 @@
     },
     {
       "role": "assistant",
-      "text": "No recoverable ElevenLabs API key was found. The Supervisor environment files contain no `ELEVENLABS_API_KEY`, and Chrome masks existing key secrets permanently. I did not create or expose another credential.\n\nI used your signed in ElevenLabs session instead and generated the narration with Enrique M. Nieto, a natural Mexican Spanish voice.\n\nWatch the completed video here: [Spanish video preview](http://127.0.0.1:3013/). It does not autoplay.\n\nThe update is also public and merged in [pull request 11](https://github.com/loama/supercool-ledger/pull/11). All 65 tests and both GitHub checks passed."
+      "text": "Credential availability and account state are redacted. I did not create or expose another credential.\n\nThe authorized ElevenLabs interface generated the narration with Enrique M. Nieto.\n\nWatch the completed video here: [Spanish video preview](http://127.0.0.1:3013/). It does not autoplay.\n\nThe update is also public and merged in [pull request 11](https://github.com/loama/supercool-ledger/pull/11). All 65 tests and both GitHub checks passed."
     },
     {
       "role": "user",
