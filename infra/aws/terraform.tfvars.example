@@ -7,8 +7,9 @@ bootstrap_mode      = true
 
 image_digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 
-database_password = "replace-with-a-long-random-database-password"
-auth_secret       = "replace-with-at-least-thirty-two-random-characters"
-metrics_token     = "replace-with-at-least-thirty-two-random-characters"
+database_password             = "replace-with-a-long-random-database-password"
+database_application_password = "replace-with-a-different-long-random-password"
+auth_secret                   = "replace-with-at-least-thirty-two-random-characters"
+metrics_token                 = "replace-with-at-least-thirty-two-random-characters"
 
 alarm_sns_topic_arn = "arn:aws:sns:eu-central-1:123456789012:supercool-ledger-alerts"

@@ -45,12 +45,30 @@ resource "aws_db_instance" "writer" {
 
 resource "aws_secretsmanager_secret" "database_url" {
   name                    = "${local.name_prefix}/database-url"
-  description             = "PostgreSQL writer connection URL for the application"
+  description             = "Least privilege PostgreSQL writer URL for the application"
   recovery_window_in_days = 30
 }
 
 resource "aws_secretsmanager_secret_version" "database_url" {
   secret_id = aws_secretsmanager_secret.database_url.id
+  secret_string = format(
+    "postgres://%s:%s@%s:%d/%s?sslmode=require",
+    urlencode(var.database_application_username),
+    urlencode(var.database_application_password),
+    aws_db_instance.writer.address,
+    aws_db_instance.writer.port,
+    var.database_name,
+  )
+}
+
+resource "aws_secretsmanager_secret" "migration_database_url" {
+  name                    = "${local.name_prefix}/migration-database-url"
+  description             = "PostgreSQL owner URL used only by the migration task"
+  recovery_window_in_days = 30
+}
+
+resource "aws_secretsmanager_secret_version" "migration_database_url" {
+  secret_id = aws_secretsmanager_secret.migration_database_url.id
   secret_string = format(
     "postgres://%s:%s@%s:%d/%s?sslmode=require",
     urlencode(var.database_username),
@@ -59,6 +77,17 @@ resource "aws_secretsmanager_secret_version" "database_url" {
     aws_db_instance.writer.port,
     var.database_name,
   )
+}
+
+resource "aws_secretsmanager_secret" "application_database_password" {
+  name                    = "${local.name_prefix}/application-database-password"
+  description             = "Password used by migrations to provision the application login"
+  recovery_window_in_days = 30
+}
+
+resource "aws_secretsmanager_secret_version" "application_database_password" {
+  secret_id     = aws_secretsmanager_secret.application_database_password.id
+  secret_string = var.database_application_password
 }
 
 resource "aws_secretsmanager_secret" "auth_secret" {
@@ -72,6 +101,21 @@ resource "aws_secretsmanager_secret_version" "auth_secret" {
   secret_string = var.auth_secret
 }
 
+resource "aws_secretsmanager_secret" "auth_secret_secondary" {
+  count = var.auth_secret_secondary == null ? 0 : 1
+
+  name                    = "${local.name_prefix}/auth-secret-secondary"
+  description             = "Second application authentication secret used during rotation"
+  recovery_window_in_days = 30
+}
+
+resource "aws_secretsmanager_secret_version" "auth_secret_secondary" {
+  count = var.auth_secret_secondary == null ? 0 : 1
+
+  secret_id     = aws_secretsmanager_secret.auth_secret_secondary[0].id
+  secret_string = var.auth_secret_secondary
+}
+
 resource "aws_secretsmanager_secret" "metrics_token" {
   name                    = "${local.name_prefix}/metrics-token"
   description             = "Application metrics bearer token"
@@ -81,4 +125,19 @@ resource "aws_secretsmanager_secret" "metrics_token" {
 resource "aws_secretsmanager_secret_version" "metrics_token" {
   secret_id     = aws_secretsmanager_secret.metrics_token.id
   secret_string = var.metrics_token
+}
+
+resource "aws_secretsmanager_secret" "metrics_token_secondary" {
+  count = var.metrics_token_secondary == null ? 0 : 1
+
+  name                    = "${local.name_prefix}/metrics-token-secondary"
+  description             = "Second metrics bearer token used during rotation"
+  recovery_window_in_days = 30
+}
+
+resource "aws_secretsmanager_secret_version" "metrics_token_secondary" {
+  count = var.metrics_token_secondary == null ? 0 : 1
+
+  secret_id     = aws_secretsmanager_secret.metrics_token_secondary[0].id
+  secret_string = var.metrics_token_secondary
 }

@@ -157,7 +157,7 @@ variable "database_name" {
 }
 
 variable "database_username" {
-  description = "PostgreSQL owner user used by this assessment deployment."
+  description = "PostgreSQL owner user used only by migrations."
   type        = string
   default     = "supercool"
 }
@@ -174,6 +174,29 @@ variable "database_password" {
   }
 }
 
+variable "database_application_username" {
+  description = "PostgreSQL login used by the long running application."
+  type        = string
+  default     = "supercool_app"
+
+  validation {
+    condition     = can(regex("^[a-z_][a-z0-9_]{0,62}$", var.database_application_username))
+    error_message = "The application database username must be a valid lowercase PostgreSQL identifier."
+  }
+}
+
+variable "database_application_password" {
+  description = "PostgreSQL application password stored in Terraform state and Secrets Manager."
+  type        = string
+  sensitive   = true
+  nullable    = false
+
+  validation {
+    condition     = length(var.database_application_password) >= 20
+    error_message = "The application database password must contain at least 20 characters."
+  }
+}
+
 variable "auth_secret" {
   description = "Application authentication secret stored in Terraform state and Secrets Manager."
   type        = string
@@ -186,6 +209,19 @@ variable "auth_secret" {
   }
 }
 
+variable "auth_secret_secondary" {
+  description = "Optional second authentication secret used during a staged rotation."
+  type        = string
+  sensitive   = true
+  default     = null
+  nullable    = true
+
+  validation {
+    condition     = var.auth_secret_secondary == null ? true : length(var.auth_secret_secondary) >= 32
+    error_message = "The secondary authentication secret must contain at least 32 characters."
+  }
+}
+
 variable "metrics_token" {
   description = "Metrics bearer token stored in Terraform state and Secrets Manager."
   type        = string
@@ -195,6 +231,19 @@ variable "metrics_token" {
   validation {
     condition     = length(var.metrics_token) >= 32
     error_message = "The metrics token must contain at least 32 characters."
+  }
+}
+
+variable "metrics_token_secondary" {
+  description = "Optional second metrics token used during a staged rotation."
+  type        = string
+  sensitive   = true
+  default     = null
+  nullable    = true
+
+  validation {
+    condition     = var.metrics_token_secondary == null ? true : length(var.metrics_token_secondary) >= 32
+    error_message = "The secondary metrics token must contain at least 32 characters."
   }
 }
 

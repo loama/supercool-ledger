@@ -62,11 +62,17 @@ resource "aws_iam_role_policy_attachment" "task_execution" {
 data "aws_iam_policy_document" "task_execution_secrets" {
   statement {
     actions = ["secretsmanager:GetSecretValue"]
-    resources = [
-      aws_secretsmanager_secret.auth_secret.arn,
-      aws_secretsmanager_secret.database_url.arn,
-      aws_secretsmanager_secret.metrics_token.arn,
-    ]
+    resources = concat(
+      [
+        aws_secretsmanager_secret.application_database_password.arn,
+        aws_secretsmanager_secret.auth_secret.arn,
+        aws_secretsmanager_secret.database_url.arn,
+        aws_secretsmanager_secret.metrics_token.arn,
+        aws_secretsmanager_secret.migration_database_url.arn,
+      ],
+      var.auth_secret_secondary == null ? [] : [aws_secretsmanager_secret.auth_secret_secondary[0].arn],
+      var.metrics_token_secondary == null ? [] : [aws_secretsmanager_secret.metrics_token_secondary[0].arn],
+    )
   }
 }
 
@@ -83,24 +89,40 @@ resource "aws_iam_role" "application_task" {
 
 locals {
   application_image = "${aws_ecr_repository.application.repository_url}@${var.image_digest}"
-  container_secrets = [
+  container_secrets = concat(
+    [
+      {
+        name      = "AUTH_SECRET"
+        valueFrom = "${aws_secretsmanager_secret.auth_secret.arn}:::${aws_secretsmanager_secret_version.auth_secret.version_id}"
+      },
+      {
+        name      = "DATABASE_URL"
+        valueFrom = "${aws_secretsmanager_secret.database_url.arn}:::${aws_secretsmanager_secret_version.database_url.version_id}"
+      },
+      {
+        name      = "METRICS_TOKEN"
+        valueFrom = "${aws_secretsmanager_secret.metrics_token.arn}:::${aws_secretsmanager_secret_version.metrics_token.version_id}"
+      },
+    ],
+    var.auth_secret_secondary == null ? [] : [{
+      name      = "AUTH_SECRET_SECONDARY"
+      valueFrom = "${aws_secretsmanager_secret.auth_secret_secondary[0].arn}:::${aws_secretsmanager_secret_version.auth_secret_secondary[0].version_id}"
+    }],
+    var.metrics_token_secondary == null ? [] : [{
+      name      = "METRICS_TOKEN_SECONDARY"
+      valueFrom = "${aws_secretsmanager_secret.metrics_token_secondary[0].arn}:::${aws_secretsmanager_secret_version.metrics_token_secondary[0].version_id}"
+    }],
+  )
+  migration_secrets = [
     {
-      name      = "AUTH_SECRET"
-      valueFrom = aws_secretsmanager_secret.auth_secret.arn
+      name      = "APPLICATION_DATABASE_PASSWORD"
+      valueFrom = "${aws_secretsmanager_secret.application_database_password.arn}:::${aws_secretsmanager_secret_version.application_database_password.version_id}"
     },
     {
       name      = "DATABASE_URL"
-      valueFrom = aws_secretsmanager_secret.database_url.arn
-    },
-    {
-      name      = "METRICS_TOKEN"
-      valueFrom = aws_secretsmanager_secret.metrics_token.arn
+      valueFrom = "${aws_secretsmanager_secret.migration_database_url.arn}:::${aws_secretsmanager_secret_version.migration_database_url.version_id}"
     },
   ]
-  migration_secrets = [{
-    name      = "DATABASE_URL"
-    valueFrom = aws_secretsmanager_secret.database_url.arn
-  }]
 }
 
 resource "aws_ecs_task_definition" "application" {
@@ -152,9 +174,13 @@ resource "aws_ecs_task_definition" "application" {
   depends_on = [
     aws_iam_role_policy.task_execution_secrets,
     aws_iam_role_policy_attachment.task_execution,
+    aws_secretsmanager_secret_version.application_database_password,
     aws_secretsmanager_secret_version.auth_secret,
+    aws_secretsmanager_secret_version.auth_secret_secondary,
     aws_secretsmanager_secret_version.database_url,
     aws_secretsmanager_secret_version.metrics_token,
+    aws_secretsmanager_secret_version.metrics_token_secondary,
+    aws_secretsmanager_secret_version.migration_database_url,
   ]
 }
 
@@ -174,6 +200,7 @@ resource "aws_ecs_task_definition" "migration" {
     command   = ["bun", "run", "db:migrate"]
     environment = [
       { name = "LOG_LEVEL", value = "info" },
+      { name = "APPLICATION_DATABASE_USERNAME", value = var.database_application_username },
     ]
     secrets = local.migration_secrets
     logConfiguration = {
@@ -189,9 +216,13 @@ resource "aws_ecs_task_definition" "migration" {
   depends_on = [
     aws_iam_role_policy.task_execution_secrets,
     aws_iam_role_policy_attachment.task_execution,
+    aws_secretsmanager_secret_version.application_database_password,
     aws_secretsmanager_secret_version.auth_secret,
+    aws_secretsmanager_secret_version.auth_secret_secondary,
     aws_secretsmanager_secret_version.database_url,
     aws_secretsmanager_secret_version.metrics_token,
+    aws_secretsmanager_secret_version.metrics_token_secondary,
+    aws_secretsmanager_secret_version.migration_database_url,
   ]
 }
 
