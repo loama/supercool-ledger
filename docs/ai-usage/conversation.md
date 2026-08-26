@@ -1737,3 +1737,75 @@ This is a chronological export of user prompts and visible assistant responses b
 ## 223. Assistant response
 
 > The full render now measures about 149.5 Hz, essentially the same as the 148.1 Hz source. The previous render measured about 174 Hz. The speed remains 1.5, but the thin raised tone is gone. I am updating the evidence and preview metadata now so your open tab serves this corrected file.
+
+## 224. Assistant response
+
+> The corrected file is already available from the open preview server. A refresh will load it. Before I hand it back, I am running the repository gate once more and recording this as one focused video fix, including the source audio, pitch preserving render asset, test, and updated evidence.
+
+## 225. Assistant response
+
+> Fixed. The 1.5 playback was raising the pitch.
+>
+> I kept the same Spanish actor and changed the tempo processing so the voice stays natural:
+>
+> 1. Source pitch: about 148 Hz
+> 2. Previous render: about 174 Hz
+> 3. Corrected render: about 150 Hz
+> 4. Speed remains 1.5
+> 5. No autoplay
+>
+> [Listen to the corrected preview](http://127.0.0.1:3014/?voice=pitch-preserved). Refresh if the previous audio remains buffered.
+>
+> The fix is committed on `feat/efex-video-cloud-iac`. All 79 tests and 598 assertions pass.
+
+## 226. User prompt
+
+> [REDACTED: private workspace context]
+>
+> ## My request:
+>
+> we need spanish voices
+
+## 227. Assistant response
+
+> You are right. A lower pitch is not enough if the accent and cadence do not sound natively Spanish. Since this is for EFEX in Mexico, I will use the narrator workflow to prepare a short comparison of native Mexican or neutral Latin American male voices, then replace the full narration only after we hear the options.
+
+## 228. Assistant response
+
+> The current voice is speaking Spanish, but it is not landing as a native Mexican voice. I am switching the selection criterion from pitch alone to native accent and cadence. I will use short Spanish samples first so we do not rerender the entire video around another wrong voice.
+
+## 229. Assistant response
+
+> Yes. We need a native Mexican Spanish voice, not an English voice reading Spanish.
+>
+> I will prepare three short options:
+>
+> 1. Deep and mature
+> 2. Neutral product narrator
+> 3. Warm and conversational
+>
+> The ElevenLabs tab is currently signed out, and the narrator workflow needs a verified voice before generating the full recording. Please sign into the existing ElevenLabs tab and tell me when it is ready. I will generate the comparisons first, then use your choice for the complete video.
+
+## 230. User prompt
+
+> [REDACTED: private workspace context]
+>
+> ## My request:
+>
+> ok maybe the current speed is too much, 1.5x should maybe be 1.25x instead, change that
+
+## 231. Assistant response
+
+> I agree. At 1.5 the delivery feels rushed even after correcting the pitch. I am changing the narration tempo to 1.25, expanding the scene and caption timing to match, then I will rerender the complete preview without autoplay.
+
+## 232. Assistant response
+
+> The timing test now proves the new pace, and every caption still belongs to its intended scene. I am regenerating the pitch preserved audio and the full video now.
+
+## 233. Assistant response
+
+> The complete render is now about 119 seconds. The Spanish narration is slower, its original pitch is still preserved, and all eleven visual pages remain aligned with their captions. The open preview already serves the new file without autoplay.
+
+## 234. Assistant response
+
+> The final checks are clean: 79 tests and 598 assertions pass, formatting, linting, types, build, media evidence, preview range handling, and the production dependency audit all pass. I am doing the final diff and credential review before committing this focused change.
