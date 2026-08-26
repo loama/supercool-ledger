@@ -5,21 +5,22 @@ This record describes the final evidence for the public assessment release on 26
 ## Release identity
 
 1. Repository: https://github.com/loama/supercool-ledger
-2. Review pull request: https://github.com/loama/supercool-ledger/pull/1
-3. Merged commit: `2212af834e91895b84e42c1fc4cbe9d36a735520`
+2. Review pull request: https://github.com/loama/supercool-ledger/pull/8
+3. Application release commit: `c6e3079119e97b9051d6c5f9b382608b85496120`
 4. Live service: https://supercool-ledger.onrender.com
-5. Interactive API reference: https://supercool-ledger.onrender.com/docs/
-6. Render service: `srv-da71hq67bikc73eiu90g`
-7. Render database: `dpg-da713295efls738aods0-a`
-8. Render deployment: `dep-da71hqu7bikc73eiua10`
+5. Reviewer sandbox: https://supercool-ledger.onrender.com/sandbox
+6. Interactive API reference: https://supercool-ledger.onrender.com/docs/
+7. Render service: `srv-da71hq67bikc73eiu90g`
+8. Render database: `dpg-da713295efls738aods0-a`
+9. Render deployment: `dep-da73htp5efls738idutg`
 
 ## Local verification
 
-`bun run check` completed with 55 passing tests, 344 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 65 passing tests, 423 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
-The concurrency integration test used PostgreSQL row locks rather than mocks. The complete suite also covered database idempotency, rollback, tenant isolation, immutable history, balanced postings, transfer semantics, cached balance consistency, reconciliation, redaction, tracing, OpenAPI, and video evidence.
+The concurrency integration test used PostgreSQL row locks rather than mocks. The complete suite also covered database idempotency, rollback, tenant isolation, immutable history, balanced postings, transfer semantics, cached balance consistency, reconciliation, sandbox admission, sandbox retention, redaction, tracing, OpenAPI, and video evidence.
 
 ## Container verification
 
@@ -30,18 +31,20 @@ The final Docker image was rebuilt from the repository. A fresh PostgreSQL 17 co
 3. `/docs/` returned `200` with HTML.
 4. `/metrics` returned `401` without its token.
 5. `/metrics` returned `200` with Prometheus text when its token was supplied.
+6. `/sandbox` returned `200` with the English reviewer console.
+7. `POST /v1/sandbox/sessions` returned `201` from the running image.
 
 The two temporary smoke containers were removed after verification.
 
 ## GitHub verification
 
-Pull request 1 was mergeable and received successful `verify` and `container` checks. The merge preserved the logical commit history and promoted the reviewed branch to `main`.
+Pull request 8 was mergeable and received successful `verify` and `container` checks at reviewed head `7d7449922b16214af588cc32b716dc053b3627c0`. The merge preserved the logical commit history and promoted the reviewed branch to `main` as `c6e3079119e97b9051d6c5f9b382608b85496120`.
 
-The public repository default branch is `main`. The merged commit is the same commit deployed by Render.
+The `main` pipeline also passed both jobs for the merged commit. The public repository default branch is `main`. Later documentation commits do not alter the runtime source recorded above.
 
 ## Render verification
 
-The Blueprint associated the paid PostgreSQL 17 database and created the paid Docker web service in Frankfurt. Render built the pinned Bun image, completed `bun run db:migrate`, started the service, and waited for `/health/ready` before marking deployment `dep-da71hqu7bikc73eiua10` live.
+The Blueprint associates the paid PostgreSQL 17 database with the paid Docker web service in Frankfurt. Render built application commit `c6e3079119e97b9051d6c5f9b382608b85496120`, completed `bun run db:migrate`, started the service, and waited for `/health/ready` before marking deployment `dep-da73htp5efls738idutg` live. A manual Blueprint sync then applied `SANDBOX_ENABLED=true` from `render.yaml` and restarted the service with the public console enabled.
 
 Direct public checks returned:
 
@@ -50,8 +53,14 @@ Direct public checks returned:
 3. `/openapi.json` returned `200` and OpenAPI `3.1.0`.
 4. `/docs/` returned `200` and the Scalar reference.
 5. `/metrics` returned `401` without authentication.
+6. `/sandbox` returned `200` with the English console and service ready state.
+7. `POST /v1/sandbox/sessions` returned `201` with two isolated synthetic accounts.
+8. A transfer of `125.75 USD` returned `201` with state `completed` and changed the source balance from `1000.00` to `874.25`.
+9. Repeating one transfer with the same idempotency key returned `200`, the `idempotent-replayed` header, and the same transfer identifier.
+10. An attempted transfer of `9999.00 USD` returned `422` with code `insufficient_funds`.
+11. Reconciliation returned `200` with zero discrepancies.
 
-Readiness compares the database with every migration shipped in the deployed artifact. Its successful response, together with the completed migration hook in Render logs, proves that the hosted schema reached the expected migration set before receiving traffic.
+Readiness compares the database with every migration shipped in the deployed artifact. Its successful response, together with successful sandbox creation, proves that migration 004 reached the hosted database before public traffic. The browser verification also created a test account and displayed the formatted `HTTP 201` response card with the tenant summary, account count, session duration, and raw JSON disclosure.
 
 ## Media verification
 
@@ -63,6 +72,6 @@ The committed video evidence is generated from the same sanitized PostgreSQL sce
 
 ## Review evidence
 
-Two formal rounds each used three independent reviewers. Their complete prompts and responses appear in `docs/ai-usage/review-records.md`. The main adjudication and accepted corrections appear in `docs/reviews/round-1.md` and `docs/reviews/round-2.md`.
+Two formal rounds each used three independent reviewers. A final release review used independent security, interface, and deployment reviewers. Their complete prompts and responses appear in `docs/ai-usage/review-records.md`. The main adjudication and accepted corrections appear in `docs/reviews/round-1.md` and `docs/reviews/round-2.md`.
 
 The remaining production limitation is explicit. The assessment uses one Render owner connection for migrations and runtime. A production service must separate migration, application, reconciliation, and recovery roles, then enforce tenant policy inside PostgreSQL.
