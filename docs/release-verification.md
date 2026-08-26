@@ -20,7 +20,7 @@ The public URLs, GitHub checks, container results, and Render results below appl
 
 ## Current branch local verification
 
-`bun run check` completed with 78 passing tests, 595 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 79 passing tests, 598 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
@@ -68,15 +68,15 @@ Readiness compares the database with every migration shipped in the deployed art
 
 ## Media verification
 
-The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The raw MP3 lasts 145.214688 seconds. Playback at exactly 1.5 shortens it to 96.809792 seconds inside a 99 second composition, leaving a 2.190208 second closing hold.
+The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The source MP3 lasts 145.214688 seconds. FFmpeg applies a pitch preserving tempo rate of 1.5 and creates a 96.815488 second render asset. Remotion plays that asset at rate 1 inside a 99 second composition, leaving a 2.184512 second closing hold.
 
-The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,837,924 bytes, and its SHA 256 digest is `c38da4aef69de26d8250e3c1b67e16b8fa883b28563036cc0a8f69a4ed13e8fa`.
+The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,837,924 bytes, and its SHA 256 digest is `450c6f61cac36fe7e2531472207a38bc8960e8bc09bccd0dc4b78bb88c6af038`.
 
-The poster is a 1920 by 1080 PNG with SHA 256 digest `bb38a48c65887d9ecd092a051dd0e040e7b7b1f96e2aa138b3b671f13f7d8d85`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
+The poster is a 1920 by 1080 PNG with SHA 256 digest `bb38a48c65887d9ecd092a051dd0e040e7b7b1f96e2aa138b3b671f13f7d8d85`. The source narration is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`. The pitch preserving render asset has SHA 256 digest `babfa5f81091520d974f2c8805d23554b2ae40315437dfb67303363918e792cc`.
 
 `bun run video:verify` records the narration text and source digests, verification script digest, media probe output, and every artifact digest in `video/out/media-evidence.json`. It also extracts one middle frame from each of the eleven numbered visual pages and retains the samples in `video/out/inspection-montage.png`. The montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. Full resolution frames for the poster, AWS page 10, and review page 11 received separate inspection.
 
-The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14837193`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
+The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14837924`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
 
 The committed video evidence is generated from the same sanitized PostgreSQL scenario that the integration test executes and compares. Random identifiers and timestamps are excluded from equality checks by design.
 

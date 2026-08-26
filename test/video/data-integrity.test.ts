@@ -4,6 +4,7 @@ import demo from '../../video/assets/demo-run.json';
 import { captionCues } from '../../video/captions.ts';
 import { narrationSections, narrationSegments, narrationText } from '../../video/narration.ts';
 import { VideoRoot } from '../../video/Root.tsx';
+import { SuperCoolLedger } from '../../video/SuperCoolLedger.tsx';
 import {
   VIDEO_DURATION_IN_FRAMES,
   VIDEO_PAGE_COUNT,
@@ -16,7 +17,8 @@ import {
 } from '../../video/timing.ts';
 
 test('video timing covers ten contiguous scenes at the configured playback rate', () => {
-  expect(VIDEO_PLAYBACK_RATE).toBe(1.5);
+  expect(VIDEO_PLAYBACK_RATE).toBe(1);
+  expect(sourceMillisecondsToVideoFrame(1500)).toBe(30);
   expect(VIDEO_DURATION_IN_FRAMES).toBe(2970);
   expect(sceneRanges.map((scene) => scene.id)).toEqual([
     'financial-promise',
@@ -52,6 +54,16 @@ test('video timing covers ten contiguous scenes at the configured playback rate'
 
   const composition = VideoRoot() as ReactElement<{ durationInFrames: number }>;
   expect(composition.props.durationInFrames).toBe(VIDEO_DURATION_IN_FRAMES);
+});
+
+test('rendered narration keeps its original pitch at the accelerated tempo', () => {
+  const composition = SuperCoolLedger() as ReactElement<{
+    children: ReadonlyArray<ReactElement<{ playbackRate?: number; src?: string }>>;
+  }>;
+  const audio = composition.props.children[0];
+
+  expect(audio?.props.playbackRate).toBe(1);
+  expect(audio?.props.src).toContain('narration-fast.mp3');
 });
 
 test('Spanish story and visual scenes follow the approved narration sections', async () => {

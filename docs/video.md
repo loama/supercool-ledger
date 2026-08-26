@@ -14,15 +14,15 @@ The numbers shown in the demonstration scene come from `video/assets/demo-run.js
 
 ## Narration and timing
 
-The approved script lives in `video/narration.ts`. Its 2,224 characters match the text used to generate `video/public/narration.mp3`. The asset uses the ElevenLabs Enrique M. Nieto voice, voice identifier `gbTn1bmCvNgk0QEAVyfM`, model `eleven_multilingual_v2`, and language `es-MX`.
+The approved script lives in `video/narration.ts`. Its 2,224 characters match the text used to generate `video/public/narration.mp3`. The asset uses the ElevenLabs Enrique M. Nieto voice, voice identifier `gbTn1bmCvNgk0QEAVyfM`, model `eleven_multilingual_v2`, and language `es-MX`. The render uses `video/public/narration-fast.mp3`, which contains the same performance at the requested tempo.
 
-The raw narration lasts 145.214688 seconds. Remotion plays it at exactly 1.5, so the played duration is 96.809792 seconds. The composition lasts 99 seconds and leaves a 2.190208 second closing hold. Scene ranges are contiguous from frame 0 through frame 2970 at 30 frames per second. Captions begin on the first measured word and the last caption ends with the voice at frame 2904, leaving the closing hold clear.
+The source narration lasts 145.214688 seconds. FFmpeg applies a pitch preserving tempo rate of 1.5 and creates a 96.815488 second render asset. Remotion plays that processed asset at rate 1, which avoids raising the voice pitch. The composition lasts 99 seconds and leaves a 2.184512 second closing hold. Scene ranges are contiguous from frame 0 through frame 2970 at 30 frames per second. Captions begin on the first measured word and the last caption ends with the voice at frame 2904, leaving the closing hold clear.
 
-The raw cue starts in `video/timing.ts` were transcribed from the committed MP3. `sourceMillisecondsToVideoFrame` divides each source timestamp by the 1.5 playback rate, converts it to 30 frames per second, and rounds once to the rendered frame. The video integrity test verifies every cue remains inside the visual scene that owns its narration section.
+The source cue starts in `video/timing.ts` were transcribed from the committed source MP3. `sourceMillisecondsToVideoFrame` divides each source timestamp by the 1.5 tempo rate, converts it to 30 frames per second, and rounds once to the rendered frame. The video integrity test verifies every cue remains inside the visual scene that owns its narration section.
 
-The narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
+The source narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`. The pitch preserving render asset digest is `babfa5f81091520d974f2c8805d23554b2ae40315437dfb67303363918e792cc`.
 
-`scripts/video-voice.ts` is only needed when replacing the narration. It sends the reviewed text to ElevenLabs, reads the credential from the local environment, never prints it, and stores no credential in the repository.
+`scripts/video-voice.ts` is only needed when replacing the narration. It sends the reviewed text to ElevenLabs, reads the credential from the local environment, never prints it, and stores no credential in the repository. It also creates the pitch preserving render asset with FFmpeg.
 
 ## Rendering
 

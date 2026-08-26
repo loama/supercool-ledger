@@ -57,6 +57,29 @@
       "sourceSha256": "81c06d7ed6bf7ad286aa9b2e32c7f57827aceb7843298d63fe97322ee7b8529e"
     },
     "narration": {
+      "path": "video/public/narration-fast.mp3",
+      "sha256": "babfa5f81091520d974f2c8805d23554b2ae40315437dfb67303363918e792cc",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "mp3",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1,
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "format_name": "mp3",
+          "duration": "96.815488",
+          "size": "1550253"
+        }
+      }
+    },
+    "narrationSource": {
       "path": "video/public/narration.mp3",
       "sha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
       "metadata": {
@@ -81,7 +104,7 @@
     },
     "video": {
       "path": "video/out/supercool-ledger.mp4",
-      "sha256": "c38da4aef69de26d8250e3c1b67e16b8fa883b28563036cc0a8f69a4ed13e8fa",
+      "sha256": "450c6f61cac36fe7e2531472207a38bc8960e8bc09bccd0dc4b78bb88c6af038",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -159,7 +182,7 @@
     },
     "verificationScript": {
       "path": "scripts/verify-video-evidence.ts",
-      "sha256": "95ee666b5389d761ffc36a3950169d9ed28ff17b06ee02dea2b1b19cbad049b9"
+      "sha256": "eea262dffc747b5fb1881f4587388e7cdb1a7a3a472668a61b2920e19794e0ec"
     }
   }
 }

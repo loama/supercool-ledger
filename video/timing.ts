@@ -1,4 +1,5 @@
-export const VIDEO_PLAYBACK_RATE = 1.5;
+export const NARRATION_TEMPO_RATE = 1.5;
+export const VIDEO_PLAYBACK_RATE = 1;
 export const VIDEO_FPS = 30;
 export const VIDEO_DURATION_IN_FRAMES = 2970;
 export const VIDEO_PAGE_COUNT = 11;
@@ -10,7 +11,7 @@ export const narrationCueStartMilliseconds = [
 ] as const;
 
 export const sourceMillisecondsToVideoFrame = (milliseconds: number): number =>
-  Math.round((milliseconds / 1000 / VIDEO_PLAYBACK_RATE) * VIDEO_FPS);
+  Math.round((milliseconds / 1000 / NARRATION_TEMPO_RATE) * VIDEO_FPS);
 
 export const NARRATION_END_FRAME = sourceMillisecondsToVideoFrame(NARRATION_DURATION_MILLISECONDS);
 

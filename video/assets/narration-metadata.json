@@ -4,13 +4,16 @@
   "voiceName": "Enrique M. Nieto",
   "modelId": "eleven_multilingual_v2",
   "language": "es-MX",
-  "playbackRate": 1.5,
+  "tempoRate": 1.5,
+  "playbackRate": 1,
   "characters": 2224,
   "scriptSha256": "cac5ca96a0d00504447aa4cd904a2a1c36a912c85396185ada9b70cc41bddd12",
   "rawDurationSeconds": 145.214688,
-  "playedDurationSeconds": 96.809792,
+  "playedDurationSeconds": 96.815488,
   "compositionDurationSeconds": 99,
-  "closingHoldSeconds": 2.190208,
-  "sha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
-  "output": "video/public/narration.mp3"
+  "closingHoldSeconds": 2.184512,
+  "sourceSha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
+  "sha256": "babfa5f81091520d974f2c8805d23554b2ae40315437dfb67303363918e792cc",
+  "sourceOutput": "video/public/narration.mp3",
+  "output": "video/public/narration-fast.mp3"
 }

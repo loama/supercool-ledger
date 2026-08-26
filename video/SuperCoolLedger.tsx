@@ -40,7 +40,11 @@ export const visualSceneLabels = [
 
 export const SuperCoolLedger = () => (
   <AbsoluteFill style={{ background: theme.ink }}>
-    <Audio src={staticFile('narration.mp3')} volume={0.95} playbackRate={VIDEO_PLAYBACK_RATE} />
+    <Audio
+      src={staticFile('narration-fast.mp3')}
+      volume={0.95}
+      playbackRate={VIDEO_PLAYBACK_RATE}
+    />
     {sceneRanges.map((range) => {
       const Scene = scenes[range.id];
       return (

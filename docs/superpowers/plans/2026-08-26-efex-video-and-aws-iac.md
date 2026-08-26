@@ -4,7 +4,7 @@
 
 **Goal:** Deliver validated AWS Terraform and a faster EFEX inspired Spanish walkthrough that explains the codebase, financial flow, cloud design, and reviewer sandbox.
 
-**Architecture:** Keep Render as the live assessment deployment and add an independent AWS Terraform root under `infra/aws`. Split the Remotion presentation into shared theme, shared diagram components, scene components, timing data, and one composition entry. The committed narration remains the reproducible source audio while Remotion plays it at exactly 1.5.
+**Architecture:** Keep Render as the live assessment deployment and add an independent AWS Terraform root under `infra/aws`. Split the Remotion presentation into shared theme, shared diagram components, scene components, timing data, and one composition entry. The committed narration remains the reproducible source audio. A pitch preserving tempo step creates the 1.5 render asset, which Remotion plays at rate 1.
 
 **Tech Stack:** TypeScript, Bun, React, Remotion, `@fontsource-variable/dm-sans` 5.3.0, ElevenLabs, Terraform 1.15, AWS provider 6, ECS Fargate, RDS PostgreSQL 17
 

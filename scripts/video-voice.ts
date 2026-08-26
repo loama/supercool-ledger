@@ -1,7 +1,10 @@
 import { mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { narrationText } from '../video/narration.ts';
-import { VIDEO_PLAYBACK_RATE } from '../video/timing.ts';
+import { NARRATION_TEMPO_RATE, VIDEO_PLAYBACK_RATE } from '../video/timing.ts';
+
+const sourceOutput = 'video/public/narration.mp3';
+const output = 'video/public/narration-fast.mp3';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('missing_environment:ELEVENLABS_API_KEY');
@@ -34,7 +37,29 @@ if (!response.ok) {
 }
 await mkdir('video/public', { recursive: true });
 await mkdir('video/assets', { recursive: true });
-await Bun.write('video/public/narration.mp3', await response.arrayBuffer());
+await Bun.write(sourceOutput, await response.arrayBuffer());
+const tempoResult = Bun.spawnSync({
+  cmd: [
+    'ffmpeg',
+    '-y',
+    '-loglevel',
+    'error',
+    '-i',
+    sourceOutput,
+    '-filter:a',
+    `atempo=${NARRATION_TEMPO_RATE}`,
+    '-c:a',
+    'libmp3lame',
+    '-b:a',
+    '128k',
+    output,
+  ],
+  stderr: 'pipe',
+  stdout: 'pipe',
+});
+if (tempoResult.exitCode !== 0) {
+  throw new Error(`narration_tempo_failed:${new TextDecoder().decode(tempoResult.stderr).trim()}`);
+}
 await Bun.write(
   'video/assets/narration-metadata.json',
   `${JSON.stringify(
@@ -44,10 +69,12 @@ await Bun.write(
       voiceName,
       modelId,
       language: 'es-MX',
+      tempoRate: NARRATION_TEMPO_RATE,
       playbackRate: VIDEO_PLAYBACK_RATE,
       characters: narrationText.length,
       scriptSha256: createHash('sha256').update(narrationText).digest('hex'),
-      output: 'video/public/narration.mp3',
+      sourceOutput,
+      output,
     },
     null,
     2,
@@ -55,7 +82,8 @@ await Bun.write(
 );
 process.stdout.write(
   `${JSON.stringify({
-    output: 'video/public/narration.mp3',
+    output,
+    tempoRate: NARRATION_TEMPO_RATE,
     playbackRate: VIDEO_PLAYBACK_RATE,
     characters: narrationText.length,
   })}\n`,

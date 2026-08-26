@@ -3,7 +3,8 @@ import { narrationText } from '../video/narration.ts';
 import { visualPageRanges } from '../video/timing.ts';
 
 const videoPath = 'video/out/supercool-ledger.mp4';
-const narrationPath = 'video/public/narration.mp3';
+const narrationSourcePath = 'video/public/narration.mp3';
+const narrationPath = 'video/public/narration-fast.mp3';
 const posterPath = 'video/out/poster.png';
 const montagePath = 'video/out/inspection-montage.png';
 const reportPath = 'video/out/media-evidence.json';
@@ -39,7 +40,14 @@ const probe = (path: string): unknown =>
     ]),
   ) as unknown;
 
-for (const path of [videoPath, narrationPath, posterPath, scriptPath, narrationScriptPath]) {
+for (const path of [
+  videoPath,
+  narrationSourcePath,
+  narrationPath,
+  posterPath,
+  scriptPath,
+  narrationScriptPath,
+]) {
   if (!(await Bun.file(path).exists())) throw new Error(`missing_evidence_input:${path}`);
 }
 
@@ -80,6 +88,11 @@ const report = {
       path: narrationPath,
       sha256: await sha256(narrationPath),
       metadata: probe(narrationPath),
+    },
+    narrationSource: {
+      path: narrationSourcePath,
+      sha256: await sha256(narrationSourcePath),
+      metadata: probe(narrationSourcePath),
     },
     video: {
       path: videoPath,
