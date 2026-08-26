@@ -18,7 +18,9 @@ export interface DatabaseHealth {
 export interface AppOptions {
   database: (Database & DatabaseHealth) | null;
   authSecret?: string;
+  authSecretSecondary?: string;
   metricsToken?: string;
+  metricsTokenSecondary?: string;
   logLevel?: string;
   sandboxEnabled?: boolean;
 }
@@ -33,11 +35,22 @@ export const buildApp = async (options: AppOptions): Promise<FastifyInstance> =>
   registerTracing(app);
   registerProblemHandler(app);
   await registerOpenApi(app);
-  registerMetrics(app, options.metricsToken);
+  registerMetrics(
+    app,
+    options.metricsToken
+      ? [
+          options.metricsToken,
+          ...(options.metricsTokenSecondary ? [options.metricsTokenSecondary] : []),
+        ]
+      : undefined,
+  );
 
   if (options.database) {
     if (!options.authSecret) throw new Error('missing_app_option:authSecret');
-    registerAuthentication(app, options.authSecret);
+    registerAuthentication(app, [
+      options.authSecret,
+      ...(options.authSecretSecondary ? [options.authSecretSecondary] : []),
+    ]);
     registerAccountRoutes(app, options.database);
     registerTransferRoutes(app, options.database);
     registerReconciliationRoutes(app, options.database);

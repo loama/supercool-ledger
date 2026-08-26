@@ -18,8 +18,12 @@ afterAll(async () => {
   await pool?.end();
 });
 
-test('protects metrics and exposes bounded labels', async () => {
-  app = await buildApp({ database: null, metricsToken: 'metrics-test-token' });
+test('protects metrics and accepts both tokens during rotation', async () => {
+  app = await buildApp({
+    database: null,
+    metricsToken: 'metrics-test-token',
+    metricsTokenSecondary: 'metrics-secondary-token',
+  });
   await app.inject({ method: 'GET', url: '/health/live' });
 
   const denied = await app.inject({ method: 'GET', url: '/metrics' });
@@ -34,6 +38,13 @@ test('protects metrics and exposes bounded labels', async () => {
   expect(allowed.body).toContain('supercool_http_requests_total');
   expect(allowed.body).toContain('route="/health/live"');
   expect(allowed.body).not.toContain('x-request-id');
+
+  const secondary = await app.inject({
+    method: 'GET',
+    url: '/metrics',
+    headers: { authorization: 'Bearer metrics-secondary-token' },
+  });
+  expect(secondary.statusCode).toBe(200);
 });
 
 test('records bounded financial outcome metrics', async () => {
