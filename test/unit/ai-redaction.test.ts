@@ -61,6 +61,7 @@ test('redacts local paths in independent review records', () => {
 
   expect(result).not.toContain('/Users/');
   expect(result).toContain('[REDACTED_LOCAL_PATH]');
+  expect(result).not.toContain(']([REDACTED_LOCAL_PATH])');
 });
 
 test('preserves ordinary assessment content', () => {

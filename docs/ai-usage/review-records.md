@@ -349,7 +349,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 1. High. Suspended tenants can still move money.
 >
->    Evidence: [`migrations/001_initial.sql:6`]([REDACTED_LOCAL_PATH]) defines `suspended`, but no runtime code reads that state. [`src/transfers/service.ts:140`]([REDACTED_LOCAL_PATH]) only filters accounts by tenant, and [`src/accounts/repository.ts:34`]([REDACTED_LOCAL_PATH]) inserts accounts without checking the tenant.
+>    Evidence: `migrations/001_initial.sql:6` [REDACTED_LOCAL_PATH] defines `suspended`, but no runtime code reads that state. `src/transfers/service.ts:140` [REDACTED_LOCAL_PATH] only filters accounts by tenant, and `src/accounts/repository.ts:34` [REDACTED_LOCAL_PATH] inserts accounts without checking the tenant.
 >
 >    Scenario: after fraud operations suspend a tenant, a holder of an unexpired valid JWT can still create accounts and transfer funds for up to the JWT lifetime, or longer if tokens keep being issued.
 >
@@ -357,7 +357,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 2. High. The deployed dependency tree contains known high severity static file authorization bypasses.
 >
->    Evidence: [`bun.lock:179`]([REDACTED_LOCAL_PATH]) resolves `@fastify/static@9.3.0`; [`src/platform/openapi.ts:21`]([REDACTED_LOCAL_PATH]) exposes Swagger UI through that package. `bun audit --production` reports CVE 2026 15074 and CVE 2026 7120. The former affects all versions through 10.1.0, the latter all versions through 10.1.1.
+>    Evidence: `bun.lock:179` [REDACTED_LOCAL_PATH] resolves `@fastify/static@9.3.0`; `src/platform/openapi.ts:21` [REDACTED_LOCAL_PATH] exposes Swagger UI through that package. `bun audit --production` reports CVE 2026 15074 and CVE 2026 7120. The former affects all versions through 10.1.0, the latter all versions through 10.1.1.
 >
 >    Scenario: the current static root appears to contain public Swagger assets only, so I did not confirm a direct route into `/v1`. Still, the service ships an unpatched static route guard bypass. Any restricted static asset or path guard becomes remotely bypassable, and the dependency should not remain in a financial service.
 >
@@ -365,7 +365,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 3. Medium. The database does not enforce that postings, transfers, or reversals stay inside one tenant or use an account's currency.
 >
->    Evidence: [`migrations/001_initial.sql:25`]([REDACTED_LOCAL_PATH]) through [`migrations/001_initial.sql:61`]([REDACTED_LOCAL_PATH]) define independent foreign keys only. A posting can reference tenant A's account and tenant B's journal. A transfer can name a tenant unrelated to either account or its journal. `postings.currency` need not equal `accounts.currency`. The deferred trigger at [`migrations/001_initial.sql:113`]([REDACTED_LOCAL_PATH]) only checks count, one posting currency, and zero sum.
+>    Evidence: `migrations/001_initial.sql:25` [REDACTED_LOCAL_PATH] through `migrations/001_initial.sql:61` [REDACTED_LOCAL_PATH] define independent foreign keys only. A posting can reference tenant A's account and tenant B's journal. A transfer can name a tenant unrelated to either account or its journal. `postings.currency` need not equal `accounts.currency`. The deferred trigger at `migrations/001_initial.sql:113` [REDACTED_LOCAL_PATH] only checks count, one posting currency, and zero sum.
 >
 >    Scenario: a migration, maintenance script, or future write path can create a balanced but cross tenant journal. The normal HTTP transfer path prevents this, but the purported persistence invariants do not. This can corrupt statements, reconciliation, and tenant boundaries without violating any present database constraint.
 >
@@ -373,7 +373,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 4. Medium. Audit records do not meet the stated financial audit expectation.
 >
->    Evidence: [`migrations/001_initial.sql:84`]([REDACTED_LOCAL_PATH]) creates a mutable `audit_events` table with no immutability trigger. Only successful transfers insert an event at [`src/transfers/service.ts:221`]([REDACTED_LOCAL_PATH]). Reconciliation returns discrepancies at [`src/reconciliation/service.ts:39`]([REDACTED_LOCAL_PATH]), but writes no audit event, despite the design requiring one.
+>    Evidence: `migrations/001_initial.sql:84` [REDACTED_LOCAL_PATH] creates a mutable `audit_events` table with no immutability trigger. Only successful transfers insert an event at `src/transfers/service.ts:221` [REDACTED_LOCAL_PATH]. Reconciliation returns discrepancies at `src/reconciliation/service.ts:39` [REDACTED_LOCAL_PATH], but writes no audit event, despite the design requiring one.
 >
 >    Scenario: a balance mismatch is detected but no durable audit trail identifies the affected tenant or operation. A credential with ordinary application database ownership can also alter or delete audit history.
 >
@@ -381,7 +381,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 5. Low. A valid request with a zero amount returns a generic 500 instead of a client error.
 >
->    Evidence: [`src/transfers/schemas.ts:6`]([REDACTED_LOCAL_PATH]) accepts `"0"` and `"0.00"`. [`src/money/money.ts:30`]([REDACTED_LOCAL_PATH]) rejects both by throwing a plain `Error`; [`src/platform/problem.ts:79`]([REDACTED_LOCAL_PATH]) maps it to 500.
+>    Evidence: `src/transfers/schemas.ts:6` [REDACTED_LOCAL_PATH] accepts `"0"` and `"0.00"`. `src/money/money.ts:30` [REDACTED_LOCAL_PATH] rejects both by throwing a plain `Error`; `src/platform/problem.ts:79` [REDACTED_LOCAL_PATH] maps it to 500.
 >
 >    Scenario: malformed but schema valid client input inflates internal error metrics and looks like a server failure. The transaction rolls back, so money is safe.
 >
@@ -881,11 +881,11 @@ This file preserves every prompt and complete response from the three architectu
 
 > Findings from the read only review:
 >
-> 1. Medium: the concurrent spending card can claim “Protected” for unrelated failures. In [app.ts]([REDACTED_LOCAL_PATH]), `bothSucceeded` is the only condition used. If both requests return `401`, `500`, or both fail for insufficient funds, the UI still reports `Protected`. Check for the expected one success and one rejected transfer, ideally requiring the rejection code to be `insufficient_funds` or the relevant concurrency error. Otherwise show “Inconclusive” or “Failed”.
+> 1. Medium: the concurrent spending card can claim “Protected” for unrelated failures. In app.ts [REDACTED_LOCAL_PATH], `bothSucceeded` is the only condition used. If both requests return `401`, `500`, or both fail for insufficient funds, the UI still reports `Protected`. Check for the expected one success and one rejected transfer, ideally requiring the rejection code to be `insufficient_funds` or the relevant concurrency error. Otherwise show “Inconclusive” or “Failed”.
 >
-> 2. Low: the session countdown is inside a `section[aria-live="polite"]` in [index.html]([REDACTED_LOCAL_PATH]). Since `#session-time` changes every second, screen readers may announce the countdown continuously. Move `aria-live` to a small status element used only for session creation or expiry, and mark the timer itself `aria-live="off"`.
+> 2. Low: the session countdown is inside a `section[aria-live="polite"]` in index.html [REDACTED_LOCAL_PATH]. Since `#session-time` changes every second, screen readers may announce the countdown continuously. Move `aria-live` to a small status element used only for session creation or expiry, and mark the timer itself `aria-live="off"`.
 >
-> 3. Low: “PostgreSQL connected” is static copy in [index.html]([REDACTED_LOCAL_PATH]), even when the API or database is unavailable. This can mislead reviewers during a live deployment. Populate it from a readiness check or label it as a configured backend rather than a live connection.
+> 3. Low: “PostgreSQL connected” is static copy in index.html [REDACTED_LOCAL_PATH], even when the API or database is unavailable. This can mislead reviewers during a live deployment. Populate it from a readiness check or label it as a configured backend rather than a live connection.
 >
 > Checks performed: complete diff against `origin/main`, current uncommitted diff, sandbox client and server routes, response schemas, `git diff --check`, `bun run typecheck`, `bun run lint`, and the sandbox contract and integration tests.
 

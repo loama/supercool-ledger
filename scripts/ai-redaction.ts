@@ -19,6 +19,7 @@ const redactCommon = (value: string): string =>
     .replace(/\bdep-[a-z0-9]{16,}\b/giu, '[REDACTED_DEPLOYMENT_ID]')
     .replace(/file:\/\/\/Users\/[^\s)>\]]+/giu, LOCAL_PATH)
     .replace(/\/Users\/[^\s)>\]]+/gu, LOCAL_PATH)
+    .replace(/\[([^\]\n]+)\]\(\[REDACTED_LOCAL_PATH\]\)/gu, '$1 [REDACTED_LOCAL_PATH]')
     .replace(/Eduardo López’s Workspace/giu, '[REDACTED_PRIVATE_WORKSPACE]')
     .replace(/\bSupervisor\b/giu, '[REDACTED_UNRELATED_PROJECT]')
     .replace(/\bbasic_256mb\b/giu, '[REDACTED_DATABASE_PLAN]')

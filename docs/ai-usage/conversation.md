@@ -738,7 +738,7 @@ This is a chronological export of user prompts and visible assistant responses b
 
 > The full architecture specification is ready for review:
 >
-> [Review the architecture specification]([REDACTED_LOCAL_PATH])
+> Review the architecture specification [REDACTED_LOCAL_PATH]
 >
 > It now defines:
 >
@@ -1005,9 +1005,9 @@ This is a chronological export of user prompts and visible assistant responses b
 >
 > 1. [Public repository](https://github.com/loama/supercool-ledger)
 > 2. [Live API documentation](https://supercool-ledger.onrender.com/docs/)
-> 3. [Testing and handoff guide]([REDACTED_LOCAL_PATH])
-> 4. [Narrated walkthrough video]([REDACTED_LOCAL_PATH])
-> 5. [Release evidence]([REDACTED_LOCAL_PATH])
+> 3. Testing and handoff guide [REDACTED_LOCAL_PATH]
+> 4. Narrated walkthrough video [REDACTED_LOCAL_PATH]
+> 5. Release evidence [REDACTED_LOCAL_PATH]
 >
 > The complete gate passed with 55 tests, 344 assertions, strict TypeScript checks, lint, formatting, production build, dependency audit, and container verification.
 >
@@ -1694,7 +1694,7 @@ This is a chronological export of user prompts and visible assistant responses b
 > 6. 78 tests and 595 assertions passing
 > 7. Production dependency audit clean
 > 8. Packaged container smoke test passing with health 200, sandbox 200, and session creation 201
-> 9. [Release verification]([REDACTED_LOCAL_PATH])
+> 9. Release verification [REDACTED_LOCAL_PATH]
 >
 > The completed work is committed on `feat/efex-video-cloud-iac`. It has not been pushed yet, so the existing Render deployment still runs the earlier public version.
 >
