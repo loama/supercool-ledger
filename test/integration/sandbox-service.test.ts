@@ -33,8 +33,8 @@ afterAll(async () => {
 test('creates an isolated balanced reviewer session and scoped token', async () => {
   if (!database || !pool) throw new Error('sandbox_test_setup_missing');
   const service = new SandboxService(database, authSecret, {
+    activeLimit: 20,
     dailyLimit: 20,
-    totalLimit: 100,
   });
 
   const session = await service.createSession();
@@ -66,11 +66,11 @@ test('creates an isolated balanced reviewer session and scoped token', async () 
   expect(stored.rows[0]?.expires_at.toISOString()).toBe(session.expiresAt);
 });
 
-test('serializes concurrent admission at the daily cap', async () => {
+test('serializes active admission and recovers after expiration', async () => {
   if (!database || !pool) throw new Error('sandbox_test_setup_missing');
   const service = new SandboxService(database, authSecret, {
-    dailyLimit: 1,
-    totalLimit: 10,
+    activeLimit: 1,
+    dailyLimit: 10,
   });
 
   const results = await Promise.allSettled([service.createSession(), service.createSession()]);
@@ -86,4 +86,48 @@ test('serializes concurrent admission at the daily cap', async () => {
     'SELECT count(*)::text AS count FROM sandbox_sessions',
   );
   expect(count.rows[0]?.count).toBe('1');
+
+  await pool.query(
+    `UPDATE sandbox_sessions
+     SET created_at = now() - interval '20 minutes',
+         expires_at = now() - interval '5 minutes'`,
+  );
+
+  const replacement = await service.createSession();
+  expect(replacement.accounts).toHaveLength(2);
+
+  const recoveredCount = await pool.query<{ count: string }>(
+    'SELECT count(*)::text AS count FROM sandbox_sessions',
+  );
+  expect(recoveredCount.rows[0]?.count).toBe('2');
+});
+
+test('purges only sandbox tenants after the seven day retention period', async () => {
+  if (!database || !pool) throw new Error('sandbox_test_setup_missing');
+  const service = new SandboxService(database, authSecret, {
+    activeLimit: 20,
+    dailyLimit: 20,
+  });
+  const expired = await service.createSession();
+
+  await pool.query(
+    `UPDATE sandbox_sessions
+     SET created_at = now() - interval '8 days',
+         expires_at = now() - interval '8 days' + interval '15 minutes'
+     WHERE tenant_id = $1`,
+    [expired.tenantId],
+  );
+
+  const replacement = await service.createSession();
+  const removed = await pool.query<{ count: string }>(
+    'SELECT count(*)::text AS count FROM tenants WHERE id = $1',
+    [expired.tenantId],
+  );
+  const retained = await pool.query<{ count: string }>(
+    'SELECT count(*)::text AS count FROM tenants WHERE id = $1',
+    [replacement.tenantId],
+  );
+
+  expect(removed.rows[0]?.count).toBe('0');
+  expect(retained.rows[0]?.count).toBe('1');
 });

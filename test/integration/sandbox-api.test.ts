@@ -96,3 +96,15 @@ test('uses the returned token for its own accounts and hides another sandbox', a
   expect(JSON.parse(own.body)).toMatchObject({ id: first.accounts[0]?.id, balance: '1000.00' });
   expect(foreign.statusCode).toBe(404);
 });
+
+test('rejects a session burst before opening another database transaction', async () => {
+  for (let index = 0; index < 9; index += 1) {
+    const allowed = await app.inject({ method: 'POST', url: '/v1/sandbox/sessions' });
+    expect(allowed.statusCode).toBe(201);
+  }
+
+  const rejected = await app.inject({ method: 'POST', url: '/v1/sandbox/sessions' });
+  expect(rejected.statusCode).toBe(429);
+  expect(rejected.headers['retry-after']).toBe('60');
+  expect(JSON.parse(rejected.body)).toMatchObject({ code: 'sandbox_rate_limited' });
+});

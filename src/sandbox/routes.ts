@@ -1,7 +1,8 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
 import type { Database } from '../platform/database.ts';
-import { TooManyRequestsProblemSchema } from '../platform/problem.ts';
+import { type ProblemDetails, TooManyRequestsProblemSchema } from '../platform/problem.ts';
+import { SandboxRateLimiter } from './rate-limit.ts';
 import { SandboxService } from './service.ts';
 import { registerSandboxPageRoutes } from './page.ts';
 
@@ -32,6 +33,7 @@ export const registerSandboxRoutes = (
   authSecret: string,
 ): void => {
   const service = new SandboxService(database, authSecret);
+  const rateLimiter = new SandboxRateLimiter();
   registerSandboxPageRoutes(app);
 
   app.post(
@@ -49,6 +51,21 @@ export const registerSandboxRoutes = (
       },
     },
     async (_request, reply) => {
+      const admission = rateLimiter.consume();
+      if (!admission.allowed) {
+        return reply
+          .header('retry-after', String(admission.retryAfterSeconds))
+          .type('application/problem+json')
+          .status(429)
+          .send({
+            type: 'about:blank',
+            title: 'Request Rejected',
+            status: 429,
+            detail: 'Too many sandbox sessions were requested. Try again shortly.',
+            instance: '/v1/sandbox/sessions',
+            code: 'sandbox_rate_limited',
+          } satisfies ProblemDetails);
+      }
       const session = await service.createSession();
       return reply.header('cache-control', 'no-store').status(201).send(session);
     },

@@ -24,13 +24,13 @@ export interface SandboxSession {
 }
 
 export interface SandboxLimits {
+  activeLimit: number;
   dailyLimit: number;
-  totalLimit: number;
 }
 
 interface AdmissionCount extends QueryResultRow {
+  active_count: string;
   daily_count: string;
-  total_count: string;
 }
 
 interface AccountRow extends QueryResultRow {
@@ -41,8 +41,8 @@ interface AccountRow extends QueryResultRow {
 }
 
 const defaultLimits: SandboxLimits = {
+  activeLimit: 40,
   dailyLimit: 200,
-  totalLimit: 2_000,
 };
 
 export class SandboxService {
@@ -53,7 +53,7 @@ export class SandboxService {
     private readonly authSecret: string,
     limits: SandboxLimits = defaultLimits,
   ) {
-    if (limits.dailyLimit < 1 || limits.totalLimit < limits.dailyLimit) {
+    if (limits.activeLimit < 1 || limits.dailyLimit < limits.activeLimit) {
       throw new Error('invalid_sandbox_limits');
     }
     this.limits = limits;
@@ -62,17 +62,18 @@ export class SandboxService {
   async createSession(): Promise<SandboxSession> {
     return this.database.transaction(async (client) => {
       await client.query("SELECT pg_advisory_xact_lock(hashtext('supercool-sandbox-admission'))");
+      await client.query('SELECT purge_expired_sandbox_tenants()');
       const admission = await client.query<AdmissionCount>(
         `SELECT
-           count(*) FILTER (WHERE created_at >= date_trunc('day', now()))::text AS daily_count,
-           count(*)::text AS total_count
-         FROM sandbox_sessions`,
+           count(*) FILTER (WHERE expires_at > now())::text AS active_count,
+           count(*) FILTER (WHERE created_at >= date_trunc('day', now()))::text AS daily_count
+        FROM sandbox_sessions`,
       );
       const counts = admission.rows[0];
       if (
         !counts ||
-        Number(counts.daily_count) >= this.limits.dailyLimit ||
-        Number(counts.total_count) >= this.limits.totalLimit
+        Number(counts.active_count) >= this.limits.activeLimit ||
+        Number(counts.daily_count) >= this.limits.dailyLimit
       ) {
         throw new ServiceError(
           429,
