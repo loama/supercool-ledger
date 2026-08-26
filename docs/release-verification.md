@@ -64,9 +64,9 @@ Readiness compares the database with every migration shipped in the deployed art
 
 ## Media verification
 
-The final Remotion walkthrough uses an ElevenLabs narration asset and complete sentence captions. The MP4 contains H.264 video at 1920 by 1080 and AAC audio. Its duration is 135.061333 seconds and its SHA 256 digest is `cbefcdd9bcfe86f31f5a86f99d9bb915e6a436a9674decc1ff0bd3a4cc40fcda`.
+The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and complete sentence captions in Spanish. The MP4 contains H.264 video at 1920 by 1080 and AAC audio. Its duration is 148.544000 seconds and its SHA 256 digest is `495f9301e651b103c46885c0dc88812cc308124dafa7d64f29b8f8c23247cf30`.
 
-The poster SHA 256 digest is `33b445e542ca7e0699d2e1bece41ee8a89248c629a08e0bd84b007644f7a5b14`.
+The poster SHA 256 digest is `3a145fbf7af6a32ad3d79378d88b7bfb14dd8de19b617e6b92b9de105d344110`. The narration asset lasts 145.214688 seconds and its SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
 
 The committed video evidence is generated from the same sanitized PostgreSQL scenario that the integration test executes and compares. Random identifiers and timestamps are excluded from equality checks by design.
 

@@ -1,7 +1,9 @@
 {
   "provider": "ElevenLabs",
-  "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+  "voiceId": "gbTn1bmCvNgk0QEAVyfM",
+  "voiceName": "Enrique M. Nieto",
   "modelId": "eleven_multilingual_v2",
-  "characters": 2034,
+  "language": "es-MX",
+  "characters": 2224,
   "output": "video/public/narration.mp3"
 }

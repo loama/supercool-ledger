@@ -586,25 +586,25 @@ const Captions = () => {
 export const SuperCoolLedger = () => (
   <AbsoluteFill style={{ background: colors.canvas }}>
     <Audio src={staticFile('narration.mp3')} volume={0.95} />
-    <Sequence from={0} durationInFrames={360} premountFor={30}>
+    <Sequence from={0} durationInFrames={396} premountFor={30}>
       <Intro />
     </Sequence>
-    <Sequence from={360} durationInFrames={570} premountFor={30}>
+    <Sequence from={396} durationInFrames={627} premountFor={30}>
       <Invariants />
     </Sequence>
-    <Sequence from={930} durationInFrames={540} premountFor={30}>
+    <Sequence from={1023} durationInFrames={594} premountFor={30}>
       <Architecture />
     </Sequence>
-    <Sequence from={1470} durationInFrames={660} premountFor={30}>
+    <Sequence from={1617} durationInFrames={726} premountFor={30}>
       <TransferPath />
     </Sequence>
-    <Sequence from={2130} durationInFrames={690} premountFor={30}>
+    <Sequence from={2343} durationInFrames={759} premountFor={30}>
       <Demo />
     </Sequence>
-    <Sequence from={2820} durationInFrames={570} premountFor={30}>
+    <Sequence from={3102} durationInFrames={627} premountFor={30}>
       <Observability />
     </Sequence>
-    <Sequence from={3390} durationInFrames={660} premountFor={30}>
+    <Sequence from={3729} durationInFrames={726} premountFor={30}>
       <Closing />
     </Sequence>
     <Captions />

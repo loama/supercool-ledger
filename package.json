@@ -20,6 +20,7 @@
     "video:voice": "bun scripts/video-voice.ts",
     "video:render": "bunx remotion render video/index.ts SuperCoolLedger video/out/supercool-ledger.mp4 --public-dir=video/public",
     "video:still": "bunx remotion still video/index.ts SuperCoolLedger video/out/poster.png --frame=2400 --public-dir=video/public",
+    "video:preview": "bun scripts/video-preview.ts",
     "openapi:generate": "bun scripts/openapi.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",

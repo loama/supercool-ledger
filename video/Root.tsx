@@ -5,7 +5,7 @@ export const VideoRoot = () => (
   <Composition
     id="SuperCoolLedger"
     component={SuperCoolLedger}
-    durationInFrames={4050}
+    durationInFrames={4455}
     fps={30}
     width={1920}
     height={1080}
