@@ -1,0 +1,13 @@
+.superpowers/
+.worktrees/
+coverage/
+dist/
+infra/aws/.terraform/
+node_modules/
+video/out/
+video/assets/narration*.mp3
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example

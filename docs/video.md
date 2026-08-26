@@ -1,37 +1,43 @@
 # Narrated walkthrough
 
-`video/out/supercool-ledger.mp4` is a 1920 by 1080 Remotion presentation with ElevenLabs narration. It explains the service boundary, financial invariants, transfer transaction, real execution evidence, and operational signals.
+`video/out/supercool-ledger.mp4` is a 1920 by 1080 Remotion presentation with Spanish narration. Ten scenes explain the financial promise, ledger invariants, repository map, request lifecycle, atomic transfer, data model, reviewer sandbox, captured evidence, observability, and a combined AWS topology and review path.
 
-Burned in sentence captions keep the presentation usable without audio. Their exact text and frame windows live in `video/captions.ts`.
+The visual system takes its color, typography, and layout direction from [EFEX](https://www.efex.com/). EFEX supplied the visual reference only. SuperCool Ledger remains a fictional assessment service and has no product affiliation with EFEX.
+
+Sentence captions remain visible inside the safe bottom margin. Their exact text comes from `video/narration.ts`, while `video/timing.ts` owns every scene and caption range.
 
 ## Evidence source
 
 The numbers shown in the demonstration scene come from `video/assets/demo-run.json`. The capture script starts the real Fastify application against PostgreSQL, creates three synthetic accounts, performs a successful transfer, replays its idempotency key, rejects an overspend, reads the resulting postings, and runs tenant scoped reconciliation.
 
-`test/video/data-integrity.test.ts` checks every claim used by the narration and visual evidence. `test/integration/demo.test.ts` independently runs the same scenario against PostgreSQL and compares its stable evidence with the committed snapshot. Identifiers and timestamps are intentionally excluded because each run creates new synthetic records.
+`test/video/data-integrity.test.ts` checks every spoken financial claim against the committed capture. It also checks the ten scene order, all 24 caption ranges, the AWS traffic direction, and the three release states. `test/integration/demo.test.ts` runs the same scenario against PostgreSQL and compares its stable evidence with the committed snapshot. Each run creates new synthetic identifiers and timestamps, so those values are intentionally excluded from equality checks.
 
-## Narration
+## Narration and timing
 
-The reviewed script lives in `video/narration.ts`. `scripts/video-voice.ts` sends only that text to the ElevenLabs text to speech API. It reads the API key from the local environment, never prints it, and stores only nonsecret generation metadata.
+The approved script lives in `video/narration.ts`. Its 2,224 characters match the text used to generate `video/public/narration.mp3`. The asset uses the ElevenLabs Enrique M. Nieto voice, voice identifier `gbTn1bmCvNgk0QEAVyfM`, model `eleven_multilingual_v2`, and language `es-MX`. The render uses `video/public/narration-fast.mp3`, which contains the same performance at the requested tempo.
 
-The generator uses Enrique M. Nieto by default. This voice has a native Mexican Spanish accent and a measured narration style. You can choose another voice through `ELEVENLABS_VOICE_ID` and `ELEVENLABS_VOICE_NAME`. You can also override the default `eleven_multilingual_v2` model through `ELEVENLABS_MODEL_ID`.
+The source narration lasts 145.214688 seconds. FFmpeg applies a pitch preserving tempo rate of 1.25 and creates a 116.180249 second render asset. Remotion plays that processed asset at rate 1, which avoids raising the voice pitch. The composition lasts 119 seconds and leaves a 2.819751 second closing hold. Scene ranges are contiguous from frame 0 through frame 3570 at 30 frames per second. Captions begin on the first measured word and the last caption ends with the voice at frame 3485, leaving the closing hold clear.
 
-Generate the audio with:
+The source cue starts in `video/timing.ts` were transcribed from the committed source MP3. `sourceMillisecondsToVideoFrame` divides each source timestamp by the 1.25 tempo rate, converts it to 30 frames per second, and rounds once to the rendered frame. The video integrity test verifies every cue remains inside the visual scene that owns its narration section.
 
-```bash
-bun run video:voice
-```
+The source narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`. The pitch preserving render asset digest is `51ad2b31f5cea2b8026ad6790152cc530e221a801a8819791c3fb350985c4ac5`.
 
-The committed narration asset lets reviewers render the project without an ElevenLabs account.
+`scripts/video-voice.ts` is only needed when replacing the narration. It sends the reviewed text to ElevenLabs, reads the credential from the local environment, never prints it, and stores no credential in the repository. It also creates the pitch preserving render asset with FFmpeg.
 
 ## Rendering
 
 ```bash
 bun run video:render
 bun run video:still
+bun run video:evidence
+bun run video:verify
 ```
 
-The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The final artifact uses H.264 video and AAC audio, which play directly in modern browsers and common media players.
+The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. After inspecting both artifacts, `video:evidence` replaces the committed evidence report and montage. The report records narration and source digests, the verification script digest, every media digest, probe metadata, and a digest for the exact middle frame sampled from each of the eleven numbered visual pages. The final command regenerates all evidence in a temporary directory and fails if it differs from the committed report. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
+
+## Visual inspection
+
+The retained montage at `video/out/inspection-montage.png` contains one middle frame from every numbered page, including separate AWS and review pages. The exact frame numbers and hashes are recorded in `video/out/media-evidence.json`. Inspect the montage for typography, connector direction, caption spacing, and safe margins after each render. The automated timing test separately verifies every caption remains inside the scene that owns its narration section.
 
 ## Local preview
 
@@ -39,4 +45,4 @@ The first command creates `video/out/supercool-ledger.mp4`. The second creates `
 bun run video:preview
 ```
 
-Open `http://127.0.0.1:3013/` after the command starts. The page loads video metadata but does not begin playback until you press play.
+Open `http://127.0.0.1:3013/` after the command starts. The page includes native video controls and `preload="metadata"`. It has no autoplay attribute. The media route returns `Accept-Ranges: bytes`, a valid byte request returns `206 Partial Content`, and an invalid range returns `416 Range Not Satisfiable`.

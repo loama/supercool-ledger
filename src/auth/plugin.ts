@@ -13,7 +13,10 @@ export class AuthorizationError extends Error {
   }
 }
 
-export const registerAuthentication = (app: FastifyInstance, secret: string): void => {
+export const registerAuthentication = (
+  app: FastifyInstance,
+  secrets: string | readonly string[],
+): void => {
   app.decorateRequest('auth');
   app.addHook('onRequest', async (request) => {
     if (
@@ -31,7 +34,7 @@ export const registerAuthentication = (app: FastifyInstance, secret: string): vo
     const authorization = request.headers.authorization;
     if (!authorization?.startsWith('Bearer ')) throw new AuthenticationError();
     try {
-      request.auth = await verifyToken(authorization.slice(7), secret);
+      request.auth = await verifyToken(authorization.slice(7), secrets);
     } catch {
       throw new AuthenticationError();
     }

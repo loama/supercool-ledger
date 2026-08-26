@@ -27,6 +27,9 @@ export const migrate = async (pool: Pool): Promise<void> => {
   const client = await pool.connect();
   try {
     await client.query("SELECT pg_advisory_lock(hashtext('supercool-ledger-migrations'))");
+    await client.query("SELECT set_config('app.reviewed_sandbox_tenant_ids', $1, false)", [
+      process.env.REVIEWED_SANDBOX_TENANT_IDS ?? '',
+    ]);
     await client.query(`
       CREATE TABLE IF NOT EXISTS schema_migrations (
         name TEXT PRIMARY KEY,

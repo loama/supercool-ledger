@@ -1,9 +1,11 @@
 export interface AppConfig {
   authSecret: string;
+  authSecretSecondary?: string;
   databaseUrl: string;
   host: string;
   logLevel: string;
   metricsToken: string;
+  metricsTokenSecondary?: string;
   port: number;
   sandboxEnabled: boolean;
   sentryDsn?: string;
@@ -26,10 +28,12 @@ export const loadConfig = (env: Record<string, string | undefined>): AppConfig =
 
   return {
     authSecret: required(env, 'AUTH_SECRET'),
+    ...(env.AUTH_SECRET_SECONDARY ? { authSecretSecondary: env.AUTH_SECRET_SECONDARY } : {}),
     databaseUrl: required(env, 'DATABASE_URL'),
     host: env.HOST ?? '0.0.0.0',
     logLevel: env.LOG_LEVEL ?? 'info',
     metricsToken: required(env, 'METRICS_TOKEN'),
+    ...(env.METRICS_TOKEN_SECONDARY ? { metricsTokenSecondary: env.METRICS_TOKEN_SECONDARY } : {}),
     port,
     sandboxEnabled: env.SANDBOX_ENABLED === 'true',
     ...(env.SENTRY_DSN ? { sentryDsn: env.SENTRY_DSN } : {}),

@@ -8,8 +8,9 @@ import { initializeTracing, withSpan } from '../../src/observability/tracing.ts'
 
 test('exports bounded financial spans and preserves their request parent', async () => {
   const exporter = new InMemorySpanExporter();
+  const spanProcessor = new SimpleSpanProcessor(exporter);
   const sdk = initializeTracing({
-    spanProcessors: [new SimpleSpanProcessor(exporter)],
+    spanProcessors: [spanProcessor],
   });
   await withSpan('ledger.transfer.create', { 'financial.operation': 'transfer' }, () =>
     Promise.resolve(42),
@@ -38,6 +39,7 @@ test('exports bounded financial spans and preserves their request parent', async
   });
   expect(response.statusCode).toBe(200);
   await app.close();
+  await spanProcessor.forceFlush();
 
   const spans = exporter.getFinishedSpans();
   const requestSpan = spans.find((span) => span.name === 'http.request');

@@ -1,5 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { format } from 'prettier';
+import { redactConversationMessages, redactReviewRecord } from './ai-redaction.ts';
+import { quoted, renderConversationMarkdown } from './ai-records.ts';
 
 interface ContentPart {
   input_text?: string;
@@ -45,7 +47,7 @@ const firstAssessmentMessage = messages.findIndex(
   (message) => message.role === 'user' && message.text.includes('Problem Statement:'),
 );
 if (firstAssessmentMessage < 0) throw new Error('assessment_prompt_not_found');
-const assessmentMessages = messages.slice(firstAssessmentMessage);
+const assessmentMessages = redactConversationMessages(messages.slice(firstAssessmentMessage));
 
 await mkdir('docs/ai-usage', { recursive: true });
 await Bun.write(
@@ -53,29 +55,9 @@ await Bun.write(
   `${JSON.stringify({ source: 'visible project conversation', messages: assessmentMessages }, null, 2)}\n`,
 );
 
-const quoted = (value: string): string =>
-  value
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.replace(/[ \t]+$/g, '');
-      return trimmed ? `> ${trimmed}` : '>';
-    })
-    .join('\n');
-const markdown = [
-  '# Visible AI conversation',
-  '',
-  'This is a chronological export of user prompts and visible assistant responses beginning with the official assessment. Tool internals, system instructions, secrets, and unrelated earlier design work are excluded.',
-  '',
-  ...assessmentMessages.flatMap((message, index) => [
-    `## ${index + 1}. ${message.role === 'user' ? 'User prompt' : 'Assistant response'}`,
-    '',
-    quoted(message.text),
-    '',
-  ]),
-].join('\n');
 await Bun.write(
   'docs/ai-usage/conversation.md',
-  await format(markdown, { parser: 'markdown', proseWrap: 'preserve' }),
+  await renderConversationMarkdown(assessmentMessages),
 );
 
 const prompts = new Map<string, string>([
@@ -151,7 +133,14 @@ const agentInteractions = events.flatMap((event) => {
     /^Message Type: FINAL_ANSWER\nTask name: \/root\nSender: [^\n]+\nPayload:\n/,
     '',
   );
-  return [{ author, occurrence, prompt, response }];
+  return [
+    {
+      author,
+      occurrence,
+      prompt: redactReviewRecord(prompt),
+      response: redactReviewRecord(response),
+    },
+  ];
 });
 
 const reviewMarkdown = [

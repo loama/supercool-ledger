@@ -38,3 +38,20 @@ test('rejects a token signed with another secret', async () => {
   }
   expect(caught).toBeDefined();
 });
+
+test('accepts current and secondary secrets during rotation', async () => {
+  const secondarySecret = 'a-secondary-secret-with-more-than-32-characters';
+  const token = await signDevelopmentToken(
+    {
+      subject: 'reviewer',
+      tenantId: '9b858d3a-0976-4ed8-92a5-b07e2db8853f',
+      scopes: ['accounts:read'],
+    },
+    secondarySecret,
+  );
+
+  expect(await verifyToken(token, [secret, secondarySecret])).toMatchObject({
+    subject: 'reviewer',
+    tenantId: '9b858d3a-0976-4ed8-92a5-b07e2db8853f',
+  });
+});

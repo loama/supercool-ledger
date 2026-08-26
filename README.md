@@ -165,7 +165,9 @@ See `docs/observability.md` for metrics and alert guidance.
 
 ## Deployment
 
-`render.yaml` defines a paid Render web service and paid PostgreSQL database in Frankfurt. Render runs migrations before deployment and checks `/health/ready` before routing traffic.
+`render.yaml` defines the live paid Render web service and PostgreSQL database in Frankfurt. Render runs migrations before deployment and checks `/health/ready` before routing traffic.
+
+`infra/aws` defines an independent production topology with a two availability zone VPC, private ECS Fargate tasks, private RDS PostgreSQL 17 in Multi AZ mode, immutable ECR images, Secrets Manager, CloudWatch, a separate migration task, and scaling from two tasks to six tasks. Its bootstrap mode omits the service and autoscaling until the first migration exits with zero. The AWS path keeps all balance reads on the database writer. Its deployment sequence is documented in `infra/aws/README.md`.
 
 The Dockerfile pins Bun and uses the same application runtime locally, in CI, and on Render.
 
@@ -181,7 +183,7 @@ This version does not implement foreign exchange, external bank settlement, card
 2. `docs/threat-model.md` describes threats and controls.
 3. `docs/observability.md` documents signals and redaction.
 4. `docs/operations.md` covers migrations, reconciliation, and incidents.
-5. `docs/cloud-deployment.md` explains Render and an AWS production evolution.
+5. `docs/cloud-deployment.md` explains the live Render service and the AWS production topology.
 6. `docs/adr/` records the three financial architecture decisions.
 7. `docs/ai-usage/` records visible project prompts and responses.
 8. `docs/references.md` links the primary technical references used for the design.

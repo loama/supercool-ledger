@@ -82,12 +82,13 @@ export class SandboxService {
         );
       }
 
-      const seed = await seedDemoTenant(client, `Reviewer Sandbox ${randomUUID().slice(0, 8)}`);
+      const seed = await seedDemoTenant(
+        client,
+        `Reviewer Sandbox ${randomUUID().slice(0, 8)}`,
+        true,
+      );
       const expiresAt = new Date(Date.now() + sessionDurationMilliseconds);
-      await client.query('INSERT INTO sandbox_sessions (tenant_id, expires_at) VALUES ($1, $2)', [
-        seed.tenantId,
-        expiresAt,
-      ]);
+      await client.query('SELECT record_sandbox_session($1, $2)', [seed.tenantId, expiresAt]);
       const accountRows = await client.query<AccountRow>(
         `SELECT id, name, currency, balance_minor::text
          FROM accounts

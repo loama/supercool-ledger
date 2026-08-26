@@ -1,0 +1,15 @@
+aws_region         = "eu-central-1"
+availability_zones = ["eu-central-1a", "eu-central-1b"]
+certificate_arn     = "arn:aws:acm:eu-central-1:123456789012:certificate/00000000-0000-0000-0000-000000000000"
+application_domain  = "ledger.example.com"
+route53_zone_id     = "Z0123456789ABCDEFGHIJ"
+bootstrap_mode      = true
+
+image_digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+database_password             = "replace-with-a-long-random-database-password"
+database_application_password = "replace-with-a-different-long-random-password"
+auth_secret                   = "replace-with-at-least-thirty-two-random-characters"
+metrics_token                 = "replace-with-at-least-thirty-two-random-characters"
+
+alarm_sns_topic_arn = "arn:aws:sns:eu-central-1:123456789012:supercool-ledger-alerts"

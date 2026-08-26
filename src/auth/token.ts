@@ -23,8 +23,21 @@ export const signDevelopmentToken = async (
     .setExpirationTime('15m')
     .sign(key(secret));
 
-export const verifyToken = async (token: string, secret: string): Promise<AuthContext> => {
-  const { payload } = await jwtVerify(token, key(secret), { algorithms: ['HS256'] });
+export const verifyToken = async (
+  token: string,
+  secrets: string | readonly string[],
+): Promise<AuthContext> => {
+  const candidates = typeof secrets === 'string' ? [secrets] : secrets;
+  let payload: Awaited<ReturnType<typeof jwtVerify>>['payload'] | undefined;
+  for (const secret of candidates) {
+    try {
+      payload = (await jwtVerify(token, key(secret), { algorithms: ['HS256'] })).payload;
+      break;
+    } catch {
+      continue;
+    }
+  }
+  if (!payload) throw new Error('invalid_token_signature');
   if (
     !payload.sub ||
     typeof payload.tenant_id !== 'string' ||

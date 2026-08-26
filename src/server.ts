@@ -14,6 +14,8 @@ const app = await buildApp({
   database,
   authSecret: config.authSecret,
   metricsToken: config.metricsToken,
+  ...(config.authSecretSecondary ? { authSecretSecondary: config.authSecretSecondary } : {}),
+  ...(config.metricsTokenSecondary ? { metricsTokenSecondary: config.metricsTokenSecondary } : {}),
   logLevel: config.logLevel,
   sandboxEnabled: config.sandboxEnabled,
 });

@@ -8,6 +8,8 @@ Render builds the Dockerfile, runs `bun run db:migrate`, starts the new instance
 
 Migrations are ordered SQL files. The runner takes a PostgreSQL advisory lock, checks applied files, stores their SHA 256 checksums, and records each new file inside its database transaction. Concurrent runners therefore serialize. A changed applied file stops deployment and must be replaced by a new migration. Financial schema changes require compatible application rollout and a tested recovery procedure.
 
+Migration 007 requires `REVIEWED_SANDBOX_TENANT_IDS` when an older database contains sandbox sessions. Set it to a comma separated allow list of tenant identifiers only after reviewing every existing session. The migration rejects an incomplete or unknown allow list. Clear the variable after the migration succeeds.
+
 Readiness checks every migration shipped with the running artifact in addition to database connectivity. It uses a bounded connection attempt and returns `503` for an unavailable or stale database. A reachable but stale database does not receive traffic.
 
 ## Reconciliation

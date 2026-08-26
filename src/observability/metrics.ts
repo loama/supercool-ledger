@@ -55,7 +55,10 @@ export const createMetrics = (): ServiceMetrics => {
   };
 };
 
-export const registerMetrics = (app: FastifyInstance, token?: string): void => {
+export const registerMetrics = (
+  app: FastifyInstance,
+  tokens?: string | readonly string[],
+): void => {
   const metrics = createMetrics();
   app.decorate('serviceMetrics', metrics);
 
@@ -84,7 +87,8 @@ export const registerMetrics = (app: FastifyInstance, token?: string): void => {
     done();
   });
 
-  if (token) {
+  if (tokens) {
+    const acceptedTokens = typeof tokens === 'string' ? [tokens] : tokens;
     app.get(
       '/metrics',
       {
@@ -98,7 +102,7 @@ export const registerMetrics = (app: FastifyInstance, token?: string): void => {
         },
       },
       async (request, reply) => {
-        if (request.headers.authorization !== `Bearer ${token}`) {
+        if (!acceptedTokens.some((token) => request.headers.authorization === `Bearer ${token}`)) {
           return reply.status(401).send({ status: 'unauthorized' });
         }
         return reply.type(metrics.registry.contentType).send(await metrics.registry.metrics());

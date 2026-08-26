@@ -1,0 +1,199 @@
+{
+  "tools": {
+    "ffmpeg": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+    "ffprobe": "ffprobe version 8.0.1 Copyright (c) 2007-2025 the FFmpeg developers"
+  },
+  "sceneFrames": [
+    {
+      "id": "financial-promise",
+      "frame": 164,
+      "sha256": "91db2ea39d809c1f95ef8bf1076b6cc6baf8a7035aa237c1658507b3ecc870a8"
+    },
+    {
+      "id": "ledger-invariants",
+      "frame": 560,
+      "sha256": "a241a2796e33cd6173f9a249dc005483c8094fcdd959d7582bad211df2db00c8"
+    },
+    {
+      "id": "repository-map",
+      "frame": 870,
+      "sha256": "1844eaef5347d2df840a9edd8643c2c9269d365a3ebab7d90606a43c72fd2984"
+    },
+    {
+      "id": "request-lifecycle",
+      "frame": 1115,
+      "sha256": "0ca5d2bb9e98b7200d398472c75c1707c4fb6f3e31bd37aa2f08dc2e918eed3d"
+    },
+    {
+      "id": "atomic-transfer",
+      "frame": 1546,
+      "sha256": "6a7819c60586b44a164742f553b8b91a259c48cedbb8d20c671b0fa62398dce0"
+    },
+    {
+      "id": "data-model",
+      "frame": 1852,
+      "sha256": "c76d56554e6813dff33604eccbf213618e89f264b585c531deae804d6119c4e5"
+    },
+    {
+      "id": "reviewer-sandbox",
+      "frame": 2093,
+      "sha256": "43674506729fb68fac33fa2163b88daa873d28fb98699271acb303c84f1629ad"
+    },
+    {
+      "id": "captured-evidence",
+      "frame": 2383,
+      "sha256": "4a62775cf1aaeb13e18600150b346cb71aa32bfbd701cadefe62eb4be24b5dc6"
+    },
+    {
+      "id": "observability",
+      "frame": 2697,
+      "sha256": "c46591e0465815ba0fe81432c607c3f41bceccdc665bb9da2a0f9b3c92420b41"
+    },
+    {
+      "id": "aws-topology",
+      "frame": 3117,
+      "sha256": "96742cf7dc92f1fbf87061f51db7acd60206afe0053f5db0cc51008d47ec0590"
+    },
+    {
+      "id": "review-path",
+      "frame": 3441,
+      "sha256": "c1a8fe704efe32309641a21fdbc01d1f8aebe75887100ad03827b3e065a84b22"
+    }
+  ],
+  "files": {
+    "narrationScript": {
+      "path": "video/narration.ts",
+      "characters": 2224,
+      "textSha256": "cac5ca96a0d00504447aa4cd904a2a1c36a912c85396185ada9b70cc41bddd12",
+      "sourceSha256": "81c06d7ed6bf7ad286aa9b2e32c7f57827aceb7843298d63fe97322ee7b8529e"
+    },
+    "narration": {
+      "path": "video/public/narration-fast.mp3",
+      "sha256": "51ad2b31f5cea2b8026ad6790152cc530e221a801a8819791c3fb350985c4ac5",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "mp3",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1,
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "format_name": "mp3",
+          "duration": "116.180249",
+          "size": "1859961"
+        }
+      }
+    },
+    "narrationSource": {
+      "path": "video/public/narration.mp3",
+      "sha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "mp3",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1,
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "format_name": "mp3",
+          "duration": "145.214688",
+          "size": "2340083"
+        }
+      }
+    },
+    "video": {
+      "path": "video/out/supercool-ledger.mp4",
+      "sha256": "8d8a8eb4239e56f54f12f5ee4c6d97e42d76cd14916e72c13b81892b5a6fce3e",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "30/1",
+            "side_data_list": [
+              {}
+            ]
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "119.061333",
+          "size": "16378163"
+        }
+      }
+    },
+    "poster": {
+      "path": "video/out/poster.png",
+      "sha256": "66573fd74df7b3116ee1b36431611c8bfc9d5a6e06d73e8a20e3d32432b44ab4",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "png",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "format_name": "png_pipe",
+          "size": "421839"
+        }
+      }
+    },
+    "inspectionMontage": {
+      "path": "video/out/inspection-montage.png",
+      "sha256": "c317019b82a016e648f9816be7447df8ad7bfaa47212f4ec588efeaad6e9dbae",
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "png",
+            "codec_type": "video",
+            "width": 2922,
+            "height": 558,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "format_name": "png_pipe",
+          "size": "564527"
+        }
+      }
+    },
+    "verificationScript": {
+      "path": "scripts/verify-video-evidence.ts",
+      "sha256": "bf1ccce2523495a52991f6d6870d321b99a7302edbe51b203f3997f0409157f4"
+    }
+  }
+}
