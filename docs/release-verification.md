@@ -70,7 +70,7 @@ The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, 
 
 The poster is a 1920 by 1080 PNG with SHA 256 digest `018baf5b77d235d1458a2e6606bb4ae7e61af3edce3938df40103454296eb915`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
 
-`bun run video:verify` records the verification script digest, media probe output, and every artifact digest in `video/out/media-evidence.json`. It also extracts one middle frame from each of the ten scenes and retains the samples in `video/out/inspection-montage.png`. The montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. The full resolution poster received a separate inspection.
+`bun run video:verify` records the narration text and source digests, verification script digest, media probe output, and every artifact digest in `video/out/media-evidence.json`. It also extracts one middle frame from each of the ten scenes and retains the samples in `video/out/inspection-montage.png`. The montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. The full resolution poster received a separate inspection.
 
 The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14692501`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
 

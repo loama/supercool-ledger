@@ -1,4 +1,5 @@
 import { mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { narrationText } from '../video/narration.ts';
 import { VIDEO_PLAYBACK_RATE } from '../video/timing.ts';
 
@@ -45,6 +46,7 @@ await Bun.write(
       language: 'es-MX',
       playbackRate: VIDEO_PLAYBACK_RATE,
       characters: narrationText.length,
+      scriptSha256: createHash('sha256').update(narrationText).digest('hex'),
       output: 'video/public/narration.mp3',
     },
     null,

@@ -32,7 +32,7 @@ bun run video:still
 bun run video:verify
 ```
 
-The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the verification script digest, SHA 256 digests, probe metadata, and the exact middle frame sampled from every scene. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
+The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the narration text and source digests, the verification script digest, every media digest, probe metadata, and the exact middle frame sampled from every scene. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
 
 ## Visual inspection
 

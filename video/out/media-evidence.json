@@ -46,6 +46,12 @@
     }
   ],
   "files": {
+    "narrationScript": {
+      "path": "video/narration.ts",
+      "characters": 2224,
+      "textSha256": "cac5ca96a0d00504447aa4cd904a2a1c36a912c85396185ada9b70cc41bddd12",
+      "sourceSha256": "81c06d7ed6bf7ad286aa9b2e32c7f57827aceb7843298d63fe97322ee7b8529e"
+    },
     "narration": {
       "path": "video/public/narration.mp3",
       "sha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
@@ -149,7 +155,7 @@
     },
     "verificationScript": {
       "path": "scripts/verify-video-evidence.ts",
-      "sha256": "f31abd032b260afd2a9f22bd19cdce8417cabc12ed4754407f6180db9cf6fc41"
+      "sha256": "c6a4e594e071f1e8872c476bb58e976dd7be60bd5ec05ac8bfc853c87608c0bf"
     }
   }
 }
