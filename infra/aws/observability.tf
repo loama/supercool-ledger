@@ -1,5 +1,5 @@
 locals {
-  alarm_actions = var.alarm_sns_topic_arn == null ? [] : [var.alarm_sns_topic_arn]
+  alarm_actions = [var.alarm_sns_topic_arn]
 }
 
 resource "aws_cloudwatch_log_group" "application" {

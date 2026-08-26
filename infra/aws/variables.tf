@@ -290,8 +290,11 @@ variable "log_retention_days" {
 }
 
 variable "alarm_sns_topic_arn" {
-  description = "Optional SNS topic ARN for CloudWatch alarm actions."
+  description = "Required SNS topic ARN for CloudWatch alarm actions."
   type        = string
-  default     = null
-  nullable    = true
+
+  validation {
+    condition     = can(regex("^arn:[^:]+:sns:[^:]+:[0-9]{12}:.+$", var.alarm_sns_topic_arn))
+    error_message = "alarm_sns_topic_arn must be a valid SNS topic ARN."
+  }
 }

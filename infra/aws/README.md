@@ -117,7 +117,9 @@ The bootstrap apply produces the cluster, migration task, private subnet, and se
 
 ## Run and verify the migration
 
-Run the migration task before enabling or updating the service. The migration task runs `bun run db:migrate` with the same image digest as the application. It receives the RDS owner URL, applies schema migrations, and provisions the constrained application login. The service receives a separate URL for that login. The application role can use the runtime tables but cannot read migration history, create schema objects, or delete ledger postings.
+Run the migration task before enabling or updating the service. The migration task runs `bun run db:migrate` with the same image digest as the application. It receives the RDS owner URL, applies schema migrations, and provisions the constrained application login. The service receives a separate URL for that login. The application role can use the runtime tables and read migration history for readiness checks. It cannot create schema objects or delete ledger postings.
+
+The runtime database URL is a trusted service credential. Tenant authorization remains in the application, so exposure of this URL can disclose data across tenants and permit the table operations granted to the service. Store it only in Secrets Manager, rotate it after any suspected exposure, and treat SQL injection as a cross tenant incident. The database role limits schema changes, ledger deletion, and sandbox classification. It does not replace request authentication.
 
 Run these commands from the repository root:
 
@@ -153,6 +155,8 @@ test "$MIGRATION_EXIT_CODE" = "0"
 
 The final command exits with a failure status unless the migration container exits with zero. Do not enable or update the service after a failed migration.
 
+Migration 007 requires an explicit operator reviewed allow list when the database contains existing reviewer sessions. Inspect every row and its tenant first. Set `REVIEWED_SANDBOX_TENANT_IDS` to the comma separated tenant identifiers that are confirmed sandboxes, then rerun the migration. The migration aborts if any session is absent from the allow list or any supplied identifier is not an existing session. Leave the variable empty for a database with no existing sessions. Remove untrusted sessions before retrying, and clear the variable after a successful migration.
+
 ## Enable the service after the first migration
 
 Set `bootstrap_mode = false` in `terraform.tfvars`. Then create the service and its scaling target in a second plan and apply:
@@ -164,10 +168,45 @@ terraform apply service.tfplan
 AWS_REGION=eu-central-1
 ECS_CLUSTER="$(terraform output -raw ecs_cluster_name)"
 ECS_SERVICE="$(terraform output -raw ecs_service_name)"
+APPLICATION_TASK="$(terraform output -raw application_task_definition_arn)"
+TARGET_GROUP_ARN="$(terraform output -raw application_target_group_arn)"
 aws ecs wait services-stable \
   --region "$AWS_REGION" \
   --cluster "$ECS_CLUSTER" \
   --services "$ECS_SERVICE"
+DEPLOYED_TASK="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].taskDefinition' \
+  --output text)"
+PRIMARY_ROLLOUT_STATE="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].deployments[?status==`PRIMARY`].rolloutState | [0]' \
+  --output text)"
+RUNNING_COUNT="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].runningCount' \
+  --output text)"
+DESIRED_COUNT="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].desiredCount' \
+  --output text)"
+HEALTHY_TARGETS="$(aws elbv2 describe-target-health \
+  --region "$AWS_REGION" \
+  --target-group-arn "$TARGET_GROUP_ARN" \
+  --query 'length(TargetHealthDescriptions[?TargetHealth.State==`healthy`])' \
+  --output text)"
+test "$DEPLOYED_TASK" = "$APPLICATION_TASK"
+test "$PRIMARY_ROLLOUT_STATE" = "COMPLETED"
+test "$RUNNING_COUNT" = "$DESIRED_COUNT"
+test "$HEALTHY_TARGETS" -ge "$DESIRED_COUNT"
 ```
 
 This apply creates two application tasks and target tracking autoscaling with a minimum of two tasks and a maximum of six tasks. The service deployment circuit breaker rolls back tasks that never pass `/health/ready`.
@@ -192,6 +231,7 @@ AWS_REGION=eu-central-1
 ECS_CLUSTER="$(terraform -chdir=infra/aws output -raw ecs_cluster_name)"
 ECS_SERVICE="$(terraform -chdir=infra/aws output -raw ecs_service_name)"
 APPLICATION_TASK="$(terraform -chdir=infra/aws output -raw application_task_definition_arn)"
+TARGET_GROUP_ARN="$(terraform -chdir=infra/aws output -raw application_target_group_arn)"
 aws ecs update-service \
   --region "$AWS_REGION" \
   --cluster "$ECS_CLUSTER" \
@@ -202,9 +242,42 @@ aws ecs wait services-stable \
   --region "$AWS_REGION" \
   --cluster "$ECS_CLUSTER" \
   --services "$ECS_SERVICE"
+DEPLOYED_TASK="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].taskDefinition' \
+  --output text)"
+PRIMARY_ROLLOUT_STATE="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].deployments[?status==`PRIMARY`].rolloutState | [0]' \
+  --output text)"
+RUNNING_COUNT="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].runningCount' \
+  --output text)"
+DESIRED_COUNT="$(aws ecs describe-services \
+  --region "$AWS_REGION" \
+  --cluster "$ECS_CLUSTER" \
+  --services "$ECS_SERVICE" \
+  --query 'services[0].desiredCount' \
+  --output text)"
+HEALTHY_TARGETS="$(aws elbv2 describe-target-health \
+  --region "$AWS_REGION" \
+  --target-group-arn "$TARGET_GROUP_ARN" \
+  --query 'length(TargetHealthDescriptions[?TargetHealth.State==`healthy`])' \
+  --output text)"
+test "$DEPLOYED_TASK" = "$APPLICATION_TASK"
+test "$PRIMARY_ROLLOUT_STATE" = "COMPLETED"
+test "$RUNNING_COUNT" = "$DESIRED_COUNT"
+test "$HEALTHY_TARGETS" -ge "$DESIRED_COUNT"
 ```
 
-The public listener redirects HTTP to HTTPS and uses the supplied ACM certificate. Check the application and migration log groups before retrying a failed release.
+The waiter can also finish after the deployment circuit breaker rolls back. The checks after it prove that the requested task definition is primary, its rollout completed, every desired task is running, and the load balancer reports enough healthy targets. Do not promote the candidate image tag if any check fails. The public listener redirects HTTP to HTTPS and uses the supplied ACM certificate. Check the application and migration log groups before retrying a failed release.
 
 ## Rotate credentials without a mixed fleet
 

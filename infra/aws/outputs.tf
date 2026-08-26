@@ -37,3 +37,8 @@ output "application_security_group_id" {
   description = "Security group identifier for ECS tasks."
   value       = aws_security_group.application.id
 }
+
+output "application_target_group_arn" {
+  description = "Target group ARN used to verify healthy application tasks."
+  value       = aws_lb_target_group.application.arn
+}
