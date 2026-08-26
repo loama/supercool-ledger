@@ -3,7 +3,9 @@ import { narrationText } from '../video/narration.ts';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('missing_environment:ELEVENLABS_API_KEY');
-const voiceId = process.env.ELEVENLABS_VOICE_ID ?? 'JBFqnCBsd6RMkjVDRZzb';
+const voiceId = process.env.ELEVENLABS_VOICE_ID;
+if (!voiceId) throw new Error('missing_environment:ELEVENLABS_VOICE_ID');
+const voiceName = process.env.ELEVENLABS_VOICE_NAME ?? 'Conversational Spanish voice';
 const modelId = 'eleven_multilingual_v2';
 const response = await fetch(
   `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
@@ -16,7 +18,7 @@ const response = await fetch(
     body: JSON.stringify({
       text: narrationText,
       model_id: modelId,
-      voice_settings: { stability: 0.6, similarity_boost: 0.75, style: 0.15 },
+      voice_settings: { stability: 0.45, similarity_boost: 0.75, style: 0.05 },
     }),
   },
 );
@@ -32,7 +34,9 @@ await Bun.write(
     {
       provider: 'ElevenLabs',
       voiceId,
+      voiceName,
       modelId,
+      language: 'es-MX',
       characters: narrationText.length,
       output: 'video/public/narration.mp3',
     },

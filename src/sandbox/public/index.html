@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A live console for testing the financial guarantees in SuperCool Ledger"
+    />
+    <title>SuperCool Ledger | Reviewer sandbox</title>
+    <link rel="stylesheet" href="/sandbox/styles.css" />
+    <script src="/sandbox/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to the sandbox</a>
+
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="/sandbox" aria-label="SuperCool Ledger home">
+          <span class="brand-symbol" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="brand-name">SUPERCOOL</span>
+        </a>
+
+        <nav class="header-nav" aria-label="Primary navigation">
+          <a class="active" href="/sandbox" aria-current="page">Sandbox</a>
+          <a href="/docs/">API reference</a>
+          <a href="https://github.com/loama/supercool-ledger">Source</a>
+        </nav>
+
+        <div class="service-state" id="service-state" aria-label="Service status">
+          <span class="state-dot" id="service-state-dot" aria-hidden="true"></span>
+          <span id="service-state-label" aria-live="polite">Checking service</span>
+        </div>
+      </header>
+
+      <main id="main-content">
+        <section class="hero" aria-labelledby="page-title">
+          <div class="hero-main">
+            <p class="eyebrow light">Reviewer sandbox</p>
+            <h1 id="page-title">A ledger you can try, break, and verify.</h1>
+            <p class="hero-description">
+              Create an isolated account, move synthetic money, and inspect the exact API response.
+              Every action runs against the real service and PostgreSQL ledger.
+            </p>
+            <button class="button button-primary" id="start-button" type="button">
+              Create test account
+              <span aria-hidden="true">&#8594;</span>
+            </button>
+          </div>
+
+          <aside class="hero-aside" aria-label="Sandbox guarantees">
+            <p class="aside-label">What you are testing</p>
+            <dl>
+              <div>
+                <dt>Money</dt>
+                <dd>Synthetic USD</dd>
+              </div>
+              <div>
+                <dt>Authentication</dt>
+                <dd>Temporary JWT</dd>
+              </div>
+              <div>
+                <dt>Persistence</dt>
+                <dd>PostgreSQL</dd>
+              </div>
+              <div>
+                <dt>Isolation</dt>
+                <dd>One tenant per session</dd>
+              </div>
+            </dl>
+          </aside>
+        </section>
+
+        <section class="session-strip" id="session-strip">
+          <div class="session-heading">
+            <span class="session-icon" aria-hidden="true"></span>
+            <div>
+              <span class="meta-label">Test account</span>
+              <strong id="session-status" aria-live="polite">Not created</strong>
+            </div>
+          </div>
+          <div>
+            <span class="meta-label">Session expires in</span>
+            <strong id="session-time" aria-live="off">15:00</strong>
+          </div>
+          <button class="text-button" id="reset-button" type="button" disabled>
+            Create a new account
+          </button>
+        </section>
+
+        <div class="workspace">
+          <div class="operations-column">
+            <section class="accounts-section" aria-labelledby="accounts-title">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Accounts</p>
+                  <h2 id="accounts-title">Available balance</h2>
+                </div>
+                <button class="text-button" data-action="refresh" type="button" disabled>
+                  Refresh balances
+                </button>
+              </div>
+              <div class="accounts-grid" id="accounts-grid">
+                <div class="account-empty">
+                  <span class="empty-mark" aria-hidden="true">$</span>
+                  <div>
+                    <strong>No test account yet</strong>
+                    <p>Create one to receive two isolated USD accounts.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="scenarios-section" aria-labelledby="scenarios-title">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Test suite</p>
+                  <h2 id="scenarios-title">Financial guarantees</h2>
+                </div>
+                <span class="scenario-count">07 live scenarios</span>
+              </div>
+
+              <div class="scenario-list">
+                <article class="scenario-row">
+                  <span class="scenario-number">01</span>
+                  <div>
+                    <h3>Successful transfer</h3>
+                    <p>Move 125.75 USD and confirm both balances.</p>
+                  </div>
+                  <button data-action="success" type="button" disabled>Run</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">02</span>
+                  <div>
+                    <h3>Safe replay</h3>
+                    <p>Send the same key and receive the same transfer.</p>
+                  </div>
+                  <button data-action="replay" type="button" disabled>Replay</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">03</span>
+                  <div>
+                    <h3>Idempotency conflict</h3>
+                    <p>Change the amount without changing the key. The API rejects it.</p>
+                  </div>
+                  <button data-action="conflict" type="button" disabled>Trigger</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">04</span>
+                  <div>
+                    <h3>Insufficient funds</h3>
+                    <p>Try to spend more than the available balance.</p>
+                  </div>
+                  <button data-action="insufficient" type="button" disabled>Test</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">05</span>
+                  <div>
+                    <h3>Concurrent spending</h3>
+                    <p>Send two requests that together exceed the balance.</p>
+                  </div>
+                  <button data-action="race" type="button" disabled>Run race</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">06</span>
+                  <div>
+                    <h3>Immutable entries</h3>
+                    <p>Read the postings that explain the account balance.</p>
+                  </div>
+                  <button data-action="entries" type="button" disabled>Inspect</button>
+                </article>
+                <article class="scenario-row">
+                  <span class="scenario-number">07</span>
+                  <div>
+                    <h3>Reconciliation</h3>
+                    <p>Compare the cached balance with the ledger sum.</p>
+                  </div>
+                  <button data-action="reconcile" type="button" disabled>Reconcile</button>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <aside class="evidence-column" aria-labelledby="evidence-title">
+            <div class="evidence-header">
+              <div>
+                <p class="eyebrow light">Evidence</p>
+                <h2 id="evidence-title">API activity</h2>
+              </div>
+              <span class="live-label"><span aria-hidden="true"></span>Live</span>
+            </div>
+            <p class="evidence-intro">
+              Status codes, response bodies, and balance changes appear here as you run each test.
+            </p>
+            <div class="evidence-stream" id="evidence-stream" aria-live="polite">
+              <div class="evidence-empty">
+                <span class="evidence-cursor" aria-hidden="true"></span>
+                <p>Create a test account to start the activity stream.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <footer>
+        <span>SuperCool Ledger</span>
+        <span>Synthetic data only</span>
+        <a href="/docs/">OpenAPI reference</a>
+        <a href="https://github.com/loama/supercool-ledger">GitHub</a>
+      </footer>
+    </div>
+  </body>
+</html>

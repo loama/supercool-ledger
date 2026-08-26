@@ -42,6 +42,7 @@ test('migrates an empty database with the financial tables and triggers', async 
     'idempotency_records',
     'journal_transactions',
     'postings',
+    'sandbox_sessions',
     'schema_migrations',
     'tenants',
     'transfers',

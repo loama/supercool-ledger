@@ -1,4 +1,5 @@
 import { mkdir } from 'node:fs/promises';
+import { format } from 'prettier';
 
 interface ContentPart {
   input_text?: string;
@@ -55,7 +56,10 @@ await Bun.write(
 const quoted = (value: string): string =>
   value
     .split('\n')
-    .map((line) => `> ${line.replace(/[ \t]+$/g, '')}`)
+    .map((line) => {
+      const trimmed = line.replace(/[ \t]+$/g, '');
+      return trimmed ? `> ${trimmed}` : '>';
+    })
     .join('\n');
 const markdown = [
   '# Visible AI conversation',
@@ -69,7 +73,10 @@ const markdown = [
     '',
   ]),
 ].join('\n');
-await Bun.write('docs/ai-usage/conversation.md', markdown);
+await Bun.write(
+  'docs/ai-usage/conversation.md',
+  await format(markdown, { parser: 'markdown', proseWrap: 'preserve' }),
+);
 
 const prompts = new Map<string, string>([
   [
@@ -107,6 +114,18 @@ const prompts = new Map<string, string>([
   [
     'round2_presentation:0',
     'You are reviewer three in formal review round two. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger as a hiring panel reviewer focused on presentation, documentation, and video. Do not edit files and do not rely on earlier review conclusions. Review the README path, architecture, threat model, operations guide, Mermaid diagrams, ADRs, OpenAPI examples, AI disclosure, review records, executable demo, Remotion source, captions, ElevenLabs narration, rendered MP4, poster, accessibility, media metadata, and factual agreement with current PostgreSQL evidence. Inspect representative frames and run safe read only checks as useful. Report findings ordered by severity. Every finding must include severity, precise file and line or video timestamp, evidence, reviewer impact, and a concrete fix. Also list verified strengths and uncertain assumptions. Do not invent issues. Return your complete review response to the parent.',
+  ],
+  [
+    'security_review:1',
+    'Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on financial correctness, sandbox authentication, tenant isolation, secret exposure, concurrency, API behavior, and production safety. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list the risks you checked.',
+  ],
+  [
+    'ui_review:0',
+    'Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on sandbox UI behavior, English copy, response card correctness, accessibility, responsive layout, browser security, and reviewer usability. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.',
+  ],
+  [
+    'deployment_review:4',
+    'Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on Render deployment, Docker and IaC, production environment assumptions, health checks, sandbox enablement, documentation and presentation readiness. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.',
   ],
 ]);
 
@@ -153,7 +172,10 @@ const reviewMarkdown = [
     '',
   ]),
 ].join('\n');
-await Bun.write('docs/ai-usage/review-records.md', reviewMarkdown);
+await Bun.write(
+  'docs/ai-usage/review-records.md',
+  await format(reviewMarkdown, { parser: 'markdown', proseWrap: 'preserve' }),
+);
 
 process.stdout.write(
   `${JSON.stringify({ messages: assessmentMessages.length, agentInteractions: agentInteractions.length, output: 'docs/ai-usage' })}\n`,

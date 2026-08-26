@@ -15,6 +15,7 @@ const app = await buildApp({
   authSecret: config.authSecret,
   metricsToken: config.metricsToken,
   logLevel: config.logLevel,
+  sandboxEnabled: config.sandboxEnabled,
 });
 
 const close = async (): Promise<void> => {

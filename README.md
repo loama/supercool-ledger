@@ -7,17 +7,20 @@ The service uses TypeScript, Bun, Fastify, and PostgreSQL. It is intentionally s
 ## Review this repository
 
 1. Read the invariants below.
-2. Run `bun run demo` to watch success, replay, rejection, and reconciliation.
-3. Read `src/transfers/service.ts` for the complete write transaction.
-4. Read `migrations/` for the database constraints and immutable ledger triggers.
-5. Run `bun test test/integration/transfer-concurrency.test.ts` for the competing spend proof.
-6. Open `/docs` for the interactive API contract.
-7. Read `docs/ai-usage/` for the visible AI interaction record.
-8. Watch `video/out/supercool-ledger.mp4` for the narrated design and execution walkthrough.
+2. Open `/sandbox` to run successful and rejected operations with synthetic money.
+3. Run `bun run demo` to watch success, replay, rejection, and reconciliation.
+4. Read `src/transfers/service.ts` for the complete write transaction.
+5. Read `migrations/` for the database constraints and immutable ledger triggers.
+6. Run `bun test test/integration/transfer-concurrency.test.ts` for the competing spend proof.
+7. Open `/docs` for the interactive API contract.
+8. Read `docs/ai-usage/` for the visible AI interaction record.
+9. Watch `video/out/supercool-ledger.mp4` for the narrated design and execution walkthrough.
 
 Public repository: https://github.com/loama/supercool-ledger
 
 Live service: https://supercool-ledger.onrender.com
+
+Reviewer sandbox: https://supercool-ledger.onrender.com/sandbox
 
 Interactive API reference: https://supercool-ledger.onrender.com/docs/
 
@@ -31,15 +34,18 @@ Interactive API reference: https://supercool-ledger.onrender.com/docs/
 | `POST` | `/v1/transfers`                   | `transfers:write` | Move funds atomically with an idempotency key           |
 | `GET`  | `/v1/transfers/:transferId`       | `transfers:read`  | Read a tenant scoped transfer                           |
 | `GET`  | `/v1/operations/reconciliation`   | `operations:read` | Compare cached balances with the ledger                 |
+| `POST` | `/v1/sandbox/sessions`            | Public sandbox    | Create an isolated synthetic reviewer session           |
 
 The OpenAPI document also covers liveness, readiness, metrics, and interactive documentation.
 
 Request, response, replay, conflict, insufficient funds, and reconciliation examples are embedded in the OpenAPI contract.
 
+Every sandbox account contains synthetic money. Its tenant is isolated, its token expires after fifteen minutes, and its data is removed after a seven day debugging period. Persistent customer tenants remain outside this lifecycle.
+
 ## Financial invariants
 
 1. Every journal transaction balances to zero in one currency.
-2. Posted journals and postings cannot change or disappear.
+2. Posted journals and postings for persistent tenants cannot change or disappear.
 3. No endpoint can set an account balance directly.
 4. Ledger postings and cached balances commit in the same PostgreSQL transaction.
 5. One tenant scoped idempotency key can identify at most one transfer.

@@ -5,6 +5,7 @@ export interface AppConfig {
   logLevel: string;
   metricsToken: string;
   port: number;
+  sandboxEnabled: boolean;
   sentryDsn?: string;
   otlpEndpoint?: string;
 }
@@ -30,6 +31,7 @@ export const loadConfig = (env: Record<string, string | undefined>): AppConfig =
     logLevel: env.LOG_LEVEL ?? 'info',
     metricsToken: required(env, 'METRICS_TOKEN'),
     port,
+    sandboxEnabled: env.SANDBOX_ENABLED === 'true',
     ...(env.SENTRY_DSN ? { sentryDsn: env.SENTRY_DSN } : {}),
     ...(env.OTEL_EXPORTER_OTLP_ENDPOINT ? { otlpEndpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT } : {}),
   };

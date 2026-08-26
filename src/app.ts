@@ -9,6 +9,7 @@ import { registerOpenApi } from './platform/openapi.ts';
 import { registerProblemHandler } from './platform/problem.ts';
 import { registerTransferRoutes } from './transfers/routes.ts';
 import { registerReconciliationRoutes } from './reconciliation/routes.ts';
+import { registerSandboxRoutes } from './sandbox/routes.ts';
 
 export interface DatabaseHealth {
   ping(): Promise<void>;
@@ -19,6 +20,7 @@ export interface AppOptions {
   authSecret?: string;
   metricsToken?: string;
   logLevel?: string;
+  sandboxEnabled?: boolean;
 }
 
 export const buildApp = async (options: AppOptions): Promise<FastifyInstance> => {
@@ -39,6 +41,9 @@ export const buildApp = async (options: AppOptions): Promise<FastifyInstance> =>
     registerAccountRoutes(app, options.database);
     registerTransferRoutes(app, options.database);
     registerReconciliationRoutes(app, options.database);
+    if (options.sandboxEnabled) {
+      registerSandboxRoutes(app, options.database, options.authSecret);
+    }
   }
 
   app.get('/health/live', () => ({ status: 'alive' }));

@@ -12,8 +12,8 @@ The protected assets are balances, immutable ledger history, tenant boundaries, 
 4. SQL injection could alter ledger data. Every value uses a parameterized query and route schemas reject malformed input.
 5. A compromised log destination could reveal financial data. Logger redaction removes tokens, keys, request bodies, names, balances, and connection strings.
 6. An application defect could create an unbalanced journal. A deferred database constraint rejects the commit.
-7. A privileged process could alter history. Database triggers reject updates and deletion of posted journals and postings.
-8. A denial of service attempt could exhaust connections. The pool is bounded, payloads are schema limited, and deployment rate limits belong at the edge.
+7. A privileged process could alter history. Database triggers reject updates and deletion of posted journals and postings for persistent tenants. The only deletion exception is the documented retention lifecycle for expired synthetic sandbox tenants.
+8. A denial of service attempt could exhaust connections or sandbox capacity. The pool is bounded, payloads are schema limited, the sandbox has a process level burst limit, and PostgreSQL caps active and daily sessions. Synthetic tenants expire after fifteen minutes and are deleted in batches after seven days. A production service would also rate limit at the edge.
 9. A script could join records from different tenants or currencies. Composite database foreign keys bind postings and transfers to their journal, tenant, account, and currency.
 10. A suspended customer could reuse a valid token. Financial writes lock and verify tenant status inside their transaction.
 11. Concurrent deployment hooks could apply a migration twice. The migration runner holds a PostgreSQL advisory lock across discovery and execution.

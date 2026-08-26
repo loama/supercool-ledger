@@ -25,7 +25,7 @@ const colors = {
 };
 
 const base: React.CSSProperties = {
-  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+  fontFamily: 'Avenir Next, Avenir, ui-sans-serif, system-ui, sans-serif',
   color: colors.ink,
 };
 
@@ -105,16 +105,15 @@ const Intro = () => {
       <div style={{ display: 'flex', flex: 1, alignItems: 'center', gap: 100 }}>
         <div style={{ flex: 1 }}>
           <Enter>
-            <Eyebrow>Account balance service</Eyebrow>
+            <Eyebrow>Servicio de saldos</Eyebrow>
             <Title>
-              Correctness,
-              <br />
-              made visible.
+              Correctitud,
+              <br />a la vista.
             </Title>
           </Enter>
           <Enter delay={18}>
             <div style={{ fontSize: 28, lineHeight: 1.45, color: colors.muted, marginTop: 34 }}>
-              A narrow financial service with executable proof for every critical claim.
+              Un servicio financiero acotado con evidencia ejecutable para cada garantía crítica.
             </div>
           </Enter>
         </div>
@@ -152,17 +151,17 @@ const Intro = () => {
 
 const Invariants = () => {
   const items = [
-    ['01', 'Every journal balances to zero.'],
-    ['02', 'Posted history cannot change or disappear.'],
-    ['03', 'A retry cannot create a second transfer.'],
-    ['04', 'Concurrent requests cannot overspend.'],
+    ['01', 'Cada transacción contable suma cero.'],
+    ['02', 'El historial no puede cambiar ni desaparecer.'],
+    ['03', 'Una repetición no crea otra transferencia.'],
+    ['04', 'Dos solicitudes no pueden gastar el mismo saldo.'],
   ];
   return (
     <Shell index="02">
       <div style={{ marginTop: 92 }}>
         <Enter>
-          <Eyebrow>Financial invariants</Eyebrow>
-          <Title>The contract starts below the API.</Title>
+          <Eyebrow>Invariantes financieras</Eyebrow>
+          <Title>El contrato empieza debajo de la API.</Title>
         </Enter>
         <div style={{ marginTop: 68, borderTop: `1px solid ${colors.line}` }}>
           {items.map(([number, text], index) => (
@@ -192,13 +191,13 @@ const Invariants = () => {
 };
 
 const Architecture = () => {
-  const nodes = ['Authentication', 'Accounts', 'Transfers', 'Reconciliation'];
+  const nodes = ['Autenticación', 'Cuentas', 'Transferencias', 'Conciliación'];
   return (
     <Shell index="03">
       <div style={{ marginTop: 78 }}>
         <Enter>
-          <Eyebrow>One commit boundary</Eyebrow>
-          <Title>Small service. Strong authority.</Title>
+          <Eyebrow>Una frontera de confirmación</Eyebrow>
+          <Title>Servicio pequeño. Autoridad fuerte.</Title>
         </Enter>
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 32, marginTop: 74 }}>
           <Enter delay={12}>
@@ -214,9 +213,11 @@ const Architecture = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <span style={{ fontSize: 18, color: colors.muted }}>REQUEST</span>
+              <span style={{ fontSize: 18, color: colors.muted }}>SOLICITUD</span>
               <span style={{ fontSize: 42, fontWeight: 650 }}>Fastify API</span>
-              <span style={{ fontSize: 21, color: colors.muted }}>Schemas and tenant scopes</span>
+              <span style={{ fontSize: 21, color: colors.muted }}>
+                Esquemas y permisos del tenant
+              </span>
             </div>
           </Enter>
           <div
@@ -261,14 +262,14 @@ const Architecture = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <span style={{ color: '#adb2a7', fontSize: 18 }}>AUTHORITY</span>
+              <span style={{ color: '#adb2a7', fontSize: 18 }}>AUTORIDAD</span>
               <span style={{ fontSize: 48, fontWeight: 650 }}>PostgreSQL</span>
               <div style={{ fontSize: 21, lineHeight: 1.5, color: '#c9ccc3' }}>
-                Locks
+                Bloqueos
                 <br />
-                Constraints
+                Restricciones
                 <br />
-                Immutable postings
+                Asientos inmutables
               </div>
             </div>
           </Enter>
@@ -280,14 +281,20 @@ const Architecture = () => {
 
 const TransferPath = () => {
   const frame = useCurrentFrame();
-  const steps = ['Claim key', 'Lock accounts', 'Validate funds', 'Write postings', 'Commit'];
+  const steps = [
+    'Reclamar clave',
+    'Bloquear cuentas',
+    'Validar fondos',
+    'Escribir asientos',
+    'Confirmar',
+  ];
   const active = Math.min(steps.length - 1, Math.floor(frame / 78));
   return (
     <Shell index="04">
       <div style={{ marginTop: 74 }}>
         <Enter>
-          <Eyebrow>Atomic transfer</Eyebrow>
-          <Title>Order is a correctness feature.</Title>
+          <Eyebrow>Transferencia atómica</Eyebrow>
+          <Title>El orden también protege el saldo.</Title>
         </Enter>
         <div
           style={{ position: 'relative', marginTop: 104, display: 'flex', alignItems: 'center' }}
@@ -342,9 +349,9 @@ const TransferPath = () => {
               fontSize: 23,
             }}
           >
-            <span>Sorted lock order reduces deadlocks</span>
-            <span style={{ color: '#96d0ad' }}>Posting sum = 0</span>
-            <span>Response stored with the commit</span>
+            <span>El orden fijo reduce interbloqueos</span>
+            <span style={{ color: '#96d0ad' }}>Suma de asientos = 0</span>
+            <span>La respuesta se guarda al confirmar</span>
           </div>
         </Enter>
       </div>
@@ -386,12 +393,12 @@ const Demo = () => (
     <div style={{ marginTop: 68, display: 'grid', gridTemplateColumns: '0.85fr 1.15fr', gap: 82 }}>
       <div>
         <Enter>
-          <Eyebrow>Captured from PostgreSQL</Eyebrow>
-          <Title>One run. Five proofs.</Title>
+          <Eyebrow>Capturado desde PostgreSQL</Eyebrow>
+          <Title>Una ejecución. Cinco pruebas.</Title>
         </Enter>
         <Enter delay={22}>
           <div style={{ marginTop: 58, fontSize: 24, lineHeight: 1.55, color: colors.muted }}>
-            Transfer {demo.success.body.id.slice(0, 8)}
+            Transferencia {demo.success.body.id.slice(0, 8)}
             <br />
             {demo.success.body.amount} {demo.success.body.currency}
           </div>
@@ -405,30 +412,30 @@ const Demo = () => (
               fontWeight: 650,
             }}
           >
-            <span style={{ color: colors.red }}>250.00 debit</span>
+            <span style={{ color: colors.red }}>250.00 débito</span>
             <span style={{ color: colors.muted }}>+</span>
-            <span style={{ color: colors.green }}>250.00 credit</span>
+            <span style={{ color: colors.green }}>250.00 crédito</span>
             <span>= 0</span>
           </div>
         </Enter>
       </div>
       <div style={{ borderTop: `1px solid ${colors.line}` }}>
-        <EvidenceRow label="Transfer created" value={`HTTP ${demo.success.status}`} delay={8} />
-        <EvidenceRow label="Same key replayed" value={`HTTP ${demo.replay.status}`} delay={18} />
+        <EvidenceRow label="Transferencia creada" value={`HTTP ${demo.success.status}`} delay={8} />
+        <EvidenceRow label="Misma clave repetida" value={`HTTP ${demo.replay.status}`} delay={18} />
         <EvidenceRow
-          label="Same transfer returned"
-          value={demo.replay.sameTransfer ? 'TRUE' : 'FALSE'}
+          label="Misma transferencia devuelta"
+          value={demo.replay.sameTransfer ? 'VERDADERO' : 'FALSO'}
           delay={28}
         />
         <EvidenceRow
-          label="Overspend rejected"
+          label="Exceso de gasto rechazado"
           value={`HTTP ${demo.overspend.status}`}
           tone="red"
           delay={38}
         />
         <EvidenceRow
-          label="Reconciliation"
-          value={`${demo.reconciliation.discrepancies.length} discrepancies`}
+          label="Conciliación"
+          value={`${demo.reconciliation.discrepancies.length} diferencias`}
           delay={48}
         />
       </div>
@@ -443,8 +450,8 @@ const Observability = () => {
     <Shell index="06">
       <div style={{ marginTop: 72 }}>
         <Enter>
-          <Eyebrow>Operational evidence</Eyebrow>
-          <Title>Every failure leaves a signal.</Title>
+          <Eyebrow>Evidencia operativa</Eyebrow>
+          <Title>Cada falla deja una señal.</Title>
         </Enter>
         <div style={{ marginTop: 84, position: 'relative' }}>
           <div style={{ height: 2, background: colors.line, position: 'relative' }}>
@@ -463,10 +470,10 @@ const Observability = () => {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', marginTop: 42 }}>
             {[
-              ['LOGS', 'Bounded JSON'],
-              ['METRICS', 'Prometheus'],
-              ['TRACES', 'OpenTelemetry'],
-              ['ERRORS', 'Sentry'],
+              ['REGISTROS', 'JSON acotado'],
+              ['MÉTRICAS', 'Prometheus'],
+              ['TRAZAS', 'OpenTelemetry'],
+              ['ERRORES', 'Sentry'],
             ].map(([label, value], index) => (
               <Enter key={label} delay={index * 10}>
                 <div
@@ -491,9 +498,9 @@ const Observability = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <span>No amounts in trace attributes</span>
-              <span>No unbounded metric labels</span>
-              <span>No payloads in logs</span>
+              <span>Sin importes en atributos de trazas</span>
+              <span>Sin etiquetas métricas ilimitadas</span>
+              <span>Sin payloads en registros</span>
             </div>
           </Enter>
         </div>
@@ -508,11 +515,11 @@ const Closing = () => (
       style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'space-between' }}
     >
       <Enter>
-        <Eyebrow>Review the evidence</Eyebrow>
+        <Eyebrow>Revisa la evidencia</Eyebrow>
         <Title>
-          Proof
+          Evidencia
           <br />
-          over breadth.
+          antes que amplitud.
         </Title>
         <div style={{ marginTop: 42, fontSize: 26, color: colors.muted }}>
           github.com/loama/supercool-ledger
@@ -527,17 +534,17 @@ const Closing = () => (
             padding: 52,
           }}
         >
-          <div style={{ fontSize: 20, color: '#aeb3a8', letterSpacing: '0.12em' }}>DELIVERED</div>
+          <div style={{ fontSize: 20, color: '#aeb3a8', letterSpacing: '0.12em' }}>ENTREGADO</div>
           <div style={{ marginTop: 42, fontSize: 31, lineHeight: 1.8 }}>
-            Immutable ledger
+            Ledger inmutable
             <br />
-            Concurrency tests included
+            Pruebas de concurrencia
             <br />
-            OpenAPI and Docker
+            OpenAPI y Docker
             <br />
-            Render infrastructure
+            Infraestructura de Render
             <br />
-            Complete engineering record
+            Registro de ingeniería completo
           </div>
         </div>
       </Enter>
