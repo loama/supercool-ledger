@@ -32,60 +32,40 @@ test('video timing covers ten contiguous scenes at the configured playback rate'
   expect(composition.props.durationInFrames).toBe(VIDEO_DURATION_IN_FRAMES);
 });
 
-test('Spanish story follows the ten scene contract and explains reviewer evidence', () => {
+test('Spanish story matches the approved audio while visuals carry the expanded detail', async () => {
   expect(narrationSections).toHaveLength(10);
   expect(narrationSections.flat()).toEqual([...narrationSegments]);
+  expect(narrationSegments).toHaveLength(24);
+  expect(narrationText).toHaveLength(2224);
 
-  for (const source of [
+  for (const claim of [
+    'ledger inmutable de partida doble',
+    'misma transacción de PostgreSQL',
+    'clave de idempotencia del tenant',
+    'mismo orden',
+    'se confirman juntos',
+    'PostgreSQL real',
+    'cero diferencias en las tres cuentas',
+    'OpenTelemetry',
+    'contrato OpenAPI',
+  ]) {
+    expect(narrationText).toContain(claim);
+  }
+
+  const visualSource = await Bun.file('video/scenes.tsx').text();
+  for (const visualDetail of [
     'src/server.ts',
     'src/app.ts',
-    'src/transfers/service.ts',
-    'src/accounts/repository.ts',
-    'migrations/',
-    'scripts/demo-capture.ts',
-    'video/assets/demo-run.json',
-    'docs/operations.md',
-  ]) {
-    expect(narrationText).toContain(source);
-  }
-
-  for (const dataModelClaim of [
-    'accounts.tenant_id y transfers.tenant_id referencian tenants.id',
-    'cada transferencia referencia journal_transactions',
-    'Cada sesión crea un tenant distinto',
-    'token limitado a ese tenant',
-    'sandbox_sessions registra el tenant sintético y su vencimiento',
-  ]) {
-    expect(narrationText).toContain(dataModelClaim);
-  }
-  expect(narrationText).not.toContain('La tabla tenants contiene accounts y transfers');
-  expect(narrationText).not.toContain('sandbox_sessions aísla');
-  expect(narrationText).not.toContain('sandbox_sessions solo');
-
-  for (const sandboxStep of [
-    'POST /v1/sandbox/sessions',
-    'transferencia exitosa',
-    'repetición segura',
-    'conflicto de idempotencia',
-    'fondos insuficientes',
-    'carrera concurrente',
-    'asientos inmutables',
-    'conciliación',
-  ]) {
-    expect(narrationText).toContain(sandboxStep);
-  }
-
-  for (const awsClaim of [
-    'dos zonas de disponibilidad',
+    'sandbox_sessions',
+    'supercool-ledger.onrender.com/sandbox',
     'Application Load Balancer',
     'ECS Fargate',
-    'RDS PostgreSQL 17',
-    'bootstrap_mode',
+    'RDS writer endpoint',
+    'bootstrap_mode = true',
     'bun run db:migrate',
-    'código cero',
-    'sin réplica de lectura',
+    'bootstrap_mode = false',
   ]) {
-    expect(narrationText).toContain(awsClaim);
+    expect(visualSource).toContain(visualDetail);
   }
 });
 

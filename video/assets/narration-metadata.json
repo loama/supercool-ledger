@@ -6,5 +6,10 @@
   "language": "es-MX",
   "playbackRate": 1.5,
   "characters": 2224,
+  "rawDurationSeconds": 145.214688,
+  "playedDurationSeconds": 96.809792,
+  "compositionDurationSeconds": 99,
+  "closingHoldSeconds": 2.190208,
+  "sha256": "9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3",
   "output": "video/public/narration.mp3"
 }
