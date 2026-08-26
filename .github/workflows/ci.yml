@@ -36,6 +36,12 @@ jobs:
       - run: bun run check
       - run: bun run openapi:generate
       - run: git diff --exit-code -- openapi.json
+      - name: Check Terraform formatting
+        run: docker run --rm -v "$PWD:/workspace" -w /workspace hashicorp/terraform:1.15.8 fmt -check -recursive infra/aws
+      - name: Initialize Terraform without a backend
+        run: docker run --rm -v "$PWD:/workspace" -w /workspace/infra/aws hashicorp/terraform:1.15.8 init -backend=false
+      - name: Validate Terraform
+        run: docker run --rm -v "$PWD:/workspace" -w /workspace/infra/aws hashicorp/terraform:1.15.8 validate
       - name: Scan tracked text for secret patterns
         run: |
           if git grep -nE '(ghp_[A-Za-z0-9]{20,}|xi-api-key[=:][[:space:]]*[A-Za-z0-9])' -- ':!docs/ai-usage/**'; then
