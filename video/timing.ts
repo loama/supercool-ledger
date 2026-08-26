@@ -31,6 +31,7 @@ export const sceneRanges = [
 ] as const;
 
 const finalScenePageBoundary = sourceMillisecondsToVideoFrame(narrationCueStartMilliseconds[23]);
+export const FINAL_SCENE_REVIEW_OFFSET = finalScenePageBoundary - sceneFrameBoundaries[9];
 
 export const visualPageRanges = [
   ...sceneRanges.slice(0, 9),

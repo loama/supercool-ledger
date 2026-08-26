@@ -4,8 +4,10 @@ import demo from '../../video/assets/demo-run.json';
 import { captionCues } from '../../video/captions.ts';
 import { narrationSections, narrationSegments, narrationText } from '../../video/narration.ts';
 import { VideoRoot } from '../../video/Root.tsx';
+import { AwsReviewPathScene } from '../../video/scenes.tsx';
 import { SuperCoolLedger } from '../../video/SuperCoolLedger.tsx';
 import {
+  FINAL_SCENE_REVIEW_OFFSET,
   VIDEO_DURATION_IN_FRAMES,
   VIDEO_PAGE_COUNT,
   VIDEO_PLAYBACK_RATE,
@@ -51,6 +53,15 @@ test('video timing covers ten contiguous scenes at the configured tempo', () => 
   for (let index = 1; index < visualPageRanges.length; index += 1) {
     expect(Number(visualPageRanges[index]?.from)).toBe(Number(visualPageRanges[index - 1]?.to));
   }
+  expect(FINAL_SCENE_REVIEW_OFFSET).toBe(
+    Number(visualPageRanges.at(-1)?.from) - Number(sceneRanges.at(-1)?.from),
+  );
+
+  const finalScene = AwsReviewPathScene() as ReactElement<{
+    children: ReadonlyArray<ReactElement<{ durationInFrames: number; from?: number }>>;
+  }>;
+  expect(finalScene.props.children[0]?.props.durationInFrames).toBe(FINAL_SCENE_REVIEW_OFFSET);
+  expect(finalScene.props.children[1]?.props.from).toBe(FINAL_SCENE_REVIEW_OFFSET);
 
   const composition = VideoRoot() as ReactElement<{ durationInFrames: number }>;
   expect(composition.props.durationInFrames).toBe(VIDEO_DURATION_IN_FRAMES);
@@ -90,6 +101,8 @@ test('Spanish story and visual scenes follow the approved narration sections', a
   for (const visualDetail of [
     'src/server.ts',
     'src/app.ts',
+    'src/transfers/service.ts',
+    'src/accounts/repository.ts',
     'sandbox_sessions',
     'supercool-ledger.onrender.com/sandbox',
     'Application Load Balancer',
@@ -98,9 +111,22 @@ test('Spanish story and visual scenes follow the approved narration sections', a
     'bootstrap_mode = true',
     'bun run db:migrate',
     'bootstrap_mode = false',
-    'GET /v1/accounts/:id/entries',
+    'GET /v1/accounts/:accountId/entries',
   ]) {
     expect(visualSource).toContain(visualDetail);
+  }
+  expect(visualSource).not.toContain("'transfers/service.ts\\naccounts/repository.ts'");
+  expect(visualSource).not.toContain('GET /v1/accounts/:id/entries');
+
+  const voiceGenerator = await Bun.file('scripts/video-voice.ts').text();
+  for (const provenanceField of [
+    'rawDurationSeconds',
+    'playedDurationSeconds',
+    'compositionDurationSeconds',
+    'closingHoldSeconds',
+    'sourceSha256',
+  ]) {
+    expect(voiceGenerator).toContain(provenanceField);
   }
 
   let cueIndex = 0;

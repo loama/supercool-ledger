@@ -29,10 +29,11 @@ The source narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d845644270
 ```bash
 bun run video:render
 bun run video:still
+bun run video:evidence
 bun run video:verify
 ```
 
-The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the narration text and source digests, the verification script digest, every media digest, probe metadata, and the exact middle frame sampled from each of the eleven numbered visual pages. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
+The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. After inspecting both artifacts, `video:evidence` replaces the committed evidence report and montage. The report records narration and source digests, the verification script digest, every media digest, probe metadata, and a digest for the exact middle frame sampled from each of the eleven numbered visual pages. The final command regenerates all evidence in a temporary directory and fails if it differs from the committed report. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
 
 ## Visual inspection
 

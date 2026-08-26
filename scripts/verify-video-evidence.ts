@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { copyFile, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { narrationText } from '../video/narration.ts';
 import { visualPageRanges } from '../video/timing.ts';
 
@@ -10,7 +13,7 @@ const montagePath = 'video/out/inspection-montage.png';
 const reportPath = 'video/out/media-evidence.json';
 const scriptPath = 'scripts/verify-video-evidence.ts';
 const narrationScriptPath = 'video/narration.ts';
-
+const update = Bun.argv.includes('--update');
 const decoder = new TextDecoder();
 
 const run = (command: string[]): string => {
@@ -51,70 +54,111 @@ for (const path of [
   if (!(await Bun.file(path).exists())) throw new Error(`missing_evidence_input:${path}`);
 }
 
-const sceneFrames = visualPageRanges.map((scene) => ({
-  id: scene.id,
-  frame: Math.floor((scene.from + scene.to) / 2),
-}));
-const selection = sceneFrames.map(({ frame }) => `eq(n\\,${frame})`).join('+');
+const temporaryDirectory = await mkdtemp(join(tmpdir(), 'supercool-video-evidence-'));
+try {
+  const sceneFrames = await Promise.all(
+    visualPageRanges.map(async (scene, index) => {
+      const frame = Math.floor((scene.from + scene.to) / 2);
+      const framePath = join(
+        temporaryDirectory,
+        `${String(index + 1).padStart(2, '0')}-${scene.id}.png`,
+      );
+      run([
+        'ffmpeg',
+        '-y',
+        '-loglevel',
+        'error',
+        '-i',
+        videoPath,
+        '-vf',
+        `select=eq(n\\,${frame})`,
+        '-frames:v',
+        '1',
+        framePath,
+      ]);
+      return { id: scene.id, frame, sha256: await sha256(framePath) };
+    }),
+  );
 
-run([
-  'ffmpeg',
-  '-y',
-  '-loglevel',
-  'error',
-  '-i',
-  videoPath,
-  '-vf',
-  `select=${selection},scale=480:270,tile=6x2:padding=6:margin=6:color=0x111111`,
-  '-frames:v',
-  '1',
-  montagePath,
-]);
+  const temporaryMontagePath = join(temporaryDirectory, 'inspection-montage.png');
+  const selection = sceneFrames.map(({ frame }) => `eq(n\\,${frame})`).join('+');
+  run([
+    'ffmpeg',
+    '-y',
+    '-loglevel',
+    'error',
+    '-i',
+    videoPath,
+    '-vf',
+    `select=${selection},scale=480:270,tile=6x2:padding=6:margin=6:color=0x111111`,
+    '-frames:v',
+    '1',
+    temporaryMontagePath,
+  ]);
 
-const report = {
-  tools: {
-    ffmpeg: run(['ffmpeg', '-version']).split('\n')[0],
-    ffprobe: run(['ffprobe', '-version']).split('\n')[0],
-  },
-  sceneFrames,
-  files: {
-    narrationScript: {
-      path: narrationScriptPath,
-      characters: narrationText.length,
-      textSha256: createHash('sha256').update(narrationText).digest('hex'),
-      sourceSha256: await sha256(narrationScriptPath),
+  const report = {
+    tools: {
+      ffmpeg: run(['ffmpeg', '-version']).split('\n')[0],
+      ffprobe: run(['ffprobe', '-version']).split('\n')[0],
     },
-    narration: {
-      path: narrationPath,
-      sha256: await sha256(narrationPath),
-      metadata: probe(narrationPath),
+    sceneFrames,
+    files: {
+      narrationScript: {
+        path: narrationScriptPath,
+        characters: narrationText.length,
+        textSha256: createHash('sha256').update(narrationText).digest('hex'),
+        sourceSha256: await sha256(narrationScriptPath),
+      },
+      narration: {
+        path: narrationPath,
+        sha256: await sha256(narrationPath),
+        metadata: probe(narrationPath),
+      },
+      narrationSource: {
+        path: narrationSourcePath,
+        sha256: await sha256(narrationSourcePath),
+        metadata: probe(narrationSourcePath),
+      },
+      video: {
+        path: videoPath,
+        sha256: await sha256(videoPath),
+        metadata: probe(videoPath),
+      },
+      poster: {
+        path: posterPath,
+        sha256: await sha256(posterPath),
+        metadata: probe(posterPath),
+      },
+      inspectionMontage: {
+        path: montagePath,
+        sha256: await sha256(temporaryMontagePath),
+        metadata: probe(temporaryMontagePath),
+      },
+      verificationScript: {
+        path: scriptPath,
+        sha256: await sha256(scriptPath),
+      },
     },
-    narrationSource: {
-      path: narrationSourcePath,
-      sha256: await sha256(narrationSourcePath),
-      metadata: probe(narrationSourcePath),
-    },
-    video: {
-      path: videoPath,
-      sha256: await sha256(videoPath),
-      metadata: probe(videoPath),
-    },
-    poster: {
-      path: posterPath,
-      sha256: await sha256(posterPath),
-      metadata: probe(posterPath),
-    },
-    inspectionMontage: {
-      path: montagePath,
-      sha256: await sha256(montagePath),
-      metadata: probe(montagePath),
-    },
-    verificationScript: {
-      path: scriptPath,
-      sha256: await sha256(scriptPath),
-    },
-  },
-};
+  };
 
-await Bun.write(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-process.stdout.write(`Media evidence: ${reportPath}\nScene montage: ${montagePath}\n`);
+  if (update) {
+    await copyFile(temporaryMontagePath, montagePath);
+    await Bun.write(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    process.stdout.write(`Updated media evidence: ${reportPath}\nScene montage: ${montagePath}\n`);
+  } else {
+    if (!(await Bun.file(reportPath).exists()))
+      throw new Error(`missing_evidence_report:${reportPath}`);
+    const committed = (await Bun.file(reportPath).json()) as {
+      sceneFrames?: unknown;
+      files?: unknown;
+    };
+    const expected = JSON.stringify({ sceneFrames: committed.sceneFrames, files: committed.files });
+    const actual = JSON.stringify({ sceneFrames: report.sceneFrames, files: report.files });
+    if (actual !== expected) {
+      throw new Error('media_evidence_mismatch:run_bun_run_video:evidence_after_review');
+    }
+    process.stdout.write(`Verified media evidence: ${reportPath}\nScene montage: ${montagePath}\n`);
+  }
+} finally {
+  await rm(temporaryDirectory, { force: true, recursive: true });
+}

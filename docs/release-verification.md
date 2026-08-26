@@ -20,7 +20,7 @@ The public URLs, GitHub checks, container results, and Render results below appl
 
 ## Current branch local verification
 
-`bun run check` completed with 79 passing tests, 598 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 81 passing tests, 618 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
@@ -70,13 +70,13 @@ Readiness compares the database with every migration shipped in the deployed art
 
 The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The source MP3 lasts 145.214688 seconds. FFmpeg applies a pitch preserving tempo rate of 1.25 and creates a 116.180249 second render asset. Remotion plays that asset at rate 1 inside a 119 second composition, leaving a 2.819751 second closing hold.
 
-The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 119.061333 seconds, its size is 16,289,020 bytes, and its SHA 256 digest is `5b91820b27321fa983b9bbb2435e8fa66004b23a02039fc74d4c9c6ec423b5cd`.
+The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 119.061333 seconds, its size is 16,378,163 bytes, and its SHA 256 digest is `8d8a8eb4239e56f54f12f5ee4c6d97e42d76cd14916e72c13b81892b5a6fce3e`.
 
-The poster is a 1920 by 1080 PNG with SHA 256 digest `bb38a48c65887d9ecd092a051dd0e040e7b7b1f96e2aa138b3b671f13f7d8d85`. The source narration is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`. The pitch preserving render asset has SHA 256 digest `51ad2b31f5cea2b8026ad6790152cc530e221a801a8819791c3fb350985c4ac5`.
+The poster is a 1920 by 1080 PNG with SHA 256 digest `66573fd74df7b3116ee1b36431611c8bfc9d5a6e06d73e8a20e3d32432b44ab4`. The source narration is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`. The pitch preserving render asset has SHA 256 digest `51ad2b31f5cea2b8026ad6790152cc530e221a801a8819791c3fb350985c4ac5`.
 
-`bun run video:verify` records the narration text and source digests, verification script digest, media probe output, and every artifact digest in `video/out/media-evidence.json`. It also extracts one middle frame from each of the eleven numbered visual pages and retains the samples in `video/out/inspection-montage.png`. The montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. Full resolution frames for the poster, AWS page 10, and review page 11 received separate inspection.
+`bun run video:evidence` records the narration text and source digests, verification script digest, media probe output, every artifact digest, and each representative frame digest in `video/out/media-evidence.json`. It also retains one middle frame from each of the eleven numbered visual pages in `video/out/inspection-montage.png`. After that reviewed evidence is committed, `bun run video:verify` regenerates the report and montage in a temporary directory and fails on any difference. The retained montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. Full resolution frames for the poster, AWS page 10, and review page 11 received separate inspection.
 
-The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/16289020`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
+The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/16378163`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
 
 The committed video evidence is generated from the same sanitized PostgreSQL scenario that the integration test executes and compares. Random identifiers and timestamps are excluded from equality checks by design.
 

@@ -12,7 +12,7 @@ import {
   Title,
   activeStep,
 } from './components.tsx';
-import { sceneRanges } from './timing.ts';
+import { FINAL_SCENE_REVIEW_OFFSET, sceneRanges } from './timing.ts';
 import { theme } from './theme.ts';
 
 type SceneId = (typeof sceneRanges)[number]['id'];
@@ -218,7 +218,7 @@ export const RepositoryMapScene = () => {
   const active = activeStep(frame, 5, sceneDuration('repository-map'));
   const groups: ReadonlyArray<readonly [string, string]> = [
     ['Entrada API', 'src/server.ts\nsrc/app.ts'],
-    ['Dominio', 'transfers/service.ts\naccounts/repository.ts'],
+    ['Dominio', 'src/transfers/service.ts\nsrc/accounts/repository.ts'],
     ['Reglas SQL', 'migrations/\ntriggers y constraints'],
     ['Evidencia', 'scripts/demo-capture.ts\ndemo-run.json'],
     ['Operación', 'docs/operations.md\ninfra/aws/'],
@@ -581,10 +581,10 @@ export const SandboxWorkflowScene = () => {
     suffix: 'sessions',
   } as const;
   const entriesEndpoint = {
-    full: 'GET /v1/accounts/:id/entries',
+    full: 'GET /v1/accounts/:accountId/entries',
     method: 'GET',
     prefix: '/v1/accounts/',
-    suffix: ':id/entries',
+    suffix: ':accountId/entries',
   } as const;
   const steps: Array<[string, ReactNode]> = [
     [
@@ -1171,7 +1171,7 @@ export const AwsTopologyScene = () => {
 
 export const ReviewPathScene = () => {
   const frame = useCurrentFrame();
-  const active = activeStep(frame, 4, sceneDuration('aws-review-path') - 324);
+  const active = activeStep(frame, 4, sceneDuration('aws-review-path') - FINAL_SCENE_REVIEW_OFFSET);
   const steps = [
     ['Sandbox publicado', '/sandbox', 'ejecuta los siete escenarios'],
     ['Referencia API', '/docs', 'lee el contrato OpenAPI'],
@@ -1238,10 +1238,14 @@ export const ReviewPathScene = () => {
 
 export const AwsReviewPathScene = () => (
   <AbsoluteFill>
-    <Sequence durationInFrames={324} premountFor={30}>
+    <Sequence durationInFrames={FINAL_SCENE_REVIEW_OFFSET} premountFor={30}>
       <AwsTopologyScene />
     </Sequence>
-    <Sequence from={324} durationInFrames={sceneDuration('aws-review-path') - 324} premountFor={30}>
+    <Sequence
+      from={FINAL_SCENE_REVIEW_OFFSET}
+      durationInFrames={sceneDuration('aws-review-path') - FINAL_SCENE_REVIEW_OFFSET}
+      premountFor={30}
+    >
       <ReviewPathScene />
     </Sequence>
   </AbsoluteFill>
