@@ -18,8 +18,18 @@ let runtimePool: Pool;
 let runtimeDatabase: Database;
 let app: FastifyInstance;
 let token: string;
+let tenantId: string;
 let sourceAccountId: string;
 let destinationAccountId: string;
+
+const captureError = async (query: Promise<unknown>): Promise<unknown> => {
+  try {
+    await query;
+    return undefined;
+  } catch (error) {
+    return error;
+  }
+};
 
 beforeAll(async () => {
   adminPool = createTestPool();
@@ -40,7 +50,7 @@ beforeAll(async () => {
   const tenant = await adminPool.query<{ id: string }>(
     "INSERT INTO tenants (name) VALUES ('Runtime Application Test') RETURNING id",
   );
-  const tenantId = tenant.rows[0]?.id;
+  tenantId = tenant.rows[0]?.id ?? '';
   if (!tenantId) throw new Error('runtime_tenant_fixture_failed');
   const accounts = await adminPool.query<{ id: string }>(
     `INSERT INTO accounts (tenant_id, name, currency)
@@ -77,14 +87,17 @@ afterAll(async () => {
 
 test('runtime role can use application tables and read migration readiness', async () => {
   const tenant = await runtimePool.query<{ id: string }>(
-    "INSERT INTO tenants (name) VALUES ('Runtime Role Test') RETURNING id",
+    "SELECT create_sandbox_tenant('Reviewer Sandbox 1234abcd') AS id",
   );
   expect(tenant.rows[0]?.id).toBeDefined();
 
   const privileges = await runtimePool.query<{
     can_create_schema_object: boolean;
     can_delete_postings: boolean;
+    can_insert_sandbox_sessions: boolean;
+    can_insert_tenants: boolean;
     can_execute_sandbox_purge: boolean;
+    can_record_sandbox_session: boolean;
     can_lock_tenant_status: boolean;
     can_read_migrations: boolean;
     can_update_accounts: boolean;
@@ -92,7 +105,10 @@ test('runtime role can use application tables and read migration readiness', asy
     SELECT
       has_schema_privilege(current_user, 'public', 'CREATE') AS can_create_schema_object,
       has_table_privilege(current_user, 'postings', 'DELETE') AS can_delete_postings,
+      has_table_privilege(current_user, 'sandbox_sessions', 'INSERT') AS can_insert_sandbox_sessions,
+      has_table_privilege(current_user, 'tenants', 'INSERT') AS can_insert_tenants,
       has_function_privilege(current_user, 'purge_expired_sandbox_tenants()', 'EXECUTE') AS can_execute_sandbox_purge,
+      has_function_privilege(current_user, 'record_sandbox_session(uuid,timestamptz)', 'EXECUTE') AS can_record_sandbox_session,
       has_function_privilege(current_user, 'lock_runtime_tenant_status(uuid)', 'EXECUTE') AS can_lock_tenant_status,
       has_table_privilege(current_user, 'schema_migrations', 'SELECT') AS can_read_migrations,
       has_table_privilege(current_user, 'accounts', 'UPDATE') AS can_update_accounts
@@ -100,11 +116,33 @@ test('runtime role can use application tables and read migration readiness', asy
   expect(privileges.rows[0]).toEqual({
     can_create_schema_object: false,
     can_delete_postings: false,
+    can_insert_sandbox_sessions: false,
+    can_insert_tenants: false,
     can_execute_sandbox_purge: true,
+    can_record_sandbox_session: true,
     can_lock_tenant_status: true,
     can_read_migrations: true,
     can_update_accounts: true,
   });
+});
+
+test('runtime role cannot classify a production tenant as a sandbox', async () => {
+  const directInsertError = await captureError(
+    runtimePool.query(
+      "INSERT INTO sandbox_sessions (tenant_id, expires_at) VALUES ($1, now() + interval '15 minutes')",
+      [tenantId],
+    ),
+  );
+  expect(directInsertError).toBeInstanceOf(Error);
+
+  const recordError = await captureError(
+    runtimePool.query("SELECT record_sandbox_session($1, now() + interval '15 minutes')", [
+      tenantId,
+    ]),
+  );
+  expect(recordError).toBeInstanceOf(Error);
+  if (!(recordError instanceof Error)) throw new Error('expected_runtime_role_error');
+  expect(recordError.message).toContain('tenant is not a sandbox');
 });
 
 test('runtime role serves readiness and completes a transfer', async () => {

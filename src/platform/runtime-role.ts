@@ -64,17 +64,19 @@ export const provisionRuntimeRole = async (
     await client.query(`REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM ${role}`);
     await client.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
     await client.query(`
-      GRANT SELECT, INSERT ON TABLE tenants TO ${role};
+      GRANT SELECT ON TABLE tenants TO ${role};
       GRANT SELECT, INSERT, UPDATE ON TABLE accounts TO ${role};
       GRANT SELECT, INSERT ON TABLE journal_transactions TO ${role};
       GRANT SELECT, INSERT ON TABLE postings TO ${role};
       GRANT SELECT, INSERT ON TABLE transfers TO ${role};
       GRANT SELECT, INSERT, UPDATE ON TABLE idempotency_records TO ${role};
       GRANT SELECT, INSERT ON TABLE audit_events TO ${role};
-      GRANT SELECT, INSERT ON TABLE sandbox_sessions TO ${role};
+      GRANT SELECT ON TABLE sandbox_sessions TO ${role};
       GRANT SELECT ON TABLE schema_migrations TO ${role};
+      GRANT EXECUTE ON FUNCTION create_sandbox_tenant(TEXT) TO ${role};
       GRANT EXECUTE ON FUNCTION lock_runtime_tenant_status(UUID) TO ${role};
       GRANT EXECUTE ON FUNCTION purge_expired_sandbox_tenants() TO ${role};
+      GRANT EXECUTE ON FUNCTION record_sandbox_session(UUID, TIMESTAMPTZ) TO ${role};
     `);
     await client.query('COMMIT');
   } catch (error) {

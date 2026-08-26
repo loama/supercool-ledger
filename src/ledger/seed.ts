@@ -10,11 +10,13 @@ export interface DemoSeed {
 export const seedDemoTenant = async (
   client: PoolClient,
   tenantName = 'Frutella Company',
+  sandbox = false,
 ): Promise<DemoSeed> => {
-  const tenant = await client.query<{ id: string }>(
-    'INSERT INTO tenants (name) VALUES ($1) RETURNING id',
-    [tenantName],
-  );
+  const tenant = sandbox
+    ? await client.query<{ id: string }>('SELECT create_sandbox_tenant($1) AS id', [tenantName])
+    : await client.query<{ id: string }>('INSERT INTO tenants (name) VALUES ($1) RETURNING id', [
+        tenantName,
+      ]);
   const tenantRow = tenant.rows[0];
   if (!tenantRow) throw new Error('demo_tenant_failed');
   const accounts = await client.query<{ id: string; kind: string }>(
