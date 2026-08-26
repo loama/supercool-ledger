@@ -44,7 +44,68 @@ jobs:
 
   container:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_DB: supercool
+          POSTGRES_USER: supercool
+          POSTGRES_PASSWORD: supercool
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U supercool -d supercool"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://supercool:supercool@127.0.0.1:54329/supercool
+      AUTH_SECRET: ci-auth-secret-with-more-than-thirty-two-characters
+      METRICS_TOKEN: ci-metrics-token-with-more-than-thirty-two-characters
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - run: docker build --tag supercool-ledger:ci .
       - run: docker image inspect supercool-ledger:ci
+      - name: Migrate and start the release image
+        run: |
+          docker run --rm --network host \
+            --env DATABASE_URL="$TEST_DATABASE_URL" \
+            supercool-ledger:ci bun run db:migrate
+          docker run --detach --name supercool-ledger-ci --network host \
+            --env DATABASE_URL="$TEST_DATABASE_URL" \
+            --env AUTH_SECRET="$AUTH_SECRET" \
+            --env METRICS_TOKEN="$METRICS_TOKEN" \
+            --env SANDBOX_ENABLED=true \
+            supercool-ledger:ci
+      - name: Smoke test the running release image
+        run: |
+          for attempt in {1..30}; do
+            if docker exec supercool-ledger-ci bun -e \
+              'const response = await fetch("http://127.0.0.1:3000/health/ready"); process.exit(response.ok ? 0 : 1)'; then
+              break
+            fi
+            if [ "$attempt" = 30 ]; then
+              docker logs supercool-ledger-ci
+              exit 1
+            fi
+            sleep 1
+          done
+          docker exec supercool-ledger-ci bun -e '
+            const health = await fetch("http://127.0.0.1:3000/health/ready");
+            const page = await fetch("http://127.0.0.1:3000/sandbox");
+            const body = await page.text();
+            const session = await fetch("http://127.0.0.1:3000/v1/sandbox/sessions", { method: "POST" });
+            if (!health.ok || !page.ok || !body.includes("Reviewer sandbox") || session.status !== 201) process.exit(1);
+          '
+      - name: Show container logs after failure
+        if: failure()
+        run: |
+          if docker container inspect supercool-ledger-ci >/dev/null 2>&1; then
+            docker logs supercool-ledger-ci
+          fi
+      - name: Stop release image
+        if: always()
+        run: |
+          if docker container inspect supercool-ledger-ci >/dev/null 2>&1; then
+            docker rm --force supercool-ledger-ci
+          fi
