@@ -30,6 +30,10 @@ interface TransferResponse {
   id?: string;
   status?: string;
   code?: string;
+  title?: string;
+  detail?: string;
+  amount?: string;
+  currency?: string;
 }
 
 interface AccountEntries {
@@ -48,6 +52,21 @@ interface ClientState {
   lastTransfer: { key: string; body: TransferRequest } | null;
   busy: boolean;
   timer: ReturnType<typeof setInterval> | null;
+}
+
+interface EvidenceFact {
+  label: string;
+  value: string;
+  tone?: 'success' | 'error';
+}
+
+interface EvidenceOptions {
+  method?: 'GET' | 'POST';
+  path?: string;
+  summary?: string;
+  facts?: EvidenceFact[];
+  raw?: unknown;
+  statusText?: string;
 }
 
 type ElementConstructor<T extends Element> = new () => T;
@@ -72,6 +91,9 @@ const state: ClientState = {
 const elements = {
   start: requiredElement('#start-button', HTMLButtonElement),
   reset: requiredElement('#reset-button', HTMLButtonElement),
+  serviceState: requiredElement('#service-state', HTMLElement),
+  serviceStateDot: requiredElement('#service-state-dot', HTMLElement),
+  serviceStateLabel: requiredElement('#service-state-label', HTMLElement),
   status: requiredElement('#session-status', HTMLElement),
   time: requiredElement('#session-time', HTMLElement),
   accounts: requiredElement('#accounts-grid', HTMLElement),
@@ -94,9 +116,9 @@ const setBusy = (busy: boolean): void => {
 const setSessionExpired = (): void => {
   state.session = null;
   state.lastTransfer = null;
-  elements.status.textContent = 'Sesión expirada';
+  elements.status.textContent = 'Session expired';
   elements.time.textContent = '00:00';
-  elements.start.textContent = 'Crear nueva sesión';
+  elements.start.textContent = 'Create test account';
   elements.start.disabled = false;
   elements.reset.disabled = true;
   for (const button of elements.actions) button.disabled = true;
@@ -139,29 +161,151 @@ const request = async <T>(path: string, options: RequestInit = {}): Promise<ApiR
   };
 };
 
-const addEvidence = (title: string, result: ApiResult<unknown>, detail?: string): void => {
+const checkReadiness = async (): Promise<void> => {
+  try {
+    const response = await fetch('/health/ready', {
+      headers: { accept: 'application/json' },
+    });
+    const body = (await response.json().catch(() => null)) as { status?: string } | null;
+    const ready = response.ok && body?.status === 'ready';
+    elements.serviceState.dataset.state = ready ? 'ready' : 'unavailable';
+    elements.serviceStateLabel.textContent = ready ? 'Service ready' : 'Service unavailable';
+  } catch {
+    elements.serviceState.dataset.state = 'unavailable';
+    elements.serviceStateLabel.textContent = 'Service unavailable';
+  }
+};
+
+const stringValue = (value: unknown): string | null =>
+  typeof value === 'string' && value.length > 0 ? value : null;
+
+const numberValue = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null;
+
+const objectValue = (value: unknown): Record<string, unknown> | null =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+
+const shortenId = (value: string): string =>
+  value.length > 15 ? `${value.slice(0, 8)}…${value.slice(-4)}` : value;
+
+const responseFacts = (body: unknown): EvidenceFact[] => {
+  const value = objectValue(body);
+  if (!value) return [];
+
+  const facts: EvidenceFact[] = [];
+  const amount = stringValue(value.amount);
+  const currency = stringValue(value.currency);
+  const status = stringValue(value.status);
+  const id = stringValue(value.id);
+  const code = stringValue(value.code);
+  const detail = stringValue(value.detail) ?? stringValue(value.message);
+  const checkedAccounts = numberValue(value.checkedAccounts);
+  const discrepancies = Array.isArray(value.discrepancies) ? value.discrepancies.length : null;
+  const entries = Array.isArray(value.entries) ? value.entries.length : null;
+
+  if (amount) facts.push({ label: 'Amount', value: `${amount} ${currency ?? ''}`.trim() });
+  if (status) facts.push({ label: 'Transfer state', value: status, tone: 'success' });
+  if (id) facts.push({ label: 'Transfer ID', value: shortenId(id) });
+  if (code) facts.push({ label: 'Error code', value: code, tone: 'error' });
+  if (detail) facts.push({ label: 'Reason', value: detail, tone: 'error' });
+  if (checkedAccounts !== null) {
+    facts.push({ label: 'Accounts checked', value: String(checkedAccounts) });
+  }
+  if (discrepancies !== null) {
+    facts.push({
+      label: 'Discrepancies',
+      value: String(discrepancies),
+      tone: discrepancies === 0 ? 'success' : 'error',
+    });
+  }
+  if (entries !== null) facts.push({ label: 'Ledger entries', value: String(entries) });
+
+  return facts;
+};
+
+const appendFacts = (event: HTMLElement, facts: EvidenceFact[]): void => {
+  if (facts.length === 0) return;
+  const list = document.createElement('dl');
+  list.className = 'response-facts';
+  for (const fact of facts) {
+    const item = document.createElement('div');
+    if (fact.label === 'Reason' || fact.label === 'Error code') item.classList.add('wide');
+    const label = document.createElement('dt');
+    label.textContent = fact.label;
+    const value = document.createElement('dd');
+    value.textContent = fact.value;
+    if (fact.tone) value.classList.add(fact.tone);
+    item.append(label, value);
+    list.append(item);
+  }
+  event.append(list);
+};
+
+const appendRawResponse = (event: HTMLElement, raw: unknown): void => {
+  if (raw === null || raw === undefined) return;
+  const disclosure = document.createElement('details');
+  disclosure.className = 'response-raw';
+  const summary = document.createElement('summary');
+  summary.textContent = 'View raw JSON';
+  const body = document.createElement('pre');
+  body.className = 'event-body';
+  body.textContent = JSON.stringify(raw, null, 2);
+  disclosure.append(summary, body);
+  event.append(disclosure);
+};
+
+const addEvidence = (
+  title: string,
+  result: ApiResult<unknown>,
+  options: EvidenceOptions = {},
+): void => {
   elements.evidence.querySelector('.evidence-empty')?.remove();
   const event = document.createElement('article');
-  event.className = 'evidence-event';
+  event.className = `evidence-event${result.ok ? '' : ' is-error'}`;
 
   const meta = document.createElement('div');
   meta.className = 'event-meta';
+  const request = document.createElement('span');
+  request.className = 'event-request';
+  const method = document.createElement('b');
+  method.textContent = options.method ?? 'LOCAL';
+  const path = document.createElement('span');
+  path.textContent = options.path ?? 'Browser check';
+  request.append(method, path);
   const time = document.createElement('span');
-  time.textContent = new Date().toLocaleTimeString('es-MX', { hour12: false });
-  const status = document.createElement('span');
-  status.className = `event-status${result.ok ? '' : ' error'}`;
-  status.textContent = `HTTP ${result.status}`;
-  meta.append(time, status);
+  time.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+  meta.append(request, time);
 
+  const headingRow = document.createElement('div');
+  headingRow.className = 'event-heading';
   const heading = document.createElement('h3');
   heading.className = 'event-title';
   heading.textContent = title;
+  const status = document.createElement('span');
+  status.className = `event-status${result.ok ? '' : ' error'}`;
+  status.textContent = options.statusText ?? `HTTP ${result.status}`;
+  headingRow.append(heading, status);
 
-  const body = document.createElement('pre');
-  body.className = 'event-body';
-  body.textContent = detail ?? JSON.stringify(result.body, null, 2);
+  event.append(meta, headingRow);
 
-  event.append(meta, heading, body);
+  if (result.replayed) {
+    const replay = document.createElement('p');
+    replay.className = 'response-note';
+    replay.textContent = 'The API returned the original transfer. No money moved twice.';
+    event.append(replay);
+  }
+
+  if (options.summary) {
+    const summary = document.createElement('p');
+    summary.className = 'response-summary';
+    summary.textContent = options.summary;
+    event.append(summary);
+  }
+
+  appendFacts(event, options.facts ?? responseFacts(result.body));
+  appendRawResponse(event, options.raw === undefined ? result.body : options.raw);
   elements.evidence.prepend(event);
 };
 
@@ -198,20 +342,26 @@ const refreshAccounts = async (record = true): Promise<ApiResult<SandboxAccount[
   );
   const failed = results.find((result) => !result.ok);
   if (failed) {
-    if (record) addEvidence('Actualizar saldos', failed);
+    if (record) {
+      addEvidence('Refresh balances', failed, {
+        method: 'GET',
+        path: '/v1/accounts/:id',
+      });
+    }
     return { ...failed, body: [] };
   }
   state.accounts = results.map((result) => result.body);
   renderAccounts();
   const result: ApiResult<SandboxAccount[]> = { status: 200, ok: true, body: state.accounts };
   if (record) {
-    addEvidence(
-      'Saldos actualizados',
-      result,
-      state.accounts
-        .map((account) => `${account.name}: ${account.balance} ${account.currency}`)
-        .join('\n'),
-    );
+    addEvidence('Balances refreshed', result, {
+      method: 'GET',
+      path: '/v1/accounts/:id',
+      facts: state.accounts.map((account) => ({
+        label: account.name,
+        value: `${account.balance} ${account.currency}`,
+      })),
+    });
   }
   return result;
 };
@@ -246,7 +396,10 @@ const runSuccess = async (): Promise<void> => {
   const body = transferBody('125.75');
   const result = await transfer(key, body);
   if (result.ok) state.lastTransfer = { key, body };
-  addEvidence('Transferencia válida', result);
+  addEvidence('Successful transfer', result, {
+    method: 'POST',
+    path: '/v1/transfers',
+  });
   await refreshAccounts(false);
 };
 
@@ -254,18 +407,21 @@ const runReplay = async (): Promise<void> => {
   const previous = state.lastTransfer;
   if (!previous) {
     addEvidence(
-      'Repetición segura',
+      'Safe replay',
       { status: 0, ok: false, body: null },
-      'Ejecuta primero una transferencia válida.',
+      {
+        summary: 'Run a successful transfer first.',
+        statusText: 'Not sent',
+        raw: null,
+      },
     );
     return;
   }
   const result = await transfer(previous.key, previous.body);
-  addEvidence(
-    'Repetición segura',
-    result,
-    `${result.replayed ? 'Idempotent-Replayed: true' : 'Sin cabecera de repetición'}\n${JSON.stringify(result.body, null, 2)}`,
-  );
+  addEvidence('Safe replay', result, {
+    method: 'POST',
+    path: '/v1/transfers',
+  });
   await refreshAccounts(false);
 };
 
@@ -273,19 +429,29 @@ const runConflict = async (): Promise<void> => {
   const previous = state.lastTransfer;
   if (!previous) {
     addEvidence(
-      'Conflicto de idempotencia',
+      'Idempotency conflict',
       { status: 0, ok: false, body: null },
-      'Ejecuta primero una transferencia válida.',
+      {
+        summary: 'Run a successful transfer first.',
+        statusText: 'Not sent',
+        raw: null,
+      },
     );
     return;
   }
   const result = await transfer(previous.key, { ...previous.body, amount: '125.76' });
-  addEvidence('Conflicto de idempotencia', result);
+  addEvidence('Idempotency conflict', result, {
+    method: 'POST',
+    path: '/v1/transfers',
+  });
 };
 
 const runInsufficient = async (): Promise<void> => {
   const result = await transfer(randomKey('sandbox-insufficient'), transferBody('999999.00'));
-  addEvidence('Fondos insuficientes', result);
+  addEvidence('Insufficient funds', result, {
+    method: 'POST',
+    path: '/v1/transfers',
+  });
   await refreshAccounts(false);
 };
 
@@ -307,17 +473,32 @@ const runRace = async (): Promise<void> => {
     transfer(randomKey('sandbox-race-a'), body),
     transfer(randomKey('sandbox-race-b'), body),
   ]);
-  const bothSucceeded = results.every((result) => result.ok);
-  const detail = results
-    .map(
-      (result, index) =>
-        `Solicitud ${index + 1}: HTTP ${result.status} ${result.body.code ?? result.body.status ?? ''}`,
-    )
-    .join('\n');
+  const successful = results.filter((result) => result.ok);
+  const rejected = results.filter((result) => !result.ok);
+  const protectedBalance =
+    successful.length === 1 &&
+    rejected.length === 1 &&
+    rejected[0]?.status === 422 &&
+    rejected[0].body.code === 'insufficient_funds';
   addEvidence(
-    'Competencia por el saldo',
-    { status: bothSucceeded ? 500 : 200, ok: !bothSucceeded, body: results },
-    `${detail}\nImporte por solicitud: ${amount} USD`,
+    'Concurrent spending',
+    { status: protectedBalance ? 200 : 500, ok: protectedBalance, body: results },
+    {
+      method: 'POST',
+      path: '/v1/transfers × 2',
+      summary: protectedBalance
+        ? 'Both requests competed for one balance. One committed and one was rejected.'
+        : 'The responses did not prove serialized spending.',
+      statusText: protectedBalance ? 'Protected' : 'Inconclusive',
+      facts: [
+        { label: 'Amount per request', value: `${amount} USD` },
+        ...results.map((result, index) => ({
+          label: `Request ${index + 1}`,
+          value: `HTTP ${result.status} · ${result.body.code ?? result.body.status ?? 'unknown'}`,
+          tone: result.ok ? ('success' as const) : ('error' as const),
+        })),
+      ],
+    },
   );
   await refreshAccounts(false);
 };
@@ -325,12 +506,18 @@ const runRace = async (): Promise<void> => {
 const runEntries = async (): Promise<void> => {
   const [source] = accountPair();
   const result = await request<AccountEntries>(`/v1/accounts/${source.id}/entries?limit=50`);
-  addEvidence('Movimientos inmutables', result);
+  addEvidence('Immutable entries', result, {
+    method: 'GET',
+    path: '/v1/accounts/:id/entries',
+  });
 };
 
 const runReconciliation = async (): Promise<void> => {
   const result = await request<Reconciliation>('/v1/operations/reconciliation');
-  addEvidence('Conciliación', result);
+  addEvidence('Reconciliation', result, {
+    method: 'GET',
+    path: '/v1/operations/reconciliation',
+  });
 };
 
 const startSession = async (): Promise<void> => {
@@ -338,26 +525,47 @@ const startSession = async (): Promise<void> => {
   try {
     const result = await request<SandboxSession>('/v1/sandbox/sessions', { method: 'POST' });
     if (!result.ok) {
-      addEvidence('Crear sesión', result);
+      addEvidence('Create test account', result, {
+        method: 'POST',
+        path: '/v1/sandbox/sessions',
+      });
       return;
     }
     state.session = result.body;
     state.accounts = result.body.accounts;
     state.lastTransfer = null;
-    elements.status.textContent = `Activa • ${result.body.tenantId.slice(0, 8)}`;
-    elements.start.textContent = 'Sandbox activo';
+    elements.status.textContent = `Active • ${result.body.tenantId.slice(0, 8)}`;
+    elements.start.textContent = 'Account ready';
     renderAccounts();
     startCountdown();
     addEvidence(
-      'Sesión creada',
+      'Test account created',
       { status: result.status, ok: true, body: null },
-      `Tenant aislado: ${result.body.tenantId.slice(0, 8)}\n2 cuentas sintéticas\nJWT guardado solo en memoria`,
+      {
+        method: 'POST',
+        path: '/v1/sandbox/sessions',
+        summary: 'The browser received a temporary token and kept it in memory only.',
+        facts: [
+          { label: 'Tenant', value: shortenId(result.body.tenantId) },
+          { label: 'Accounts', value: '2 synthetic USD accounts' },
+          { label: 'Session', value: '15 minutes' },
+        ],
+        raw: {
+          tenantId: result.body.tenantId,
+          expiresAt: result.body.expiresAt,
+          accounts: result.body.accounts,
+        },
+      },
     );
   } catch (error) {
     addEvidence(
-      'Error de conexión',
+      'Connection error',
       { status: 0, ok: false, body: null },
-      error instanceof Error ? error.message : 'No fue posible conectar con el servicio.',
+      {
+        summary: error instanceof Error ? error.message : 'The service could not be reached.',
+        statusText: 'Offline',
+        raw: null,
+      },
     );
   } finally {
     setBusy(false);
@@ -384,9 +592,13 @@ const runAction = async (name: string): Promise<void> => {
     await action();
   } catch (error) {
     addEvidence(
-      'Error de conexión',
+      'Connection error',
       { status: 0, ok: false, body: null },
-      error instanceof Error ? error.message : 'No fue posible completar la acción.',
+      {
+        summary: error instanceof Error ? error.message : 'The action could not be completed.',
+        statusText: 'Offline',
+        raw: null,
+      },
     );
   } finally {
     setBusy(false);
@@ -403,3 +615,4 @@ for (const button of elements.actions) {
 }
 
 setBusy(false);
+void checkReadiness();
