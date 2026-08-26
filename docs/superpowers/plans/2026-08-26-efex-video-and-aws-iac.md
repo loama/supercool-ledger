@@ -4,7 +4,7 @@
 
 **Goal:** Deliver validated AWS Terraform and a faster EFEX inspired Spanish walkthrough that explains the codebase, financial flow, cloud design, and reviewer sandbox.
 
-**Architecture:** Keep Render as the live assessment deployment and add an independent AWS Terraform root under `infra/aws`. Split the Remotion presentation into shared theme, shared diagram components, scene components, timing data, and one composition entry. The committed narration remains the reproducible source audio. A pitch preserving tempo step creates the 1.5 render asset, which Remotion plays at rate 1.
+**Architecture:** Keep Render as the live assessment deployment and add an independent AWS Terraform root under `infra/aws`. Split the Remotion presentation into shared theme, shared diagram components, scene components, timing data, and one composition entry. The committed narration remains the reproducible source audio. A pitch preserving tempo step creates the 1.25 render asset, which Remotion plays at rate 1.
 
 **Tech Stack:** TypeScript, Bun, React, Remotion, `@fontsource-variable/dm-sans` 5.3.0, ElevenLabs, Terraform 1.15, AWS provider 6, ECS Fargate, RDS PostgreSQL 17
 
@@ -15,7 +15,7 @@
 1. Use Bun for every JavaScript command.
 2. Keep the application API and financial behavior unchanged.
 3. Keep the live Render deployment intact.
-4. Use exactly `1.5` as the Remotion audio playback rate.
+4. Use exactly `1.25` as the pitch preserving audio tempo rate.
 5. Keep the preview page free of an autoplay attribute.
 6. Keep the narration and captions in Spanish.
 7. Use `#111111`, `#ffffff`, `#f7f7f2`, `#fff98e`, and `#a3a3a3` as the core video palette.
@@ -105,7 +105,7 @@ git commit -m "feat(infra): add validated AWS deployment"
 
 - [ ] **Step 1: Extend the video integrity test**
 
-Assert ten scene ranges, exact playback rate `1.5`, contiguous scene and caption ranges, Spanish sandbox instructions, AWS topology claims, and total frame equality with the composition.
+Assert ten scene ranges, exact audio tempo rate `1.25`, contiguous scene and caption ranges, Spanish sandbox instructions, AWS topology claims, and total frame equality with the composition.
 
 - [ ] **Step 2: Confirm the new assertions fail**
 
@@ -119,7 +119,7 @@ Expected result: failure because the timing contract and new narration do not ex
 
 - [ ] **Step 3: Write the Spanish narration**
 
-Write ten paragraphs in the exact scene order from the spec. Explain concrete files and request steps. Keep sentences short enough for burned in captions at 1.5 playback.
+Write ten paragraphs in the exact scene order from the spec. Explain concrete files and request steps. Keep sentences short enough for burned in captions at 1.25 tempo.
 
 - [ ] **Step 4: Implement the timing contract**
 
@@ -221,7 +221,7 @@ Use the Enrique M. Nieto voice and `eleven_multilingual_v2`. Record the voice id
 
 - [ ] **Step 2: Align timing to the generated audio**
 
-Calculate the played duration as raw audio duration divided by `1.5`. Adjust scene and caption ranges to end after the narration with a short closing hold. Recheck every contiguous range assertion.
+Calculate the played duration as raw audio duration divided by `1.25`. Adjust scene and caption ranges to end after the narration with a short closing hold. Recheck every contiguous range assertion.
 
 - [ ] **Step 3: Render the final artifacts**
 

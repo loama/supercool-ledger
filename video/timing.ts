@@ -1,7 +1,7 @@
-export const NARRATION_TEMPO_RATE = 1.5;
+export const NARRATION_TEMPO_RATE = 1.25;
 export const VIDEO_PLAYBACK_RATE = 1;
 export const VIDEO_FPS = 30;
-export const VIDEO_DURATION_IN_FRAMES = 2970;
+export const VIDEO_DURATION_IN_FRAMES = 3570;
 export const VIDEO_PAGE_COUNT = 11;
 export const NARRATION_DURATION_MILLISECONDS = 145_214.688;
 
@@ -15,7 +15,7 @@ export const sourceMillisecondsToVideoFrame = (milliseconds: number): number =>
 
 export const NARRATION_END_FRAME = sourceMillisecondsToVideoFrame(NARRATION_DURATION_MILLISECONDS);
 
-const sceneFrameBoundaries = [0, 274, 661, 790, 1069, 1508, 1579, 1910, 2062, 2434, 2970] as const;
+const sceneFrameBoundaries = [0, 328, 793, 948, 1283, 1809, 1895, 2292, 2474, 2921, 3570] as const;
 
 export const sceneRanges = [
   { id: 'financial-promise', from: sceneFrameBoundaries[0], to: sceneFrameBoundaries[1] },
@@ -30,10 +30,12 @@ export const sceneRanges = [
   { id: 'aws-review-path', from: sceneFrameBoundaries[9], to: VIDEO_DURATION_IN_FRAMES },
 ] as const;
 
+const finalScenePageBoundary = sourceMillisecondsToVideoFrame(narrationCueStartMilliseconds[23]);
+
 export const visualPageRanges = [
   ...sceneRanges.slice(0, 9),
-  { id: 'aws-topology', from: sceneFrameBoundaries[9], to: sceneFrameBoundaries[9] + 324 },
-  { id: 'review-path', from: sceneFrameBoundaries[9] + 324, to: VIDEO_DURATION_IN_FRAMES },
+  { id: 'aws-topology', from: sceneFrameBoundaries[9], to: finalScenePageBoundary },
+  { id: 'review-path', from: finalScenePageBoundary, to: VIDEO_DURATION_IN_FRAMES },
 ] as const;
 
 export const captionFrameRanges = narrationCueStartMilliseconds.map((milliseconds, index) => [

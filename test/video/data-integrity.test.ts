@@ -16,10 +16,10 @@ import {
   visualPageRanges,
 } from '../../video/timing.ts';
 
-test('video timing covers ten contiguous scenes at the configured playback rate', () => {
+test('video timing covers ten contiguous scenes at the configured tempo', () => {
   expect(VIDEO_PLAYBACK_RATE).toBe(1);
-  expect(sourceMillisecondsToVideoFrame(1500)).toBe(30);
-  expect(VIDEO_DURATION_IN_FRAMES).toBe(2970);
+  expect(sourceMillisecondsToVideoFrame(1250)).toBe(30);
+  expect(VIDEO_DURATION_IN_FRAMES).toBe(3570);
   expect(sceneRanges.map((scene) => scene.id)).toEqual([
     'financial-promise',
     'ledger-invariants',

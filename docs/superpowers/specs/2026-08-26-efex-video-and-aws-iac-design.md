@@ -2,7 +2,7 @@
 
 ## Goal
 
-Improve the assessment presentation in two ways. The Remotion walkthrough should use the visual language of EFEX, run at a real playback rate of 1.5, and explain the repository and reviewer sandbox. The repository should also contain validated Terraform for a major cloud deployment.
+Improve the assessment presentation in two ways. The Remotion walkthrough should use the visual language of EFEX, run at a pitch preserving tempo rate of 1.25, and explain the repository and reviewer sandbox. The repository should also contain validated Terraform for a major cloud deployment.
 
 ## Brand direction
 
@@ -37,7 +37,7 @@ The walkthrough stays in Spanish and uses the Enrique M. Nieto voice. It contain
 9. The observability boundary across logs, metrics, traces, and unexpected errors.
 10. The AWS deployment topology, migration boundary, and review path through the live sandbox, API reference, tests, and source.
 
-The final artifact uses an audio playback rate of exactly `1.5`. The scene and caption ranges use the shortened playback duration. The preview page still waits for an explicit play action.
+The final artifact uses a pitch preserving audio tempo rate of exactly `1.25`. The scene and caption ranges use the shortened playback duration. The preview page still waits for an explicit play action.
 
 ## Cloud infrastructure
 

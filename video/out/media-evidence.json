@@ -6,47 +6,47 @@
   "sceneFrames": [
     {
       "id": "financial-promise",
-      "frame": 137
+      "frame": 164
     },
     {
       "id": "ledger-invariants",
-      "frame": 467
+      "frame": 560
     },
     {
       "id": "repository-map",
-      "frame": 725
+      "frame": 870
     },
     {
       "id": "request-lifecycle",
-      "frame": 929
+      "frame": 1115
     },
     {
       "id": "atomic-transfer",
-      "frame": 1288
+      "frame": 1546
     },
     {
       "id": "data-model",
-      "frame": 1543
+      "frame": 1852
     },
     {
       "id": "reviewer-sandbox",
-      "frame": 1744
+      "frame": 2093
     },
     {
       "id": "captured-evidence",
-      "frame": 1986
+      "frame": 2383
     },
     {
       "id": "observability",
-      "frame": 2248
+      "frame": 2697
     },
     {
       "id": "aws-topology",
-      "frame": 2596
+      "frame": 3117
     },
     {
       "id": "review-path",
-      "frame": 2864
+      "frame": 3441
     }
   ],
   "files": {
@@ -58,7 +58,7 @@
     },
     "narration": {
       "path": "video/public/narration-fast.mp3",
-      "sha256": "babfa5f81091520d974f2c8805d23554b2ae40315437dfb67303363918e792cc",
+      "sha256": "51ad2b31f5cea2b8026ad6790152cc530e221a801a8819791c3fb350985c4ac5",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -74,8 +74,8 @@
         ],
         "format": {
           "format_name": "mp3",
-          "duration": "96.815488",
-          "size": "1550253"
+          "duration": "116.180249",
+          "size": "1859961"
         }
       }
     },
@@ -104,7 +104,7 @@
     },
     "video": {
       "path": "video/out/supercool-ledger.mp4",
-      "sha256": "450c6f61cac36fe7e2531472207a38bc8960e8bc09bccd0dc4b78bb88c6af038",
+      "sha256": "5b91820b27321fa983b9bbb2435e8fa66004b23a02039fc74d4c9c6ec423b5cd",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -131,8 +131,8 @@
         ],
         "format": {
           "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
-          "duration": "99.050667",
-          "size": "14837924"
+          "duration": "119.061333",
+          "size": "16289020"
         }
       }
     },
@@ -160,7 +160,7 @@
     },
     "inspectionMontage": {
       "path": "video/out/inspection-montage.png",
-      "sha256": "883824a3cadad72ac5a138f144b2657300106931abbd423062ab6325282d81df",
+      "sha256": "65953d49e6fed0d115fc219f8513d31a68090377fd065458ba818f718843ca19",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -176,7 +176,7 @@
         ],
         "format": {
           "format_name": "png_pipe",
-          "size": "581198"
+          "size": "559718"
         }
       }
     },
