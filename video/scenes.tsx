@@ -574,14 +574,44 @@ export const DataModelScene = () => {
 
 export const SandboxWorkflowScene = () => {
   const frame = useCurrentFrame();
-  const steps = [
-    ['Sesión', 'POST /v1/sandbox/sessions'],
+  const sessionEndpoint = {
+    full: 'POST /v1/sandbox/sessions',
+    method: 'POST',
+    prefix: '/v1/sandbox/',
+    suffix: 'sessions',
+  } as const;
+  const entriesEndpoint = {
+    full: 'GET /v1/accounts/:id/entries',
+    method: 'GET',
+    prefix: '/v1/accounts/',
+    suffix: ':id/entries',
+  } as const;
+  const steps: Array<[string, ReactNode]> = [
+    [
+      'Sesión',
+      <span style={{ fontFamily: theme.mono, fontSize: 13, lineHeight: 1.25 }}>
+        {sessionEndpoint.method}
+        <br />
+        {sessionEndpoint.prefix}
+        <br />
+        {sessionEndpoint.suffix}
+      </span>,
+    ],
     ['Éxito', 'HTTP 201'],
     ['Replay', 'mismo id'],
     ['Conflicto', 'misma clave'],
     ['Fondos', 'HTTP 422'],
     ['Carrera', 'dos solicitudes'],
-    ['Asientos', 'GET /v1/accounts/:id/entries'],
+    [
+      'Asientos',
+      <span style={{ fontFamily: theme.mono, fontSize: 13, lineHeight: 1.25 }}>
+        {entriesEndpoint.method}
+        <br />
+        {entriesEndpoint.prefix}
+        <br />
+        {entriesEndpoint.suffix}
+      </span>,
+    ],
     ['Conciliación', 'cero diferencias'],
   ];
   const active = activeStep(frame, steps.length, sceneDuration('reviewer-sandbox'));

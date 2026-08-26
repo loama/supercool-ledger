@@ -81,7 +81,7 @@
     },
     "video": {
       "path": "video/out/supercool-ledger.mp4",
-      "sha256": "abc1d4265ea8c8c09fab4eda9e9e0a944039cba887a5602b0fb49f18000e193f",
+      "sha256": "c38da4aef69de26d8250e3c1b67e16b8fa883b28563036cc0a8f69a4ed13e8fa",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -109,7 +109,7 @@
         "format": {
           "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
           "duration": "99.050667",
-          "size": "14837193"
+          "size": "14837924"
         }
       }
     },
@@ -137,7 +137,7 @@
     },
     "inspectionMontage": {
       "path": "video/out/inspection-montage.png",
-      "sha256": "40e9aafd771003fac9374d227b272220dddd21bc468e4f3a75fc9970f21ab225",
+      "sha256": "883824a3cadad72ac5a138f144b2657300106931abbd423062ab6325282d81df",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -153,7 +153,7 @@
         ],
         "format": {
           "format_name": "png_pipe",
-          "size": "581361"
+          "size": "581198"
         }
       }
     },

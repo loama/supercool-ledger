@@ -20,7 +20,7 @@ The public URLs, GitHub checks, container results, and Render results below appl
 
 ## Current branch local verification
 
-`bun run check` completed with 77 passing tests, 592 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 78 passing tests, 595 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
@@ -70,7 +70,7 @@ Readiness compares the database with every migration shipped in the deployed art
 
 The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The raw MP3 lasts 145.214688 seconds. Playback at exactly 1.5 shortens it to 96.809792 seconds inside a 99 second composition, leaving a 2.190208 second closing hold.
 
-The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,837,193 bytes, and its SHA 256 digest is `abc1d4265ea8c8c09fab4eda9e9e0a944039cba887a5602b0fb49f18000e193f`.
+The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,837,924 bytes, and its SHA 256 digest is `c38da4aef69de26d8250e3c1b67e16b8fa883b28563036cc0a8f69a4ed13e8fa`.
 
 The poster is a 1920 by 1080 PNG with SHA 256 digest `bb38a48c65887d9ecd092a051dd0e040e7b7b1f96e2aa138b3b671f13f7d8d85`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
 
