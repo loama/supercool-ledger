@@ -270,6 +270,8 @@ resource "aws_route53_record" "application" {
 }
 
 resource "aws_ecs_service" "application" {
+  count = var.bootstrap_mode ? 0 : 1
+
   name            = local.name_prefix
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.application.arn
@@ -303,24 +305,29 @@ resource "aws_ecs_service" "application" {
   depends_on = [aws_lb_listener.https]
 
   lifecycle {
-    ignore_changes = [desired_count, task_definition]
+    ignore_changes  = [desired_count, task_definition]
+    prevent_destroy = true
   }
 }
 
 resource "aws_appautoscaling_target" "application" {
+  count = var.bootstrap_mode ? 0 : 1
+
   max_capacity       = 6
   min_capacity       = 2
-  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.application.name}"
+  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.application[0].name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
 
 resource "aws_appautoscaling_policy" "application_cpu" {
+  count = var.bootstrap_mode ? 0 : 1
+
   name               = "${local.name_prefix}-cpu"
   policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.application.resource_id
-  scalable_dimension = aws_appautoscaling_target.application.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.application.service_namespace
+  resource_id        = aws_appautoscaling_target.application[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.application[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.application[0].service_namespace
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {

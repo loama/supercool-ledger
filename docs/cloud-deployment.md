@@ -18,6 +18,6 @@ RDS PostgreSQL 17 uses Multi AZ mode by default. AWS maintains a synchronous sta
 
 The load balancer redirects HTTP to HTTPS and uses a supplied ACM certificate. Application tasks accept traffic only from the load balancer. PostgreSQL accepts traffic only from the application security group. Neither ECS nor RDS receives a public address.
 
-The release sequence keeps schema changes outside the long running service. Operators push an image digest to ECR, apply its task definitions, run the separate `bun run db:migrate` task once, verify its zero exit code, and only then update the ECS service. See `infra/aws/README.md` for the exact commands.
+The release sequence keeps schema changes outside the long running service. The first apply uses bootstrap mode, which creates the database, cluster, and migration task without creating the service or autoscaling. Operators run `bun run db:migrate`, verify its zero exit code, disable bootstrap mode, and apply again to create the service with scaling from two tasks to six tasks. Later releases also run the migration before the explicit ECS service update. See `infra/aws/README.md` for the exact commands.
 
 Terraform state contains secret values. Production state therefore belongs in an encrypted, versioned S3 bucket with blocked public access, narrow IAM access, and locking. The example uses one NAT gateway and modest compute defaults to control cost. A stricter recovery target should use one NAT gateway per availability zone or private VPC endpoints.

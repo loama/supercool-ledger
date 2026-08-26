@@ -167,7 +167,7 @@ See `docs/observability.md` for metrics and alert guidance.
 
 `render.yaml` defines the live paid Render web service and PostgreSQL database in Frankfurt. Render runs migrations before deployment and checks `/health/ready` before routing traffic.
 
-`infra/aws` defines an independent production topology with a two availability zone VPC, private ECS Fargate tasks, private RDS PostgreSQL 17 in Multi AZ mode, immutable ECR images, Secrets Manager, CloudWatch, a separate migration task, and scaling from two tasks to six tasks. The AWS path keeps all balance reads on the database writer. Its deployment sequence is documented in `infra/aws/README.md`.
+`infra/aws` defines an independent production topology with a two availability zone VPC, private ECS Fargate tasks, private RDS PostgreSQL 17 in Multi AZ mode, immutable ECR images, Secrets Manager, CloudWatch, a separate migration task, and scaling from two tasks to six tasks. Its bootstrap mode omits the service and autoscaling until the first migration exits with zero. The AWS path keeps all balance reads on the database writer. Its deployment sequence is documented in `infra/aws/README.md`.
 
 The Dockerfile pins Bun and uses the same application runtime locally, in CI, and on Render.
 

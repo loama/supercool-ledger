@@ -14,8 +14,8 @@ output "ecs_cluster_name" {
 }
 
 output "ecs_service_name" {
-  description = "ECS application service name."
-  value       = aws_ecs_service.application.name
+  description = "ECS application service name, or null during bootstrap."
+  value       = var.bootstrap_mode ? null : aws_ecs_service.application[0].name
 }
 
 output "application_task_definition_arn" {

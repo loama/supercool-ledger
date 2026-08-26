@@ -133,6 +133,12 @@ variable "task_memory" {
   default     = 1024
 }
 
+variable "bootstrap_mode" {
+  description = "Whether Terraform omits the application service and autoscaling until migrations pass."
+  type        = bool
+  default     = true
+}
+
 variable "desired_task_count" {
   description = "Normal number of application tasks."
   type        = number
