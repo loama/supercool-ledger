@@ -6,15 +6,15 @@
   "sceneFrames": [
     {
       "id": "financial-promise",
-      "frame": 135
+      "frame": 137
     },
     {
       "id": "ledger-invariants",
-      "frame": 463
+      "frame": 467
     },
     {
       "id": "repository-map",
-      "frame": 723
+      "frame": 725
     },
     {
       "id": "request-lifecycle",
@@ -22,11 +22,11 @@
     },
     {
       "id": "atomic-transfer",
-      "frame": 1285
+      "frame": 1288
     },
     {
       "id": "data-model",
-      "frame": 1540
+      "frame": 1543
     },
     {
       "id": "reviewer-sandbox",
@@ -34,15 +34,19 @@
     },
     {
       "id": "captured-evidence",
-      "frame": 1984
+      "frame": 1986
     },
     {
       "id": "observability",
-      "frame": 2246
+      "frame": 2248
     },
     {
-      "id": "aws-review-path",
-      "frame": 2702
+      "id": "aws-topology",
+      "frame": 2596
+    },
+    {
+      "id": "review-path",
+      "frame": 2864
     }
   ],
   "files": {
@@ -77,7 +81,7 @@
     },
     "video": {
       "path": "video/out/supercool-ledger.mp4",
-      "sha256": "4cbe42c2b10ecbb363393301fcd9f094249a49b05ebc46a50a8eb9e9845af99b",
+      "sha256": "abc1d4265ea8c8c09fab4eda9e9e0a944039cba887a5602b0fb49f18000e193f",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -105,13 +109,13 @@
         "format": {
           "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
           "duration": "99.050667",
-          "size": "14692501"
+          "size": "14837193"
         }
       }
     },
     "poster": {
       "path": "video/out/poster.png",
-      "sha256": "018baf5b77d235d1458a2e6606bb4ae7e61af3edce3938df40103454296eb915",
+      "sha256": "bb38a48c65887d9ecd092a051dd0e040e7b7b1f96e2aa138b3b671f13f7d8d85",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -127,13 +131,13 @@
         ],
         "format": {
           "format_name": "png_pipe",
-          "size": "496139"
+          "size": "495952"
         }
       }
     },
     "inspectionMontage": {
       "path": "video/out/inspection-montage.png",
-      "sha256": "ba6183c37c337040c2d37ec730ce6802f11ec993b9d8af7469ebc78dd710f520",
+      "sha256": "40e9aafd771003fac9374d227b272220dddd21bc468e4f3a75fc9970f21ab225",
       "metadata": {
         "programs": [],
         "stream_groups": [],
@@ -142,20 +146,20 @@
             "index": 0,
             "codec_name": "png",
             "codec_type": "video",
-            "width": 2436,
+            "width": 2922,
             "height": 558,
             "r_frame_rate": "25/1"
           }
         ],
         "format": {
           "format_name": "png_pipe",
-          "size": "517081"
+          "size": "581361"
         }
       }
     },
     "verificationScript": {
       "path": "scripts/verify-video-evidence.ts",
-      "sha256": "c6a4e594e071f1e8872c476bb58e976dd7be60bd5ec05ac8bfc853c87608c0bf"
+      "sha256": "95ee666b5389d761ffc36a3950169d9ed28ff17b06ee02dea2b1b19cbad049b9"
     }
   }
 }

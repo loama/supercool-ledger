@@ -6,10 +6,13 @@ import { narrationSections, narrationSegments, narrationText } from '../../video
 import { VideoRoot } from '../../video/Root.tsx';
 import {
   VIDEO_DURATION_IN_FRAMES,
+  VIDEO_PAGE_COUNT,
   VIDEO_PLAYBACK_RATE,
+  NARRATION_END_FRAME,
   narrationCueStartMilliseconds,
   sceneRanges,
   sourceMillisecondsToVideoFrame,
+  visualPageRanges,
 } from '../../video/timing.ts';
 
 test('video timing covers ten contiguous scenes at the configured playback rate', () => {
@@ -33,6 +36,19 @@ test('video timing covers ten contiguous scenes at the configured playback rate'
     expect(Number(sceneRanges[index]?.from)).toBe(Number(sceneRanges[index - 1]?.to));
   }
   for (const scene of sceneRanges) expect(scene.to).toBeGreaterThan(scene.from);
+
+  expect(VIDEO_PAGE_COUNT).toBe(11);
+  expect(visualPageRanges).toHaveLength(VIDEO_PAGE_COUNT);
+  expect(visualPageRanges.map(({ id }) => id)).toEqual([
+    ...sceneRanges.slice(0, 9).map(({ id }) => id),
+    'aws-topology',
+    'review-path',
+  ]);
+  expect(visualPageRanges[0].from).toBe(0);
+  expect(visualPageRanges.at(-1)?.to).toBe(VIDEO_DURATION_IN_FRAMES);
+  for (let index = 1; index < visualPageRanges.length; index += 1) {
+    expect(Number(visualPageRanges[index]?.from)).toBe(Number(visualPageRanges[index - 1]?.to));
+  }
 
   const composition = VideoRoot() as ReactElement<{ durationInFrames: number }>;
   expect(composition.props.durationInFrames).toBe(VIDEO_DURATION_IN_FRAMES);
@@ -70,6 +86,7 @@ test('Spanish story and visual scenes follow the approved narration sections', a
     'bootstrap_mode = true',
     'bun run db:migrate',
     'bootstrap_mode = false',
+    'GET /v1/accounts/:id/entries',
   ]) {
     expect(visualSource).toContain(visualDetail);
   }
@@ -104,9 +121,15 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   expect(captionCues.map((cue) => cue.from)).toEqual(
     narrationCueStartMilliseconds.map(sourceMillisecondsToVideoFrame),
   );
+  expect(narrationCueStartMilliseconds).toEqual([
+    70, 5150, 13680, 17440, 26400, 33050, 39500, 44430, 47160, 53460, 58170, 62400, 67750, 75380,
+    78960, 85300, 91600, 95510, 100820, 103100, 107730, 111130, 121700, 138040,
+  ]);
   for (const cue of captionCues) expect(narrationText).toContain(cue.text);
-  expect(captionCues[0]?.from).toBe(0);
-  expect(captionCues.at(-1)?.to).toBe(VIDEO_DURATION_IN_FRAMES);
+  expect(captionCues[0]?.from).toBe(sourceMillisecondsToVideoFrame(70));
+  expect(captionCues[1]?.from).toBe(sourceMillisecondsToVideoFrame(5150));
+  expect(captionCues.at(-1)?.to).toBe(NARRATION_END_FRAME);
+  expect(NARRATION_END_FRAME).toBeLessThan(VIDEO_DURATION_IN_FRAMES);
   for (let index = 1; index < captionCues.length; index += 1) {
     expect(captionCues[index]?.from).toBe(captionCues[index - 1]?.to);
   }

@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { captionCues } from './captions.ts';
 import { darkAtmosphere, grainSize, lightAtmosphere, theme } from './theme.ts';
+import { VIDEO_PAGE_COUNT } from './timing.ts';
 
 type Tone = 'dark' | 'light';
 
@@ -126,7 +127,7 @@ export const SceneShell = ({
         >
           <span style={{ color: foreground }}>{String(index).padStart(2, '0')}</span>
           <span style={{ width: 44, height: 1, background: line }} />
-          <span>10</span>
+          <span>{VIDEO_PAGE_COUNT}</span>
         </div>
       </header>
       {children}

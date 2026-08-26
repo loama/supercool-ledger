@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { narrationText } from '../video/narration.ts';
-import { sceneRanges } from '../video/timing.ts';
+import { visualPageRanges } from '../video/timing.ts';
 
 const videoPath = 'video/out/supercool-ledger.mp4';
 const narrationPath = 'video/public/narration.mp3';
@@ -43,7 +43,7 @@ for (const path of [videoPath, narrationPath, posterPath, scriptPath, narrationS
   if (!(await Bun.file(path).exists())) throw new Error(`missing_evidence_input:${path}`);
 }
 
-const sceneFrames = sceneRanges.map((scene) => ({
+const sceneFrames = visualPageRanges.map((scene) => ({
   id: scene.id,
   frame: Math.floor((scene.from + scene.to) / 2),
 }));
@@ -57,7 +57,7 @@ run([
   '-i',
   videoPath,
   '-vf',
-  `select=${selection},scale=480:270,tile=5x2:padding=6:margin=6:color=0x111111`,
+  `select=${selection},scale=480:270,tile=6x2:padding=6:margin=6:color=0x111111`,
   '-frames:v',
   '1',
   montagePath,

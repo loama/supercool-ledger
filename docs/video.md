@@ -16,7 +16,7 @@ The numbers shown in the demonstration scene come from `video/assets/demo-run.js
 
 The approved script lives in `video/narration.ts`. Its 2,224 characters match the text used to generate `video/public/narration.mp3`. The asset uses the ElevenLabs Enrique M. Nieto voice, voice identifier `gbTn1bmCvNgk0QEAVyfM`, model `eleven_multilingual_v2`, and language `es-MX`.
 
-The raw narration lasts 145.214688 seconds. Remotion plays it at exactly 1.5, so the played duration is 96.809792 seconds. The composition lasts 99 seconds and leaves a 2.190208 second closing hold. Scene and caption ranges are contiguous from frame 0 through frame 2970 at 30 frames per second.
+The raw narration lasts 145.214688 seconds. Remotion plays it at exactly 1.5, so the played duration is 96.809792 seconds. The composition lasts 99 seconds and leaves a 2.190208 second closing hold. Scene ranges are contiguous from frame 0 through frame 2970 at 30 frames per second. Captions begin on the first measured word and the last caption ends with the voice at frame 2904, leaving the closing hold clear.
 
 The raw cue starts in `video/timing.ts` were transcribed from the committed MP3. `sourceMillisecondsToVideoFrame` divides each source timestamp by the 1.5 playback rate, converts it to 30 frames per second, and rounds once to the rendered frame. The video integrity test verifies every cue remains inside the visual scene that owns its narration section.
 
@@ -32,11 +32,11 @@ bun run video:still
 bun run video:verify
 ```
 
-The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the narration text and source digests, the verification script digest, every media digest, probe metadata, and the exact middle frame sampled from every scene. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
+The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the narration text and source digests, the verification script digest, every media digest, probe metadata, and the exact middle frame sampled from each of the eleven numbered visual pages. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
 
 ## Visual inspection
 
-The retained montage at `video/out/inspection-montage.png` contains one middle frame from every scene. The exact frame numbers and hashes are recorded in `video/out/media-evidence.json`. Inspect the montage for typography, connector direction, caption spacing, and safe margins after each render. The automated timing test separately verifies every caption remains inside the scene that owns its narration section.
+The retained montage at `video/out/inspection-montage.png` contains one middle frame from every numbered page, including separate AWS and review pages. The exact frame numbers and hashes are recorded in `video/out/media-evidence.json`. Inspect the montage for typography, connector direction, caption spacing, and safe margins after each render. The automated timing test separately verifies every caption remains inside the scene that owns its narration section.
 
 ## Local preview
 

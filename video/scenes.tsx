@@ -581,7 +581,7 @@ export const SandboxWorkflowScene = () => {
     ['Conflicto', 'misma clave'],
     ['Fondos', 'HTTP 422'],
     ['Carrera', 'dos solicitudes'],
-    ['Asientos', 'GET /entries'],
+    ['Asientos', 'GET /v1/accounts/:id/entries'],
     ['Conciliación', 'cero diferencias'],
   ];
   const active = activeStep(frame, steps.length, sceneDuration('reviewer-sandbox'));
@@ -909,7 +909,7 @@ export const AwsTopologyScene = () => {
     },
   ] as const;
   return (
-    <SceneShell index={9} tone="dark">
+    <SceneShell index={10} tone="dark">
       <div style={{ marginTop: 34 }}>
         <Reveal>
           <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -1149,7 +1149,7 @@ export const ReviewPathScene = () => {
     ['Código fuente', 'README.md', 'abre cada archivo citado'],
   ];
   return (
-    <SceneShell index={10} tone="light">
+    <SceneShell index={11} tone="light">
       <div style={{ marginTop: 56 }}>
         <Reveal>
           <Eyebrow tone="light">Ruta de revisión</Eyebrow>
