@@ -12,7 +12,7 @@ This record describes the final evidence for the public assessment release on 26
 6. Interactive API reference: https://supercool-ledger.onrender.com/docs/
 7. Render service: `srv-da71hq67bikc73eiu90g`
 8. Render database: `dpg-da713295efls738aods0-a`
-9. Render deployment: `dep-da73htp5efls738idutg`
+9. Render deployment: `dep-da73ioe7bikc73epqtcg`
 
 ## Local verification
 
@@ -44,7 +44,7 @@ The `main` pipeline also passed both jobs for the merged commit. The public repo
 
 ## Render verification
 
-The Blueprint associates the paid PostgreSQL 17 database with the paid Docker web service in Frankfurt. Render built application commit `c6e3079119e97b9051d6c5f9b382608b85496120`, completed `bun run db:migrate`, started the service, and waited for `/health/ready` before marking deployment `dep-da73htp5efls738idutg` live. A manual Blueprint sync then applied `SANDBOX_ENABLED=true` from `render.yaml` and restarted the service with the public console enabled.
+The Blueprint associates the paid PostgreSQL 17 database with the paid Docker web service in Frankfurt. Manual deployment `dep-da73htp5efls738idutg` first built application commit `c6e3079119e97b9051d6c5f9b382608b85496120`, completed `bun run db:migrate`, started the service, and passed `/health/ready`. A Blueprint sync then applied `SANDBOX_ENABLED=true` from `render.yaml` and produced final live deployment `dep-da73ioe7bikc73epqtcg` from the same application commit.
 
 Direct public checks returned:
 
