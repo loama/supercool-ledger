@@ -220,7 +220,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer three in formal review round one. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger as a hiring panel reviewer focused on presentation, documentation, and video. Do not edit files. Review the README reviewer path, architecture and threat model, Mermaid diagrams, ADRs, OpenAPI examples, AI disclosure completeness, demo credibility, Remotion source, ElevenLabs narration, rendered MP4, poster, visual clarity, factual agreement with captured PostgreSQL evidence, accessibility, and whether the assessment is easy to evaluate. Inspect representative video frames and media metadata. Run safe read only commands or tests as useful. Report findings ordered by severity. Each finding must include severity, precise file and line or video timestamp, evidence, reviewer impact, and a concrete fix. Also list strengths you verified and any uncertain assumptions. Do not reward polish that is unsupported by executable evidence, and do not invent issues. Return your complete review response to the parent.
+> You are reviewer three in formal review round one. Independently audit the repository at [REDACTED_LOCAL_PATH] as a hiring panel reviewer focused on presentation, documentation, and video. Do not edit files. Review the README reviewer path, architecture and threat model, Mermaid diagrams, ADRs, OpenAPI examples, AI disclosure completeness, demo credibility, Remotion source, ElevenLabs narration, rendered MP4, poster, visual clarity, factual agreement with captured PostgreSQL evidence, accessibility, and whether the assessment is easy to evaluate. Inspect representative video frames and media metadata. Run safe read only commands or tests as useful. Report findings ordered by severity. Each finding must include severity, precise file and line or video timestamp, evidence, reviewer impact, and a concrete fix. Also list strengths you verified and any uncertain assumptions. Do not reward polish that is unsupported by executable evidence, and do not invent issues. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -306,7 +306,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer two in formal review round one. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger for implementation quality and operations. Do not edit files. Review TypeScript and Fastify design, database lifecycle, migrations, reconciliation, logs, metrics, traces, Sentry behavior, OpenAPI, Docker, Render Blueprint, CI, dependency configuration, tests, failure behavior, and developer reproducibility. Run safe read only commands and tests as useful. Inspect actual code and configuration. Report findings ordered by severity. Each finding must include severity, precise file and line, evidence, operational impact, and a concrete fix. Also list strengths you verified and any uncertain assumptions. Do not create speculative findings without evidence. Return your complete review response to the parent.
+> You are reviewer two in formal review round one. Independently audit the repository at [REDACTED_LOCAL_PATH] for implementation quality and operations. Do not edit files. Review TypeScript and Fastify design, database lifecycle, migrations, reconciliation, logs, metrics, traces, Sentry behavior, OpenAPI, Docker, Render Blueprint, CI, dependency configuration, tests, failure behavior, and developer reproducibility. Run safe read only commands and tests as useful. Inspect actual code and configuration. Report findings ordered by severity. Each finding must include severity, precise file and line, evidence, operational impact, and a concrete fix. Also list strengths you verified and any uncertain assumptions. Do not create speculative findings without evidence. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -341,7 +341,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer one in formal review round one. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger for financial correctness and security. Do not edit files. Review the complete branch, including PostgreSQL schema and triggers, transfer transaction, locking, idempotency, money representation, authentication, tenant isolation, error handling, audit records, secrets, and adversarial tests. Run safe read only commands and tests as useful. Inspect actual code, not only documentation. Report findings ordered by severity. Each finding must include severity, precise file and line, failure or attack scenario, evidence, and a concrete fix. Also list strong controls that you verified and any uncertain assumptions. If no defect exists in an area, say so rather than inventing one. Return your complete review response to the parent.
+> You are reviewer one in formal review round one. Independently audit the repository at [REDACTED_LOCAL_PATH] for financial correctness and security. Do not edit files. Review the complete branch, including PostgreSQL schema and triggers, transfer transaction, locking, idempotency, money representation, authentication, tenant isolation, error handling, audit records, secrets, and adversarial tests. Run safe read only commands and tests as useful. Inspect actual code, not only documentation. Report findings ordered by severity. Each finding must include severity, precise file and line, failure or attack scenario, evidence, and a concrete fix. Also list strong controls that you verified and any uncertain assumptions. If no defect exists in an area, say so rather than inventing one. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -349,7 +349,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 1. High. Suspended tenants can still move money.
 >
->    Evidence: [`migrations/001_initial.sql:6`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/migrations/001_initial.sql#L6) defines `suspended`, but no runtime code reads that state. [`src/transfers/service.ts:140`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/transfers/service.ts#L140) only filters accounts by tenant, and [`src/accounts/repository.ts:34`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/accounts/repository.ts#L34) inserts accounts without checking the tenant.
+>    Evidence: [`migrations/001_initial.sql:6`]([REDACTED_LOCAL_PATH]) defines `suspended`, but no runtime code reads that state. [`src/transfers/service.ts:140`]([REDACTED_LOCAL_PATH]) only filters accounts by tenant, and [`src/accounts/repository.ts:34`]([REDACTED_LOCAL_PATH]) inserts accounts without checking the tenant.
 >
 >    Scenario: after fraud operations suspend a tenant, a holder of an unexpired valid JWT can still create accounts and transfer funds for up to the JWT lifetime, or longer if tokens keep being issued.
 >
@@ -357,7 +357,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 2. High. The deployed dependency tree contains known high severity static file authorization bypasses.
 >
->    Evidence: [`bun.lock:179`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/bun.lock#L179) resolves `@fastify/static@9.3.0`; [`src/platform/openapi.ts:21`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/platform/openapi.ts#L21) exposes Swagger UI through that package. `bun audit --production` reports CVE 2026 15074 and CVE 2026 7120. The former affects all versions through 10.1.0, the latter all versions through 10.1.1.
+>    Evidence: [`bun.lock:179`]([REDACTED_LOCAL_PATH]) resolves `@fastify/static@9.3.0`; [`src/platform/openapi.ts:21`]([REDACTED_LOCAL_PATH]) exposes Swagger UI through that package. `bun audit --production` reports CVE 2026 15074 and CVE 2026 7120. The former affects all versions through 10.1.0, the latter all versions through 10.1.1.
 >
 >    Scenario: the current static root appears to contain public Swagger assets only, so I did not confirm a direct route into `/v1`. Still, the service ships an unpatched static route guard bypass. Any restricted static asset or path guard becomes remotely bypassable, and the dependency should not remain in a financial service.
 >
@@ -365,7 +365,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 3. Medium. The database does not enforce that postings, transfers, or reversals stay inside one tenant or use an account's currency.
 >
->    Evidence: [`migrations/001_initial.sql:25`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/migrations/001_initial.sql#L25) through [`migrations/001_initial.sql:61`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/migrations/001_initial.sql#L61) define independent foreign keys only. A posting can reference tenant A's account and tenant B's journal. A transfer can name a tenant unrelated to either account or its journal. `postings.currency` need not equal `accounts.currency`. The deferred trigger at [`migrations/001_initial.sql:113`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/migrations/001_initial.sql#L113) only checks count, one posting currency, and zero sum.
+>    Evidence: [`migrations/001_initial.sql:25`]([REDACTED_LOCAL_PATH]) through [`migrations/001_initial.sql:61`]([REDACTED_LOCAL_PATH]) define independent foreign keys only. A posting can reference tenant A's account and tenant B's journal. A transfer can name a tenant unrelated to either account or its journal. `postings.currency` need not equal `accounts.currency`. The deferred trigger at [`migrations/001_initial.sql:113`]([REDACTED_LOCAL_PATH]) only checks count, one posting currency, and zero sum.
 >
 >    Scenario: a migration, maintenance script, or future write path can create a balanced but cross tenant journal. The normal HTTP transfer path prevents this, but the purported persistence invariants do not. This can corrupt statements, reconciliation, and tenant boundaries without violating any present database constraint.
 >
@@ -373,7 +373,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 4. Medium. Audit records do not meet the stated financial audit expectation.
 >
->    Evidence: [`migrations/001_initial.sql:84`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/migrations/001_initial.sql#L84) creates a mutable `audit_events` table with no immutability trigger. Only successful transfers insert an event at [`src/transfers/service.ts:221`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/transfers/service.ts#L221). Reconciliation returns discrepancies at [`src/reconciliation/service.ts:39`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/reconciliation/service.ts#L39), but writes no audit event, despite the design requiring one.
+>    Evidence: [`migrations/001_initial.sql:84`]([REDACTED_LOCAL_PATH]) creates a mutable `audit_events` table with no immutability trigger. Only successful transfers insert an event at [`src/transfers/service.ts:221`]([REDACTED_LOCAL_PATH]). Reconciliation returns discrepancies at [`src/reconciliation/service.ts:39`]([REDACTED_LOCAL_PATH]), but writes no audit event, despite the design requiring one.
 >
 >    Scenario: a balance mismatch is detected but no durable audit trail identifies the affected tenant or operation. A credential with ordinary application database ownership can also alter or delete audit history.
 >
@@ -381,7 +381,7 @@ This file preserves every prompt and complete response from the three architectu
 >
 > 5. Low. A valid request with a zero amount returns a generic 500 instead of a client error.
 >
->    Evidence: [`src/transfers/schemas.ts:6`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/transfers/schemas.ts#L6) accepts `"0"` and `"0.00"`. [`src/money/money.ts:30`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/money/money.ts#L30) rejects both by throwing a plain `Error`; [`src/platform/problem.ts:79`](file:///Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/src/platform/problem.ts#L79) maps it to 500.
+>    Evidence: [`src/transfers/schemas.ts:6`]([REDACTED_LOCAL_PATH]) accepts `"0"` and `"0.00"`. [`src/money/money.ts:30`]([REDACTED_LOCAL_PATH]) rejects both by throwing a plain `Error`; [`src/platform/problem.ts:79`]([REDACTED_LOCAL_PATH]) maps it to 500.
 >
 >    Scenario: malformed but schema valid client input inflates internal error metrics and looks like a server failure. The transaction rolls back, so money is safe.
 >
@@ -423,7 +423,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer two in formal review round two. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger for implementation quality and operations. Do not edit files and do not rely on earlier review conclusions. Review TypeScript and Fastify structure, migration serialization, schema readiness, database lifecycle, reconciliation, audit behavior, logs, metrics, trace parenting, Sentry, OpenAPI and documentation UI, Docker, Render Blueprint, CI, production dependencies, tests, and local reproducibility. Run safe read only commands and tests as useful. Report findings ordered by severity. Every finding must include severity, precise file and line, evidence, operational impact, and a concrete fix. Also list verified strengths and uncertain assumptions. Avoid speculative findings. Return your complete review response to the parent.
+> You are reviewer two in formal review round two. Independently audit the repository at [REDACTED_LOCAL_PATH] for implementation quality and operations. Do not edit files and do not rely on earlier review conclusions. Review TypeScript and Fastify structure, migration serialization, schema readiness, database lifecycle, reconciliation, audit behavior, logs, metrics, trace parenting, Sentry, OpenAPI and documentation UI, Docker, Render Blueprint, CI, production dependencies, tests, and local reproducibility. Run safe read only commands and tests as useful. Report findings ordered by severity. Every finding must include severity, precise file and line, evidence, operational impact, and a concrete fix. Also list verified strengths and uncertain assumptions. Avoid speculative findings. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -513,7 +513,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer one in formal review round two. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger for financial correctness and security. Do not edit files and do not assume any earlier review was correct or complete. Review the complete current branch, including every migration, database constraint and trigger, transfer transaction, concurrency, idempotency, money bounds, authentication, tenant suspension and isolation, reconciliation, audit events, error behavior, dependencies, secrets, and adversarial tests. Run safe read only commands and tests as useful. Inspect code rather than trusting documentation. Report findings ordered by severity. Every finding must include severity, precise file and line, a concrete failure or attack scenario, evidence, and a specific fix. Also list verified strengths and uncertain assumptions. Do not invent findings. Return your complete review response to the parent.
+> You are reviewer one in formal review round two. Independently audit the repository at [REDACTED_LOCAL_PATH] for financial correctness and security. Do not edit files and do not assume any earlier review was correct or complete. Review the complete current branch, including every migration, database constraint and trigger, transfer transaction, concurrency, idempotency, money bounds, authentication, tenant suspension and isolation, reconciliation, audit events, error behavior, dependencies, secrets, and adversarial tests. Run safe read only commands and tests as useful. Inspect code rather than trusting documentation. Report findings ordered by severity. Every finding must include severity, precise file and line, a concrete failure or attack scenario, evidence, and a specific fix. Also list verified strengths and uncertain assumptions. Do not invent findings. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -585,7 +585,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> You are reviewer three in formal review round two. Independently audit the repository at /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger as a hiring panel reviewer focused on presentation, documentation, and video. Do not edit files and do not rely on earlier review conclusions. Review the README path, architecture, threat model, operations guide, Mermaid diagrams, ADRs, OpenAPI examples, AI disclosure, review records, executable demo, Remotion source, captions, ElevenLabs narration, rendered MP4, poster, accessibility, media metadata, and factual agreement with current PostgreSQL evidence. Inspect representative frames and run safe read only checks as useful. Report findings ordered by severity. Every finding must include severity, precise file and line or video timestamp, evidence, reviewer impact, and a concrete fix. Also list verified strengths and uncertain assumptions. Do not invent issues. Return your complete review response to the parent.
+> You are reviewer three in formal review round two. Independently audit the repository at [REDACTED_LOCAL_PATH] as a hiring panel reviewer focused on presentation, documentation, and video. Do not edit files and do not rely on earlier review conclusions. Review the README path, architecture, threat model, operations guide, Mermaid diagrams, ADRs, OpenAPI examples, AI disclosure, review records, executable demo, Remotion source, captions, ElevenLabs narration, rendered MP4, poster, accessibility, media metadata, and factual agreement with current PostgreSQL evidence. Inspect representative frames and run safe read only checks as useful. Report findings ordered by severity. Every finding must include severity, precise file and line or video timestamp, evidence, reviewer impact, and a concrete fix. Also list verified strengths and uncertain assumptions. Do not invent issues. Return your complete review response to the parent.
 
 ### Complete response
 
@@ -863,7 +863,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on financial correctness, sandbox authentication, tenant isolation, secret exposure, concurrency, API behavior, and production safety. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list the risks you checked.
+> Review the complete current branch and uncommitted diff in [REDACTED_LOCAL_PATH] against origin/main. Focus on financial correctness, sandbox authentication, tenant isolation, secret exposure, concurrency, API behavior, and production safety. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list the risks you checked.
 
 ### Complete response
 
@@ -875,17 +875,17 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on sandbox UI behavior, English copy, response card correctness, accessibility, responsive layout, browser security, and reviewer usability. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
+> Review the complete current branch and uncommitted diff in [REDACTED_LOCAL_PATH] against origin/main. Focus on sandbox UI behavior, English copy, response card correctness, accessibility, responsive layout, browser security, and reviewer usability. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
 
 ### Complete response
 
 > Findings from the read only review:
 >
-> 1. Medium: the concurrent spending card can claim “Protected” for unrelated failures. In [app.ts](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/client/app.ts:458), `bothSucceeded` is the only condition used. If both requests return `401`, `500`, or both fail for insufficient funds, the UI still reports `Protected`. Check for the expected one success and one rejected transfer, ideally requiring the rejection code to be `insufficient_funds` or the relevant concurrency error. Otherwise show “Inconclusive” or “Failed”.
+> 1. Medium: the concurrent spending card can claim “Protected” for unrelated failures. In [app.ts]([REDACTED_LOCAL_PATH]), `bothSucceeded` is the only condition used. If both requests return `401`, `500`, or both fail for insufficient funds, the UI still reports `Protected`. Check for the expected one success and one rejected transfer, ideally requiring the rejection code to be `insufficient_funds` or the relevant concurrency error. Otherwise show “Inconclusive” or “Failed”.
 >
-> 2. Low: the session countdown is inside a `section[aria-live="polite"]` in [index.html](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/public/index.html:76). Since `#session-time` changes every second, screen readers may announce the countdown continuously. Move `aria-live` to a small status element used only for session creation or expiry, and mark the timer itself `aria-live="off"`.
+> 2. Low: the session countdown is inside a `section[aria-live="polite"]` in [index.html]([REDACTED_LOCAL_PATH]). Since `#session-time` changes every second, screen readers may announce the countdown continuously. Move `aria-live` to a small status element used only for session creation or expiry, and mark the timer itself `aria-live="off"`.
 >
-> 3. Low: “PostgreSQL connected” is static copy in [index.html](/Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger/work/supercool-ledger/src/sandbox/public/index.html:32), even when the API or database is unavailable. This can mislead reviewers during a live deployment. Populate it from a readiness check or label it as a configured backend rather than a live connection.
+> 3. Low: “PostgreSQL connected” is static copy in [index.html]([REDACTED_LOCAL_PATH]), even when the API or database is unavailable. This can mislead reviewers during a live deployment. Populate it from a readiness check or label it as a configured backend rather than a live connection.
 >
 > Checks performed: complete diff against `origin/main`, current uncommitted diff, sandbox client and server routes, response schemas, `git diff --check`, `bun run typecheck`, `bun run lint`, and the sandbox contract and integration tests.
 
@@ -893,7 +893,7 @@ This file preserves every prompt and complete response from the three architectu
 
 ### Prompt
 
-> Review the complete current branch and uncommitted diff in /Users/eduardo/Documents/Codex/2026-08-25/i-j/work/supercool-ledger against origin/main. Focus on Render deployment, Docker and IaC, production environment assumptions, health checks, sandbox enablement, documentation and presentation readiness. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
+> Review the complete current branch and uncommitted diff in [REDACTED_LOCAL_PATH] against origin/main. Focus on Render deployment, Docker and IaC, production environment assumptions, health checks, sandbox enablement, documentation and presentation readiness. This is read only. Do not edit files or mutate GitHub. Report only concrete findings with severity, file, line, reasoning, and suggested fix. If no findings, say so and list checks performed.
 
 ### Complete response
 

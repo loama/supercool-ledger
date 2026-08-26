@@ -47,7 +47,7 @@ jobs:
           if git grep -nE '(gh[pousr]_[A-Za-z0-9]{20,}|A(KIA|SIA)[A-Z0-9]{16}|xi-api-key[=:][[:space:]]*[A-Za-z0-9_-]{20,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)'; then
             exit 1
           fi
-          if git grep -niE '(dashboard\.render\.com/|elevenlabs\.io/app/sign-in|dep-[a-z0-9]{16,}|signed into github|enabled API keys)' -- docs/ai-usage/conversation.json docs/ai-usage/conversation.md; then
+          if git grep -niE '(dashboard\.render\.com/|elevenlabs\.io/app/sign-in|dep-[a-z0-9]{16,}|signed into github|enabled API keys|<environment_context|<in-app-browser-context|workspace_roots|/Users/|file:///Users/|find the api key|credential search result|API key inventory|Supervisor|Eduardo López.s Workspace|basic_256mb|\$[0-9]+ per month|saved Render login)' -- docs/ai-usage; then
             exit 1
           fi
 

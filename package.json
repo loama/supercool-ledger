@@ -17,6 +17,7 @@
     "demo": "bun scripts/demo.ts",
     "demo:capture": "bun scripts/demo-capture.ts",
     "ai:export": "bun scripts/export-ai-history.ts",
+    "ai:redact": "bun scripts/redact-ai-records.ts",
     "video:voice": "bun scripts/video-voice.ts",
     "video:render": "bunx remotion render video/index.ts SuperCoolLedger video/out/supercool-ledger.mp4 --public-dir=video/public",
     "video:still": "bunx remotion still video/index.ts SuperCoolLedger video/out/poster.png --frame=2400 --public-dir=video/public",
