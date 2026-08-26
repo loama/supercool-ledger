@@ -4,7 +4,13 @@ import demo from '../../video/assets/demo-run.json';
 import { captionCues } from '../../video/captions.ts';
 import { narrationSections, narrationSegments, narrationText } from '../../video/narration.ts';
 import { VideoRoot } from '../../video/Root.tsx';
-import { VIDEO_DURATION_IN_FRAMES, VIDEO_PLAYBACK_RATE, sceneRanges } from '../../video/timing.ts';
+import {
+  VIDEO_DURATION_IN_FRAMES,
+  VIDEO_PLAYBACK_RATE,
+  narrationCueStartMilliseconds,
+  sceneRanges,
+  sourceMillisecondsToVideoFrame,
+} from '../../video/timing.ts';
 
 test('video timing covers ten contiguous scenes at the configured playback rate', () => {
   expect(VIDEO_PLAYBACK_RATE).toBe(1.5);
@@ -32,7 +38,7 @@ test('video timing covers ten contiguous scenes at the configured playback rate'
   expect(composition.props.durationInFrames).toBe(VIDEO_DURATION_IN_FRAMES);
 });
 
-test('Spanish story matches the approved audio while visuals carry the expanded detail', async () => {
+test('Spanish story and visual scenes follow the approved narration sections', async () => {
   expect(narrationSections).toHaveLength(10);
   expect(narrationSections.flat()).toEqual([...narrationSegments]);
   expect(narrationSegments).toHaveLength(24);
@@ -67,6 +73,21 @@ test('Spanish story matches the approved audio while visuals carry the expanded 
   ]) {
     expect(visualSource).toContain(visualDetail);
   }
+
+  let cueIndex = 0;
+  for (const [sectionIndex, section] of narrationSections.entries()) {
+    const scene = sceneRanges[sectionIndex];
+    if (!scene) throw new Error('scene_range_missing');
+    for (const segment of section) {
+      const cue = captionCues[cueIndex];
+      if (!cue) throw new Error('caption_cue_missing');
+      expect(cue.text).toBe(segment);
+      expect(cue.from).toBeGreaterThanOrEqual(scene.from);
+      expect(cue.to).toBeLessThanOrEqual(scene.to);
+      cueIndex += 1;
+    }
+  }
+  expect(cueIndex).toBe(captionCues.length);
 });
 
 test('Spanish narration claims match the captured PostgreSQL run', async () => {
@@ -80,6 +101,9 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   expect(narrationText).toContain('doscientos cincuenta dólares');
   expect(narrationText).toContain('cero diferencias en las tres cuentas');
   expect(captionCues.map((cue) => cue.text)).toEqual([...narrationSegments]);
+  expect(captionCues.map((cue) => cue.from)).toEqual(
+    narrationCueStartMilliseconds.map(sourceMillisecondsToVideoFrame),
+  );
   for (const cue of captionCues) expect(narrationText).toContain(cue.text);
   expect(captionCues[0]?.from).toBe(0);
   expect(captionCues.at(-1)?.to).toBe(VIDEO_DURATION_IN_FRAMES);
@@ -98,6 +122,8 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   const previewSource = await Bun.file('scripts/video-preview.ts').text();
   expect(previewSource).toContain('<html lang="es">');
   expect(previewSource).toContain('<video controls preload="metadata" playsinline');
+  expect(previewSource).toContain('poster="/poster.png"');
+  expect(previewSource).toContain("url.pathname === '/poster.png'");
   expect(previewSource).not.toContain('autoplay');
 });
 
@@ -144,6 +170,6 @@ test('AWS visuals separate inbound traffic, NAT egress, and migration order', as
     { id: 'service', migrationRuns: false, serviceExists: true },
   ]);
   expect(
-    [284, 285, 379, 380, 449, 450].map((frame) => scenes.awsReleasePhaseAt(frame)?.id ?? null),
+    [119, 120, 189, 190, 249, 250].map((frame) => scenes.awsReleasePhaseAt(frame)?.id ?? null),
   ).toEqual([null, 'bootstrap', 'bootstrap', 'migration', 'migration', 'service']);
 });

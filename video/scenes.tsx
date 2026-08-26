@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, interpolate, Sequence, useCurrentFrame } from 'remotion';
 import demo from './assets/demo-run.json';
 import {
   BrowserFrame,
@@ -504,7 +504,7 @@ export const DataModelScene = () => {
         <Reveal>
           <Eyebrow tone="light">Modelo de datos</Eyebrow>
           <Title size={64}>
-            El tenant, la transferencia y el journal comparten la misma frontera.
+            PostgreSQL real conserva el tenant, la transferencia y el journal.
           </Title>
         </Reveal>
         <Reveal delay={12}>
@@ -575,7 +575,7 @@ export const DataModelScene = () => {
 export const SandboxWorkflowScene = () => {
   const frame = useCurrentFrame();
   const steps = [
-    ['Sesión', 'POST /sessions'],
+    ['Sesión', 'POST /v1/sandbox/sessions'],
     ['Éxito', 'HTTP 201'],
     ['Replay', 'mismo id'],
     ['Conflicto', 'misma clave'],
@@ -771,6 +771,63 @@ export const CapturedEvidenceScene = () => {
   );
 };
 
+export const ObservabilityScene = () => {
+  const frame = useCurrentFrame();
+  const active = activeStep(frame, 4, sceneDuration('aws-topology'));
+  const signals = [
+    ['Logs estructurados', 'sin payloads ni campos financieros'],
+    ['Prometheus', 'etiquetas acotadas y estables'],
+    ['OpenTelemetry', 'solicitudes y operaciones financieras'],
+    ['Sentry', 'solo errores inesperados'],
+  ];
+  return (
+    <SceneShell index={9} tone="dark">
+      <div style={{ marginTop: 54 }}>
+        <Reveal>
+          <Eyebrow tone="dark">Evidencia operativa</Eyebrow>
+          <Title size={68}>Las señales observan la operación sin exponer el dinero.</Title>
+        </Reveal>
+        <Reveal delay={12}>
+          <div style={{ marginTop: 64, borderTop: `1px solid ${theme.lineDark}` }}>
+            {signals.map(([title, detail], index) => (
+              <div
+                key={title}
+                style={{
+                  minHeight: 122,
+                  display: 'grid',
+                  gridTemplateColumns: '64px 0.8fr 1.2fr 180px',
+                  alignItems: 'center',
+                  gap: 26,
+                  padding: '0 30px',
+                  borderBottom: `1px solid ${theme.lineDark}`,
+                  color: index === active ? theme.ink : theme.white,
+                  background: index === active ? theme.yellow : theme.inkRaised,
+                }}
+              >
+                <span style={{ fontFamily: theme.mono, fontSize: 17 }}>
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span style={{ fontSize: 30, fontWeight: 540 }}>{title}</span>
+                <span
+                  style={{ color: index === active ? theme.grayDark : theme.gray, fontSize: 22 }}
+                >
+                  {detail}
+                </span>
+                <StatusMarker
+                  active={index === active}
+                  complete={index < active}
+                  label={index === active ? 'visible' : index < active ? 'medida' : 'pendiente'}
+                  tone="dark"
+                />
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </SceneShell>
+  );
+};
+
 export const awsTrafficPaths = {
   inbound: ['Internet', 'Application Load Balancer', 'ECS Fargate', 'RDS writer endpoint'],
   egress: ['ECS Fargate', 'NAT gateway', 'Internet'],
@@ -783,9 +840,9 @@ export const awsReleasePhases = [
 ] as const;
 
 export const awsReleasePhaseAt = (frame: number): (typeof awsReleasePhases)[number] | null => {
-  if (frame < 285) return null;
-  if (frame < 380) return awsReleasePhases[0];
-  if (frame < 450) return awsReleasePhases[1];
+  if (frame < 120) return null;
+  if (frame < 190) return awsReleasePhases[0];
+  if (frame < 250) return awsReleasePhases[1];
   return awsReleasePhases[2];
 };
 
@@ -827,8 +884,8 @@ const AwsService = ({
 
 export const AwsTopologyScene = () => {
   const frame = useCurrentFrame();
-  const topologyActive = frame < 285 ? activeStep(frame, 4, 285) : -1;
-  const egressActive = frame >= 140 && frame < 285;
+  const topologyActive = frame < 120 ? activeStep(frame, 4, 120) : -1;
+  const egressActive = frame >= 60 && frame < 120;
   const releasePhase = awsReleasePhaseAt(frame);
   const bootstrapActive = releasePhase?.id === 'bootstrap';
   const migrationActive = releasePhase?.migrationRuns ?? false;
@@ -1084,7 +1141,7 @@ export const AwsTopologyScene = () => {
 
 export const ReviewPathScene = () => {
   const frame = useCurrentFrame();
-  const active = activeStep(frame, 4, sceneDuration('review-path'));
+  const active = activeStep(frame, 4, sceneDuration('review-path') - 324);
   const steps = [
     ['Sandbox publicado', '/sandbox', 'ejecuta los siete escenarios'],
     ['Referencia API', '/docs', 'lee el contrato OpenAPI'],
@@ -1148,3 +1205,14 @@ export const ReviewPathScene = () => {
     </SceneShell>
   );
 };
+
+export const AwsReviewPathScene = () => (
+  <AbsoluteFill>
+    <Sequence durationInFrames={324} premountFor={30}>
+      <AwsTopologyScene />
+    </Sequence>
+    <Sequence from={324} durationInFrames={sceneDuration('review-path') - 324} premountFor={30}>
+      <ReviewPathScene />
+    </Sequence>
+  </AbsoluteFill>
+);

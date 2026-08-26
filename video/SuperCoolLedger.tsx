@@ -4,14 +4,14 @@ import { AbsoluteFill, Sequence, staticFile } from 'remotion';
 import { CaptionBar } from './components.tsx';
 import {
   AtomicTransferScene,
-  AwsTopologyScene,
+  AwsReviewPathScene,
   CapturedEvidenceScene,
   DataModelScene,
   FinancialPromiseScene,
   LedgerInvariantsScene,
+  ObservabilityScene,
   RepositoryMapScene,
   RequestLifecycleScene,
-  ReviewPathScene,
   SandboxWorkflowScene,
 } from './scenes.tsx';
 import { VIDEO_PLAYBACK_RATE, sceneRanges } from './timing.ts';
@@ -28,8 +28,8 @@ const scenes: Record<SceneId, ComponentType> = {
   'data-model': DataModelScene,
   'reviewer-sandbox': SandboxWorkflowScene,
   'captured-evidence': CapturedEvidenceScene,
-  'aws-topology': AwsTopologyScene,
-  'review-path': ReviewPathScene,
+  'aws-topology': ObservabilityScene,
+  'review-path': AwsReviewPathScene,
 };
 
 export const visualSceneLabels = [

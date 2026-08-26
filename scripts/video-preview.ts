@@ -1,4 +1,5 @@
 const videoPath = 'video/out/supercool-ledger.mp4';
+const posterPath = 'video/out/poster.png';
 const port = Number(process.env.VIDEO_PREVIEW_PORT ?? 3013);
 
 const html = `<!doctype html>
@@ -48,7 +49,7 @@ const html = `<!doctype html>
     <main>
       <div class="frame">
         <h1>SuperCool Ledger, recorrido en español</h1>
-        <video controls preload="metadata" playsinline src="/supercool-ledger.mp4"></video>
+        <video controls preload="metadata" playsinline poster="/poster.png" src="/supercool-ledger.mp4"></video>
       </div>
     </main>
   </body>
@@ -64,6 +65,20 @@ const server = Bun.serve({
         headers: {
           'cache-control': 'no-store',
           'content-type': 'text/html; charset=utf-8',
+        },
+      });
+    }
+
+    if (url.pathname === '/poster.png') {
+      const poster = Bun.file(posterPath);
+      if (!(await poster.exists())) {
+        return new Response('Render the poster first', { status: 404 });
+      }
+      return new Response(poster, {
+        headers: {
+          'cache-control': 'no-store',
+          'content-length': String(poster.size),
+          'content-type': 'image/png',
         },
       });
     }
