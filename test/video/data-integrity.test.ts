@@ -16,7 +16,7 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   expect(captionCues.map((cue) => cue.text)).toEqual([...narrationSegments]);
   for (const cue of captionCues) expect(narrationText).toContain(cue.text);
   expect(captionCues[0]?.from).toBe(0);
-  expect(captionCues.at(-1)?.to).toBe(4050);
+  expect(captionCues.at(-1)?.to).toBe(4455);
   for (let index = 1; index < captionCues.length; index += 1) {
     expect(captionCues[index]?.from).toBe(captionCues[index - 1]?.to);
   }
@@ -28,4 +28,9 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   expect(visualSource).not.toContain('Financial invariants');
   expect(visualSource).not.toContain('Atomic transfer');
   expect(visualSource).not.toContain('Operational evidence');
+
+  const previewSource = await Bun.file('scripts/video-preview.ts').text();
+  expect(previewSource).toContain('<html lang="es">');
+  expect(previewSource).toContain('<video controls preload="metadata" playsinline');
+  expect(previewSource).not.toContain('autoplay');
 });
