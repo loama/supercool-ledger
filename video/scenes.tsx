@@ -35,6 +35,25 @@ const FlowRow = ({ children }: { children: ReactNode }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{children}</div>
 );
 
+const signedMinorUnits = (amountMinor: string): string =>
+  BigInt(amountMinor) > 0n ? `+${amountMinor}` : amountMinor;
+
+const signedMoney = (amountMinor: string): string => {
+  const value = BigInt(amountMinor);
+  const sign = value > 0n ? '+' : value < 0n ? '-' : '';
+  const absolute = (value < 0n ? -value : value).toString().padStart(3, '0');
+  return `${sign}${absolute.slice(0, -2)}.${absolute.slice(-2)}`;
+};
+
+export const capturedPostingVisuals = demo.postings.map((posting) => {
+  const value = BigInt(posting.amountMinor);
+  return {
+    amount: signedMoney(posting.amountMinor),
+    amountMinor: signedMinorUnits(posting.amountMinor),
+    role: value < 0n ? 'débito' : 'crédito',
+  };
+});
+
 export const FinancialPromiseScene = () => {
   const frame = useCurrentFrame();
   const active = activeStep(frame, 3, sceneDuration('financial-promise'));
@@ -445,13 +464,22 @@ export const AtomicTransferScene = () => {
             <Connector active={active >= 3} length={42} tone="dark" />
             <div
               style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
                 padding: '18px 22px',
                 color: active >= 3 ? theme.ink : theme.gray,
                 background: active >= 3 ? theme.yellow : theme.inkRaised,
                 fontSize: 17,
               }}
             >
-              25000 débito + 25000 crédito = 0
+              {capturedPostingVisuals.map(({ amountMinor, role }) => (
+                <span key={role} style={{ fontFamily: theme.mono }}>
+                  {amountMinor} {role}
+                </span>
+              ))}
+              <span style={{ fontWeight: 600 }}>Σ = 0</span>
             </div>
           </div>
         </Reveal>
@@ -688,8 +716,11 @@ export const CapturedEvidenceScene = () => {
               <div
                 style={{ marginTop: 18, fontSize: 54, lineHeight: 1.1, letterSpacing: '-0.05em' }}
               >
-                <div>250.00 débito</div>
-                <div>+ 250.00 crédito</div>
+                {capturedPostingVisuals.map(({ amount, role }) => (
+                  <div key={role}>
+                    <span style={{ fontFamily: theme.mono }}>{amount}</span> {role}
+                  </div>
+                ))}
               </div>
               <div style={{ marginTop: 8, color: theme.yellow, fontSize: 40 }}>= 0</div>
             </div>
@@ -740,13 +771,33 @@ export const CapturedEvidenceScene = () => {
   );
 };
 
+export const awsTrafficPaths = {
+  inbound: ['Internet', 'Application Load Balancer', 'ECS Fargate', 'RDS writer endpoint'],
+  egress: ['ECS Fargate', 'NAT gateway', 'Internet'],
+} as const;
+
+export const awsReleasePhases = [
+  { id: 'bootstrap', migrationRuns: false, serviceExists: false },
+  { id: 'migration', migrationRuns: true, serviceExists: false },
+  { id: 'service', migrationRuns: false, serviceExists: true },
+] as const;
+
+export const awsReleasePhaseAt = (frame: number): (typeof awsReleasePhases)[number] | null => {
+  if (frame < 285) return null;
+  if (frame < 380) return awsReleasePhases[0];
+  if (frame < 450) return awsReleasePhases[1];
+  return awsReleasePhases[2];
+};
+
 const AwsService = ({
   active,
   detail,
+  muted = false,
   title,
 }: {
   active: boolean;
   detail: string;
+  muted?: boolean;
   title: string;
 }) => (
   <div
@@ -757,6 +808,7 @@ const AwsService = ({
       borderRadius: 4,
       color: active ? theme.ink : theme.white,
       background: active ? theme.yellow : theme.inkRaised,
+      opacity: muted ? 0.38 : 1,
     }}
   >
     <div style={{ fontSize: 19, fontWeight: 540 }}>{title}</div>
@@ -775,7 +827,30 @@ const AwsService = ({
 
 export const AwsTopologyScene = () => {
   const frame = useCurrentFrame();
-  const active = activeStep(frame, 5, sceneDuration('aws-topology'));
+  const topologyActive = frame < 285 ? activeStep(frame, 4, 285) : -1;
+  const egressActive = frame >= 140 && frame < 285;
+  const releasePhase = awsReleasePhaseAt(frame);
+  const bootstrapActive = releasePhase?.id === 'bootstrap';
+  const migrationActive = releasePhase?.migrationRuns ?? false;
+  const serviceActive = releasePhase?.id === 'service';
+  const serviceExists = releasePhase?.serviceExists ?? true;
+  const releaseCards = [
+    {
+      id: 'bootstrap',
+      title: 'bootstrap_mode = true',
+      detail: 'infraestructura lista, servicio ausente',
+    },
+    {
+      id: 'migration',
+      title: 'bun run db:migrate',
+      detail: 'la tarea debe terminar con código cero',
+    },
+    {
+      id: 'service',
+      title: 'bootstrap_mode = false',
+      detail: 'Terraform crea el servicio',
+    },
+  ] as const;
   return (
     <SceneShell index={9} tone="dark">
       <div style={{ marginTop: 34 }}>
@@ -794,11 +869,19 @@ export const AwsTopologyScene = () => {
           <div
             style={{ display: 'grid', gridTemplateColumns: '174px 1fr', gap: 28, marginTop: 35 }}
           >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <FlowNode active={active === 0} detail="HTTPS" tone="dark" width={142} height={132}>
-                Internet
+            <div
+              style={{ display: 'flex', alignItems: 'center', alignSelf: 'start', marginTop: 90 }}
+            >
+              <FlowNode
+                active={topologyActive === 0}
+                detail="HTTPS"
+                tone="dark"
+                width={142}
+                height={132}
+              >
+                {awsTrafficPaths.inbound[0]}
               </FlowNode>
-              <Connector active={active === 0} length={32} tone="dark" />
+              <Connector active={topologyActive === 0} length={32} tone="dark" />
             </div>
             <div
               style={{
@@ -825,8 +908,8 @@ export const AwsTopologyScene = () => {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '118px 236px 40px 290px 40px 340px 1fr',
-                  gridTemplateRows: '120px 120px',
+                  gridTemplateColumns: '105px 260px 42px 320px 42px 350px 1fr',
+                  gridTemplateRows: '104px 104px',
                   gap: '12px 10px',
                   alignItems: 'center',
                 }}
@@ -835,48 +918,61 @@ export const AwsTopologyScene = () => {
                 <div style={{ ...labelStyle, gridColumn: 1, gridRow: 2 }}>Zona B</div>
                 <div style={{ gridColumn: 2, gridRow: '1 / 3' }}>
                   <AwsService
-                    active={active === 1}
+                    active={topologyActive === 1}
                     detail="subredes públicas de ambas zonas"
-                    title="Application Load Balancer"
+                    title={awsTrafficPaths.inbound[1]}
                   />
-                  <div style={{ marginTop: 10 }}>
-                    <AwsService
-                      active={active === 1}
-                      detail="uno compartido en la zona A"
-                      title="NAT gateway"
-                    />
-                  </div>
                 </div>
                 <div style={{ gridColumn: 3, gridRow: '1 / 3', justifySelf: 'center' }}>
-                  <Connector active={active === 1} length={40} tone="dark" />
+                  <Connector active={topologyActive === 1} length={40} tone="dark" />
                 </div>
                 <div style={{ gridColumn: 4, gridRow: 1 }}>
                   <AwsService
-                    active={active === 2}
-                    detail="tarea privada, sin IP pública"
-                    title="ECS Fargate · tarea 1"
+                    active={topologyActive === 2 || serviceActive}
+                    detail={
+                      serviceExists
+                        ? 'tarea privada, sin IP pública'
+                        : 'servicio pendiente, sin tareas en ejecución'
+                    }
+                    muted={!serviceExists}
+                    title={`${awsTrafficPaths.inbound[2]} · tarea 1`}
                   />
                 </div>
                 <div style={{ gridColumn: 4, gridRow: 2 }}>
                   <AwsService
-                    active={active === 2}
-                    detail="tarea privada, escala de 2 a 6"
-                    title="ECS Fargate · tarea 2"
+                    active={topologyActive === 2 || serviceActive}
+                    detail={
+                      serviceExists
+                        ? 'tarea privada, escala de 2 a 6'
+                        : 'servicio pendiente, sin tareas en ejecución'
+                    }
+                    muted={!serviceExists}
+                    title={`${awsTrafficPaths.inbound[2]} · tarea 2`}
                   />
                 </div>
                 <div style={{ gridColumn: 5, gridRow: '1 / 3', justifySelf: 'center' }}>
-                  <Connector active={active === 2} length={40} tone="dark" />
+                  <Connector
+                    active={topologyActive === 2 || serviceActive}
+                    length={40}
+                    tone="dark"
+                  />
                 </div>
                 <div style={{ gridColumn: 6, gridRow: '1 / 3' }}>
                   <AwsService
-                    active={active === 3}
+                    active={topologyActive === 3 || migrationActive}
                     detail="PostgreSQL 17 Multi AZ, writer y standby"
-                    title="RDS writer endpoint"
+                    title={awsTrafficPaths.inbound[3]}
                   />
                   <div style={{ marginTop: 10 }}>
                     <AwsService
-                      active={active === 4}
-                      detail="misma imagen y DATABASE_URL"
+                      active={bootstrapActive || migrationActive}
+                      detail={
+                        bootstrapActive
+                          ? 'definición lista, servicio ausente'
+                          : migrationActive
+                            ? 'ejecuta bun run db:migrate'
+                            : 'misma imagen y DATABASE_URL'
+                      }
                       title="Tarea de migración"
                     />
                   </div>
@@ -905,6 +1001,40 @@ export const AwsTopologyScene = () => {
                   ))}
                 </div>
               </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: 14,
+                  marginTop: 14,
+                  paddingTop: 14,
+                  borderTop: `1px solid ${theme.lineDark}`,
+                }}
+              >
+                <span style={{ ...labelStyle, marginRight: 'auto' }}>Salida privada</span>
+                {awsTrafficPaths.egress.map((node, index) => (
+                  <div key={node} style={{ display: 'flex', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        minWidth: index === 1 ? 190 : 132,
+                        padding: '11px 14px',
+                        border: `1px solid ${egressActive ? theme.yellow : theme.lineDark}`,
+                        color: egressActive ? theme.ink : theme.gray,
+                        background: egressActive ? theme.yellow : theme.inkRaised,
+                        fontSize: 14,
+                        textAlign: 'center',
+                      }}
+                    >
+                      {node}
+                      {index === 1 ? ' · zona A' : ''}
+                    </div>
+                    {index < awsTrafficPaths.egress.length - 1 ? (
+                      <Connector active={egressActive} length={34} tone="dark" />
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Reveal>
@@ -918,36 +1048,33 @@ export const AwsTopologyScene = () => {
               marginTop: 26,
             }}
           >
-            {[
-              ['bootstrap_mode = true', 'el servicio no existe todavía'],
-              ['bun run db:migrate', 'la tarea debe terminar con código cero'],
-              ['bootstrap_mode = false', 'Terraform crea el servicio'],
-            ].map(([title, detail], index) => (
-              <div key={title} style={{ display: 'contents' }}>
-                <div
-                  style={{
-                    padding: '15px 20px',
-                    border: `1px solid ${active === index + 2 ? theme.yellow : theme.lineDark}`,
-                    color: active === index + 2 ? theme.ink : theme.white,
-                    background: active === index + 2 ? theme.yellow : 'transparent',
-                  }}
-                >
-                  <div style={{ fontFamily: theme.mono, fontSize: 16 }}>{title}</div>
+            {releaseCards.map(({ id, title, detail }, index) => {
+              const current = releasePhase?.id === id;
+              return (
+                <div key={id} style={{ display: 'contents' }}>
                   <div
                     style={{
-                      marginTop: 4,
-                      color: active === index + 2 ? theme.grayDark : theme.gray,
-                      fontSize: 13,
+                      padding: '15px 20px',
+                      border: `1px solid ${current ? theme.yellow : theme.lineDark}`,
+                      color: current ? theme.ink : theme.white,
+                      background: current ? theme.yellow : 'transparent',
                     }}
                   >
-                    {detail}
+                    <div style={{ fontFamily: theme.mono, fontSize: 16 }}>{title}</div>
+                    <div
+                      style={{
+                        marginTop: 4,
+                        color: current ? theme.grayDark : theme.gray,
+                        fontSize: 13,
+                      }}
+                    >
+                      {detail}
+                    </div>
                   </div>
+                  {index < 2 ? <Connector active={current} length={40} tone="dark" /> : null}
                 </div>
-                {index < 2 ? (
-                  <Connector active={active === index + 2} length={40} tone="dark" />
-                ) : null}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Reveal>
       </div>

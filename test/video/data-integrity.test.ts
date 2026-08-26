@@ -120,3 +120,50 @@ test('Spanish narration claims match the captured PostgreSQL run', async () => {
   expect(previewSource).toContain('<video controls preload="metadata" playsinline');
   expect(previewSource).not.toContain('autoplay');
 });
+
+test('video visuals preserve the signed postings captured from PostgreSQL', async () => {
+  const scenes = (await import('../../video/scenes.tsx')) as unknown as {
+    capturedPostingVisuals: ReadonlyArray<{
+      amount: string;
+      amountMinor: string;
+      role: string;
+    }>;
+  };
+
+  expect(scenes.capturedPostingVisuals).toEqual([
+    { amount: '-250.00', amountMinor: '-25000', role: 'débito' },
+    { amount: '+250.00', amountMinor: '+25000', role: 'crédito' },
+  ]);
+  expect(
+    scenes.capturedPostingVisuals.reduce((sum, posting) => sum + BigInt(posting.amountMinor), 0n),
+  ).toBe(0n);
+});
+
+test('AWS visuals separate inbound traffic, NAT egress, and migration order', async () => {
+  const scenes = (await import('../../video/scenes.tsx')) as unknown as {
+    awsReleasePhaseAt: (frame: number) => { id: string } | null;
+    awsReleasePhases: ReadonlyArray<{
+      id: string;
+      migrationRuns: boolean;
+      serviceExists: boolean;
+    }>;
+    awsTrafficPaths: {
+      egress: readonly string[];
+      inbound: readonly string[];
+    };
+  };
+
+  expect(scenes.awsTrafficPaths).toEqual({
+    inbound: ['Internet', 'Application Load Balancer', 'ECS Fargate', 'RDS writer endpoint'],
+    egress: ['ECS Fargate', 'NAT gateway', 'Internet'],
+  });
+  expect(scenes.awsTrafficPaths.inbound).not.toContain('NAT gateway');
+  expect(scenes.awsReleasePhases).toEqual([
+    { id: 'bootstrap', migrationRuns: false, serviceExists: false },
+    { id: 'migration', migrationRuns: true, serviceExists: false },
+    { id: 'service', migrationRuns: false, serviceExists: true },
+  ]);
+  expect(
+    [284, 285, 379, 380, 449, 450].map((frame) => scenes.awsReleasePhaseAt(frame)?.id ?? null),
+  ).toEqual([null, 'bootstrap', 'bootstrap', 'migration', 'migration', 'service']);
+});
