@@ -58,6 +58,10 @@ export const provisionRuntimeRole = async (
 
     await client.query(`REVOKE ALL ON DATABASE ${quotedDatabase} FROM ${role}`);
     await client.query(`GRANT CONNECT ON DATABASE ${quotedDatabase} TO ${role}`);
+    await client.query(`REVOKE ALL ON SCHEMA public FROM ${role}`);
+    await client.query(`REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ${role}`);
+    await client.query(`REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM ${role}`);
+    await client.query(`REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM ${role}`);
     await client.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
     await client.query(`
       GRANT SELECT, INSERT ON TABLE tenants TO ${role};

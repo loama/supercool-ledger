@@ -42,18 +42,21 @@ test('runtime role can use application tables without migration access', async (
   const privileges = await runtimePool.query<{
     can_create_schema_object: boolean;
     can_delete_postings: boolean;
+    can_execute_sandbox_purge: boolean;
     can_read_migrations: boolean;
     can_update_accounts: boolean;
   }>(`
     SELECT
       has_schema_privilege(current_user, 'public', 'CREATE') AS can_create_schema_object,
       has_table_privilege(current_user, 'postings', 'DELETE') AS can_delete_postings,
+      has_function_privilege(current_user, 'purge_expired_sandbox_tenants()', 'EXECUTE') AS can_execute_sandbox_purge,
       has_table_privilege(current_user, 'schema_migrations', 'SELECT') AS can_read_migrations,
       has_table_privilege(current_user, 'accounts', 'UPDATE') AS can_update_accounts
   `);
   expect(privileges.rows[0]).toEqual({
     can_create_schema_object: false,
     can_delete_postings: false,
+    can_execute_sandbox_purge: true,
     can_read_migrations: false,
     can_update_accounts: true,
   });

@@ -40,6 +40,11 @@ resource "aws_db_instance" "writer" {
 
   lifecycle {
     prevent_destroy = true
+
+    precondition {
+      condition     = var.database_application_username != var.database_username
+      error_message = "The application database username must differ from the migration owner username."
+    }
   }
 }
 
