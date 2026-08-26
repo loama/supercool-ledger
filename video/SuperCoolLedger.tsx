@@ -28,8 +28,8 @@ const scenes: Record<SceneId, ComponentType> = {
   'data-model': DataModelScene,
   'reviewer-sandbox': SandboxWorkflowScene,
   'captured-evidence': CapturedEvidenceScene,
-  'aws-topology': ObservabilityScene,
-  'review-path': AwsReviewPathScene,
+  observability: ObservabilityScene,
+  'aws-review-path': AwsReviewPathScene,
 };
 
 export const visualSceneLabels = [

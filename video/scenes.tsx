@@ -773,7 +773,7 @@ export const CapturedEvidenceScene = () => {
 
 export const ObservabilityScene = () => {
   const frame = useCurrentFrame();
-  const active = activeStep(frame, 4, sceneDuration('aws-topology'));
+  const active = activeStep(frame, 4, sceneDuration('observability'));
   const signals = [
     ['Logs estructurados', 'sin payloads ni campos financieros'],
     ['Prometheus', 'etiquetas acotadas y estables'],
@@ -1028,7 +1028,7 @@ export const AwsTopologyScene = () => {
                           ? 'definición lista, servicio ausente'
                           : migrationActive
                             ? 'ejecuta bun run db:migrate'
-                            : 'misma imagen y DATABASE_URL'
+                            : 'misma imagen, rol de migración'
                       }
                       title="Tarea de migración"
                     />
@@ -1141,7 +1141,7 @@ export const AwsTopologyScene = () => {
 
 export const ReviewPathScene = () => {
   const frame = useCurrentFrame();
-  const active = activeStep(frame, 4, sceneDuration('review-path') - 324);
+  const active = activeStep(frame, 4, sceneDuration('aws-review-path') - 324);
   const steps = [
     ['Sandbox publicado', '/sandbox', 'ejecuta los siete escenarios'],
     ['Referencia API', '/docs', 'lee el contrato OpenAPI'],
@@ -1211,7 +1211,7 @@ export const AwsReviewPathScene = () => (
     <Sequence durationInFrames={324} premountFor={30}>
       <AwsTopologyScene />
     </Sequence>
-    <Sequence from={324} durationInFrames={sceneDuration('review-path') - 324} premountFor={30}>
+    <Sequence from={324} durationInFrames={sceneDuration('aws-review-path') - 324} premountFor={30}>
       <ReviewPathScene />
     </Sequence>
   </AbsoluteFill>

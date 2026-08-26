@@ -24,8 +24,8 @@ test('video timing covers ten contiguous scenes at the configured playback rate'
     'data-model',
     'reviewer-sandbox',
     'captured-evidence',
-    'aws-topology',
-    'review-path',
+    'observability',
+    'aws-review-path',
   ]);
   expect(sceneRanges[0].from).toBe(0);
   expect(sceneRanges.at(-1)?.to).toBe(VIDEO_DURATION_IN_FRAMES);

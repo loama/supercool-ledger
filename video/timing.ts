@@ -21,8 +21,8 @@ export const sceneRanges = [
   { id: 'data-model', from: sceneFrameBoundaries[5], to: sceneFrameBoundaries[6] },
   { id: 'reviewer-sandbox', from: sceneFrameBoundaries[6], to: sceneFrameBoundaries[7] },
   { id: 'captured-evidence', from: sceneFrameBoundaries[7], to: sceneFrameBoundaries[8] },
-  { id: 'aws-topology', from: sceneFrameBoundaries[8], to: sceneFrameBoundaries[9] },
-  { id: 'review-path', from: sceneFrameBoundaries[9], to: VIDEO_DURATION_IN_FRAMES },
+  { id: 'observability', from: sceneFrameBoundaries[8], to: sceneFrameBoundaries[9] },
+  { id: 'aws-review-path', from: sceneFrameBoundaries[9], to: VIDEO_DURATION_IN_FRAMES },
 ] as const;
 
 export const captionFrameRanges = narrationCueStartMilliseconds.map((milliseconds, index) => [

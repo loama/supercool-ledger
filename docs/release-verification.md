@@ -16,7 +16,7 @@ This record describes the final evidence for the public assessment release on 26
 
 ## Local verification
 
-`bun run check` completed with 65 passing tests, 423 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
+`bun run check` completed with 71 passing tests, 560 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
 `bun audit --production` reported no known production dependency vulnerabilities.
 
@@ -66,13 +66,13 @@ Readiness compares the database with every migration shipped in the deployed art
 
 The final Remotion walkthrough uses the Enrique M. Nieto voice from ElevenLabs and 24 sentence captions in Spanish. The 2,224 character source script matches the committed narration asset. The raw MP3 lasts 145.214688 seconds. Playback at exactly 1.5 shortens it to 96.809792 seconds inside a 99 second composition, leaving a 2.190208 second closing hold.
 
-The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,486,378 bytes, and its SHA 256 digest is `1115553a024d5037a763806190c5340b3b212518cf482c7957fbcde98853c5df`.
+The rendered MP4 contains H.264 video at 1920 by 1080 and 30 frames per second, plus stereo AAC audio at 48 kHz. Its container duration is 99.050667 seconds, its size is 14,692,501 bytes, and its SHA 256 digest is `4cbe42c2b10ecbb363393301fcd9f094249a49b05ebc46a50a8eb9e9845af99b`.
 
-The poster is a 1920 by 1080 RGB PNG with SHA 256 digest `024454647d40e810353b47bc23cf335418f08f7d924182ea059a21b494c61f49`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
+The poster is a 1920 by 1080 PNG with SHA 256 digest `018baf5b77d235d1458a2e6606bb4ae7e61af3edce3938df40103454296eb915`. The narration asset is mono MP3 at 44.1 kHz with SHA 256 digest `9c00e9d06206568890572b24dfceb0d84564427086be0230dbc3809faac5c2c3`.
 
-One full resolution frame from each of the ten scenes received visual inspection. Typography, connectors, captions, spacing, and safe margins remained readable. The AWS scene was also checked on both sides of its bootstrap, migration, and service state changes.
+`bun run video:verify` records the verification script digest, media probe output, and every artifact digest in `video/out/media-evidence.json`. It also extracts one middle frame from each of the ten scenes and retains the samples in `video/out/inspection-montage.png`. The montage received direct visual inspection for scene ownership, typography, connector direction, captions, spacing, and safe margins. The full resolution poster received a separate inspection.
 
-The local preview returned native controls and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14486378`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
+The local preview returned native controls, the committed poster, and no autoplay attribute. A request for bytes 0 through 1023 returned `206 Partial Content`, `Content-Range: bytes 0-1023/14692501`, and exactly 1,024 bytes. An out of bounds request returned `416 Range Not Satisfiable`.
 
 The committed video evidence is generated from the same sanitized PostgreSQL scenario that the integration test executes and compares. Random identifiers and timestamps are excluded from equality checks by design.
 

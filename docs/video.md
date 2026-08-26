@@ -1,6 +1,6 @@
 # Narrated walkthrough
 
-`video/out/supercool-ledger.mp4` is a 1920 by 1080 Remotion presentation with Spanish narration. Ten scenes explain the financial promise, ledger invariants, repository map, request lifecycle, atomic transfer, data model, reviewer sandbox, captured evidence, AWS topology, and review path.
+`video/out/supercool-ledger.mp4` is a 1920 by 1080 Remotion presentation with Spanish narration. Ten scenes explain the financial promise, ledger invariants, repository map, request lifecycle, atomic transfer, data model, reviewer sandbox, captured evidence, observability, and a combined AWS topology and review path.
 
 The visual system takes its color, typography, and layout direction from [EFEX](https://www.efex.com/). EFEX supplied the visual reference only. SuperCool Ledger remains a fictional assessment service and has no product affiliation with EFEX.
 
@@ -27,13 +27,14 @@ The narration SHA 256 digest is `9c00e9d06206568890572b24dfceb0d84564427086be023
 ```bash
 bun run video:render
 bun run video:still
+bun run video:verify
 ```
 
-The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
+The first command creates `video/out/supercool-ledger.mp4`. The second creates `video/out/poster.png`. The third creates `video/out/media-evidence.json` and `video/out/inspection-montage.png`. The report records the verification script digest, SHA 256 digests, probe metadata, and the exact middle frame sampled from every scene. The final MP4 uses H.264 video and AAC audio at 1920 by 1080 and 30 frames per second.
 
 ## Visual inspection
 
-The final check extracted one 1920 by 1080 frame from each scene. It checked typography, connector direction, caption spacing, and safe margins. The AWS review also compared the frames immediately before and after local scene frames 285, 380, and 450. Those boundaries switch from topology to bootstrap, bootstrap to migration, and migration to service without an overlap or gap.
+The retained montage at `video/out/inspection-montage.png` contains one middle frame from every scene. The exact frame numbers and hashes are recorded in `video/out/media-evidence.json`. Inspect the montage for typography, connector direction, caption spacing, and safe margins after each render. The automated timing test separately verifies every caption remains inside the scene that owns its narration section.
 
 ## Local preview
 
