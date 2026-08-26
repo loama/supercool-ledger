@@ -144,7 +144,7 @@ export class TransferService {
         if (replay) return { replayed: true, transfer: replay };
 
         const tenant = await client.query<{ status: 'active' | 'suspended' }>(
-          'SELECT status FROM tenants WHERE id = $1 FOR SHARE',
+          'SELECT lock_runtime_tenant_status($1) AS status',
           [tenantId],
         );
         if (tenant.rows[0]?.status !== 'active') {
