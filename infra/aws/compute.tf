@@ -14,19 +14,34 @@ resource "aws_ecr_repository" "application" {
 resource "aws_ecr_lifecycle_policy" "application" {
   repository = aws_ecr_repository.application.name
   policy = jsonencode({
-    rules = [{
-      rulePriority = 1
-      description  = "Remove untagged images after 30 days"
-      selection = {
-        tagStatus   = "untagged"
-        countType   = "sinceImagePushed"
-        countUnit   = "days"
-        countNumber = 30
-      }
-      action = {
-        type = "expire"
-      }
-    }]
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only the newest 20 unprotected release images"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["release-"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 20
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Remove untagged images after 30 days"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 30
+        }
+        action = {
+          type = "expire"
+        }
+      },
+    ]
   })
 }
 
@@ -50,37 +65,59 @@ data "aws_iam_policy_document" "ecs_assume_role" {
   }
 }
 
-resource "aws_iam_role" "task_execution" {
-  name               = "${local.name_prefix}-task-execution"
+resource "aws_iam_role" "application_execution" {
+  name               = "${local.name_prefix}-application-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
-resource "aws_iam_role_policy_attachment" "task_execution" {
-  role       = aws_iam_role.task_execution.name
+resource "aws_iam_role_policy_attachment" "application_execution" {
+  role       = aws_iam_role.application_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-data "aws_iam_policy_document" "task_execution_secrets" {
+resource "aws_iam_role" "migration_execution" {
+  name               = "${local.name_prefix}-migration-execution"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "migration_execution" {
+  role       = aws_iam_role.migration_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+data "aws_iam_policy_document" "application_execution_secrets" {
   statement {
     actions = ["secretsmanager:GetSecretValue"]
-    resources = concat(
-      [
-        aws_secretsmanager_secret.application_database_password.arn,
-        aws_secretsmanager_secret.auth_secret.arn,
-        aws_secretsmanager_secret.database_url.arn,
-        aws_secretsmanager_secret.metrics_token.arn,
-        aws_secretsmanager_secret.migration_database_url.arn,
-      ],
-      var.auth_secret_secondary == null ? [] : [aws_secretsmanager_secret.auth_secret_secondary[0].arn],
-      var.metrics_token_secondary == null ? [] : [aws_secretsmanager_secret.metrics_token_secondary[0].arn],
-    )
+    resources = [
+      aws_secretsmanager_secret.auth_secret.arn,
+      aws_secretsmanager_secret.auth_secret_secondary.arn,
+      aws_secretsmanager_secret.database_url.arn,
+      aws_secretsmanager_secret.metrics_token.arn,
+      aws_secretsmanager_secret.metrics_token_secondary.arn,
+    ]
   }
 }
 
-resource "aws_iam_role_policy" "task_execution_secrets" {
+resource "aws_iam_role_policy" "application_execution_secrets" {
   name   = "secrets"
-  role   = aws_iam_role.task_execution.id
-  policy = data.aws_iam_policy_document.task_execution_secrets.json
+  role   = aws_iam_role.application_execution.id
+  policy = data.aws_iam_policy_document.application_execution_secrets.json
+}
+
+data "aws_iam_policy_document" "migration_execution_secrets" {
+  statement {
+    actions = ["secretsmanager:GetSecretValue"]
+    resources = [
+      aws_secretsmanager_secret.application_database_password.arn,
+      aws_secretsmanager_secret.migration_database_url.arn,
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "migration_execution_secrets" {
+  name   = "secrets"
+  role   = aws_iam_role.migration_execution.id
+  policy = data.aws_iam_policy_document.migration_execution_secrets.json
 }
 
 resource "aws_iam_role" "application_task" {
@@ -107,11 +144,11 @@ locals {
     ],
     var.auth_secret_secondary == null ? [] : [{
       name      = "AUTH_SECRET_SECONDARY"
-      valueFrom = "${aws_secretsmanager_secret.auth_secret_secondary[0].arn}:::${aws_secretsmanager_secret_version.auth_secret_secondary[0].version_id}"
+      valueFrom = "${aws_secretsmanager_secret.auth_secret_secondary.arn}:::${aws_secretsmanager_secret_version.auth_secret_secondary[0].version_id}"
     }],
     var.metrics_token_secondary == null ? [] : [{
       name      = "METRICS_TOKEN_SECONDARY"
-      valueFrom = "${aws_secretsmanager_secret.metrics_token_secondary[0].arn}:::${aws_secretsmanager_secret_version.metrics_token_secondary[0].version_id}"
+      valueFrom = "${aws_secretsmanager_secret.metrics_token_secondary.arn}:::${aws_secretsmanager_secret_version.metrics_token_secondary[0].version_id}"
     }],
   )
   migration_secrets = [
@@ -132,7 +169,7 @@ resource "aws_ecs_task_definition" "application" {
   memory                   = var.task_memory
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.task_execution.arn
+  execution_role_arn       = aws_iam_role.application_execution.arn
   task_role_arn            = aws_iam_role.application_task.arn
 
   container_definitions = jsonencode([{
@@ -173,15 +210,13 @@ resource "aws_ecs_task_definition" "application" {
   }])
 
   depends_on = [
-    aws_iam_role_policy.task_execution_secrets,
-    aws_iam_role_policy_attachment.task_execution,
-    aws_secretsmanager_secret_version.application_database_password,
+    aws_iam_role_policy.application_execution_secrets,
+    aws_iam_role_policy_attachment.application_execution,
     aws_secretsmanager_secret_version.auth_secret,
     aws_secretsmanager_secret_version.auth_secret_secondary,
     aws_secretsmanager_secret_version.database_url,
     aws_secretsmanager_secret_version.metrics_token,
     aws_secretsmanager_secret_version.metrics_token_secondary,
-    aws_secretsmanager_secret_version.migration_database_url,
   ]
 }
 
@@ -191,7 +226,7 @@ resource "aws_ecs_task_definition" "migration" {
   memory                   = var.task_memory
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.task_execution.arn
+  execution_role_arn       = aws_iam_role.migration_execution.arn
   task_role_arn            = aws_iam_role.application_task.arn
 
   container_definitions = jsonencode([{
@@ -215,14 +250,9 @@ resource "aws_ecs_task_definition" "migration" {
   }])
 
   depends_on = [
-    aws_iam_role_policy.task_execution_secrets,
-    aws_iam_role_policy_attachment.task_execution,
+    aws_iam_role_policy.migration_execution_secrets,
+    aws_iam_role_policy_attachment.migration_execution,
     aws_secretsmanager_secret_version.application_database_password,
-    aws_secretsmanager_secret_version.auth_secret,
-    aws_secretsmanager_secret_version.auth_secret_secondary,
-    aws_secretsmanager_secret_version.database_url,
-    aws_secretsmanager_secret_version.metrics_token,
-    aws_secretsmanager_secret_version.metrics_token_secondary,
     aws_secretsmanager_secret_version.migration_database_url,
   ]
 }

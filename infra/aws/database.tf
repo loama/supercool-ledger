@@ -107,17 +107,15 @@ resource "aws_secretsmanager_secret_version" "auth_secret" {
 }
 
 resource "aws_secretsmanager_secret" "auth_secret_secondary" {
-  count = var.auth_secret_secondary == null ? 0 : 1
-
   name                    = "${local.name_prefix}/auth-secret-secondary"
-  description             = "Second application authentication secret used during rotation"
+  description             = "Permanent second application authentication secret slot used during rotation"
   recovery_window_in_days = 30
 }
 
 resource "aws_secretsmanager_secret_version" "auth_secret_secondary" {
   count = var.auth_secret_secondary == null ? 0 : 1
 
-  secret_id     = aws_secretsmanager_secret.auth_secret_secondary[0].id
+  secret_id     = aws_secretsmanager_secret.auth_secret_secondary.id
   secret_string = var.auth_secret_secondary
 }
 
@@ -133,16 +131,14 @@ resource "aws_secretsmanager_secret_version" "metrics_token" {
 }
 
 resource "aws_secretsmanager_secret" "metrics_token_secondary" {
-  count = var.metrics_token_secondary == null ? 0 : 1
-
   name                    = "${local.name_prefix}/metrics-token-secondary"
-  description             = "Second metrics bearer token used during rotation"
+  description             = "Permanent second metrics bearer token slot used during rotation"
   recovery_window_in_days = 30
 }
 
 resource "aws_secretsmanager_secret_version" "metrics_token_secondary" {
   count = var.metrics_token_secondary == null ? 0 : 1
 
-  secret_id     = aws_secretsmanager_secret.metrics_token_secondary[0].id
+  secret_id     = aws_secretsmanager_secret.metrics_token_secondary.id
   secret_string = var.metrics_token_secondary
 }

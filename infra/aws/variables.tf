@@ -169,8 +169,8 @@ variable "database_password" {
   nullable    = false
 
   validation {
-    condition     = length(var.database_password) >= 20
-    error_message = "The database password must contain at least 20 characters."
+    condition     = length(var.database_password) >= 20 && length(regexall("[[:space:]]", var.database_password)) == 0
+    error_message = "The database password must contain at least 20 characters and no whitespace."
   }
 }
 
@@ -192,8 +192,8 @@ variable "database_application_password" {
   nullable    = false
 
   validation {
-    condition     = length(var.database_application_password) >= 20
-    error_message = "The application database password must contain at least 20 characters."
+    condition     = length(var.database_application_password) >= 20 && length(regexall("[[:space:]]", var.database_application_password)) == 0
+    error_message = "The application database password must contain at least 20 characters and no whitespace."
   }
 }
 

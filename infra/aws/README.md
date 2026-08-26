@@ -38,13 +38,13 @@ terraform apply -target=aws_ecr_repository.application
 
 Targeted apply is only an ECR bootstrap step. Do not use it for normal releases.
 
-Run the image commands from the repository root. Choose a unique release tag. ECR rejects a second push to the same tag.
+Run the image commands from the repository root. Prefix every candidate tag with `release-` and keep it unique. ECR rejects a second push to the same tag.
 
 ```bash
 cd ../..
 AWS_REGION=eu-central-1
 ECR_REPOSITORY_URL="$(terraform -chdir=infra/aws output -raw ecr_repository_url)"
-RELEASE_TAG="$(git rev-parse --short=12 HEAD)"
+RELEASE_TAG="release-$(git rev-parse --short=12 HEAD)"
 aws ecr get-login-password --region "$AWS_REGION" | \
   docker login --username AWS --password-stdin "${ECR_REPOSITORY_URL%%/*}"
 docker build --platform linux/amd64 --tag "$ECR_REPOSITORY_URL:$RELEASE_TAG" .
@@ -57,7 +57,51 @@ aws ecr describe-images \
   --output text
 ```
 
-Copy the returned digest into `image_digest`. Task definitions reference that digest, never a mutable tag. The lifecycle policy removes only untagged images after 30 days. Keep every release tag needed for roll back. Removing that tag makes its untagged digest eligible for later cleanup.
+Copy the returned digest into `image_digest`. Task definitions reference that digest, never a mutable tag. The lifecycle policy retains the newest 20 unprotected `release-` candidates and removes untagged images after 30 days.
+
+Protect the deployed digest and one known good rollback digest with unique tags that do not start with `release-`. Before promoting a new release, copy the existing `current-<sha>` manifest to `rollback-<sha>` and then remove its current tag. Copy the candidate manifest to `current-<sha>` and remove its release tag only after the service is stable. Remove the older rollback tag after both protected tags exist and the rollback choice has been verified. An image that still has a `release-` tag remains eligible for the 20 image lifecycle rule even if it also has another tag.
+
+The following commands promote a stable candidate. Set `PREVIOUS_CURRENT_TAG` and `OLDER_ROLLBACK_TAG` from the repository inventory. Omit the previous or older step on the first release.
+
+```bash
+REPOSITORY_NAME="${ECR_REPOSITORY_URL##*/}"
+CURRENT_TAG="current-${RELEASE_TAG#release-}"
+PREVIOUS_CURRENT_TAG="current-<previous-sha>"
+ROLLBACK_TAG="rollback-${PREVIOUS_CURRENT_TAG#current-}"
+OLDER_ROLLBACK_TAG="rollback-<older-sha>"
+
+PREVIOUS_MANIFEST="$(aws ecr batch-get-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-ids imageTag="$PREVIOUS_CURRENT_TAG" \
+  --query 'images[0].imageManifest' \
+  --output text)"
+aws ecr put-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-tag "$ROLLBACK_TAG" \
+  --image-manifest "$PREVIOUS_MANIFEST"
+
+CANDIDATE_MANIFEST="$(aws ecr batch-get-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-ids imageTag="$RELEASE_TAG" \
+  --query 'images[0].imageManifest' \
+  --output text)"
+aws ecr put-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-tag "$CURRENT_TAG" \
+  --image-manifest "$CANDIDATE_MANIFEST"
+aws ecr batch-delete-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-ids imageTag="$PREVIOUS_CURRENT_TAG" imageTag="$RELEASE_TAG"
+aws ecr batch-delete-image \
+  --region "$AWS_REGION" \
+  --repository-name "$REPOSITORY_NAME" \
+  --image-ids imageTag="$OLDER_ROLLBACK_TAG"
+```
 
 ## Apply the bootstrap state
 
@@ -164,9 +208,9 @@ The public listener redirects HTTP to HTTPS and uses the supplied ACM certificat
 
 ## Rotate credentials without a mixed fleet
 
-Every ECS secret reference includes an explicit Secrets Manager version identifier. A Terraform apply registers a new task definition, but the service changes only after the explicit `aws ecs update-service` command. This keeps every running deployment on one reviewed set of secret versions.
+Every ECS secret reference includes an explicit Secrets Manager version identifier. A Terraform apply registers a new task definition, but the service changes only after the explicit `aws ecs update-service` command. This keeps every running deployment on one reviewed set of secret versions. The application and migration task definitions use separate execution roles. The application role can read only its runtime database URL, authentication slots, and metrics slots. The migration role can read only the owner URL and the constrained role password.
 
-Rotate `AUTH_SECRET` and `METRICS_TOKEN` in three stable deployments. First, keep the old value as primary and add the new value through `auth_secret_secondary` or `metrics_token_secondary`. Apply Terraform, update the service to the returned application task definition, and wait for stability. Second, make the new value primary and keep the old value as secondary, then repeat the apply and stable service update. Third, remove the secondary value and repeat the deployment. Do not advance until the previous service update is stable.
+Rotate `AUTH_SECRET` and `METRICS_TOKEN` in three stable deployments. First, keep the old value as primary and add the new value through `auth_secret_secondary` or `metrics_token_secondary`. Apply Terraform, update the service to the returned application task definition, and wait for stability. Second, make the new value primary and keep the old value as secondary, then repeat the apply and stable service update. Third, set the secondary variable to null and repeat the deployment. Do not advance until the previous service update is stable. Both secondary Secrets Manager resources are permanent slots. Setting a secondary variable to null removes only its secret version from the task definition, so another rotation can reuse the same name without waiting through a recovery window.
 
 Rotate the application database credential with a new `database_application_username` and password. Apply Terraform to register the migration and application task definitions. Run the new migration task so it creates the new constrained role, verify its zero exit code, then deploy the new application task definition and wait for every old task to drain. Revoke and remove the old role only after no running task uses it. The RDS owner credential remains confined to the migration task and can be rotated separately through RDS and a new migration task definition.
 
