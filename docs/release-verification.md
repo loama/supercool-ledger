@@ -1,24 +1,24 @@
 # Release verification
 
-This record separates evidence for the deployed public release from verification of the current working branch.
+This record covers the final public EFEX assessment release and its verified source commit.
 
 ## Evidence scope
 
-The public URLs, GitHub checks, container results, and Render results below apply only to deployed commit `c6e3079119e97b9051d6c5f9b382608b85496120`. The current branch contains later runtime authorization, migration, AWS infrastructure, AI disclosure, and media changes that are not part of that deployment. No push or deployment was authorized for this review, so publication of the current branch is explicitly deferred. The local and media sections describe the current branch only and do not claim live proof.
+The public URLs, GitHub checks, container results, media evidence, and Render results below apply to application release commit `bd6de1eb5d839127aad79556674965161f42128c`. This commit includes the runtime authorization, migration, AWS infrastructure, AI disclosure, and final media work reviewed in pull request 12.
 
 ## Deployed release identity
 
 1. Repository: https://github.com/loama/supercool-ledger
-2. Review pull request: https://github.com/loama/supercool-ledger/pull/8
-3. Application release commit: `c6e3079119e97b9051d6c5f9b382608b85496120`
+2. Review pull request: https://github.com/loama/supercool-ledger/pull/12
+3. Application release commit: `bd6de1eb5d839127aad79556674965161f42128c`
 4. Live service: https://supercool-ledger.onrender.com
 5. Reviewer sandbox: https://supercool-ledger.onrender.com/sandbox
 6. Interactive API reference: https://supercool-ledger.onrender.com/docs/
 7. Render service: `srv-da71hq67bikc73eiu90g`
 8. Render database: `dpg-da713295efls738aods0-a`
-9. Render deployment: `dep-da73ioe7bikc73epqtcg`
+9. Render deployment: `dep-da7khfu7bikc73dmhlu0`
 
-## Current branch local verification
+## Release commit local verification
 
 `bun run check` completed with 81 passing tests, 618 assertions, strict TypeScript checks, lint, formatting verification, and a production build.
 
@@ -42,13 +42,15 @@ The two temporary smoke containers were removed after verification.
 
 ## GitHub verification
 
-Pull request 8 was mergeable and received successful `verify` and `container` checks at reviewed head `7d7449922b16214af588cc32b716dc053b3627c0`. The merge preserved the logical commit history and promoted the reviewed branch to `main` as `c6e3079119e97b9051d6c5f9b382608b85496120`.
+Pull request 12 was mergeable and received successful `verify` and `container` checks at reviewed head `c1c551c276abcdf20af8bb10a3a793dd1fab337f`. The merge preserved the logical commit history and promoted the reviewed branch to `main` as `bd6de1eb5d839127aad79556674965161f42128c`.
 
-The `main` pipeline also passed both jobs for the merged commit. The public repository default branch is `main`. Later documentation commits do not alter the runtime source recorded above.
+The `main` pipeline passed both jobs for the merged commit in GitHub Actions run `33009063875`. The public repository default branch is `main`. Later documentation commits do not alter the runtime source recorded above.
 
 ## Render verification
 
-The Blueprint associates the paid PostgreSQL 17 database with the paid Docker web service in Frankfurt. Manual deployment `dep-da73htp5efls738idutg` first built application commit `c6e3079119e97b9051d6c5f9b382608b85496120`, completed `bun run db:migrate`, started the service, and passed `/health/ready`. A Blueprint sync then applied `SANDBOX_ENABLED=true` from `render.yaml` and produced final live deployment `dep-da73ioe7bikc73epqtcg` from the same application commit.
+The Blueprint associates the paid PostgreSQL 17 database with the paid Docker web service in Frankfurt. Deployment `dep-da7kgunavr4c73b9qj90` built application commit `bd6de1eb5d839127aad79556674965161f42128c`, completed `bun run db:migrate`, started the service, and passed `/health/ready`. The migration used an explicit operator reviewed allow list for the three older sandbox sessions. Deployment `dep-da7khfu7bikc73dmhlu0` then confirmed that the same commit starts with the one time allow list cleared.
+
+The hosted database records migration `007_protect_sandbox_classification.sql`. A direct production query found four classified sandbox sessions and zero unclassified sessions after the final live test. The runtime role cannot attach a sandbox session to a persistent tenant, and the purge procedure selects only explicitly classified sandbox tenants.
 
 Direct public checks returned:
 
@@ -84,4 +86,4 @@ The committed video evidence is generated from the same sanitized PostgreSQL sce
 
 Two formal rounds each used three independent reviewers. A final release review used independent security, interface, and deployment reviewers. Their complete prompts and responses appear in `docs/ai-usage/review-records.md`. The main adjudication and accepted corrections appear in `docs/reviews/round-1.md` and `docs/reviews/round-2.md`.
 
-The remaining limitation applies to the deployed Render commit. It uses one Render owner connection for migrations and runtime. The current, unpublished AWS design separates migration and application credentials and execution roles, but that local design is not evidence about the live Render service.
+The remaining limitation applies to the deployed Render service. It uses one Render owner connection for migrations and runtime. The committed AWS design separates migration and application credentials and execution roles, but that design is infrastructure code rather than evidence about the live Render service.
