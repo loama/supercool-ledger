@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { narrationText } from '../video/narration.ts';
+import { VIDEO_PLAYBACK_RATE } from '../video/timing.ts';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('missing_environment:ELEVENLABS_API_KEY');
@@ -42,6 +43,7 @@ await Bun.write(
       voiceName,
       modelId,
       language: 'es-MX',
+      playbackRate: VIDEO_PLAYBACK_RATE,
       characters: narrationText.length,
       output: 'video/public/narration.mp3',
     },
@@ -50,5 +52,9 @@ await Bun.write(
   )}\n`,
 );
 process.stdout.write(
-  `${JSON.stringify({ output: 'video/public/narration.mp3', characters: narrationText.length })}\n`,
+  `${JSON.stringify({
+    output: 'video/public/narration.mp3',
+    playbackRate: VIDEO_PLAYBACK_RATE,
+    characters: narrationText.length,
+  })}\n`,
 );

@@ -4,6 +4,7 @@
   "voiceName": "Enrique M. Nieto",
   "modelId": "eleven_multilingual_v2",
   "language": "es-MX",
+  "playbackRate": 1.5,
   "characters": 2224,
   "output": "video/public/narration.mp3"
 }
