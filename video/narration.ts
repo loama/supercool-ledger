@@ -25,9 +25,10 @@ export const narrationSections = [
     'Transferencia, postings, saldos, auditoría y respuesta confirman juntos o revierten juntos.',
   ],
   [
-    'La tabla tenants contiene accounts y transfers, y cada transferencia apunta a journal_transactions.',
+    'accounts.tenant_id y transfers.tenant_id referencian tenants.id, y cada transferencia referencia journal_transactions.',
     'postings forma el historial financiero y audit_events registra el resultado.',
-    'sandbox_sessions aísla sesiones sintéticas que expiran sin tocar clientes persistentes.',
+    'Cada sesión crea un tenant distinto y recibe un token limitado a ese tenant.',
+    'sandbox_sessions registra el tenant sintético y su vencimiento.',
   ],
   [
     'Abre /sandbox y crea la sesión con POST /v1/sandbox/sessions.',

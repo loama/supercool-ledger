@@ -49,6 +49,19 @@ test('Spanish story follows the ten scene contract and explains reviewer evidenc
     expect(narrationText).toContain(source);
   }
 
+  for (const dataModelClaim of [
+    'accounts.tenant_id y transfers.tenant_id referencian tenants.id',
+    'cada transferencia referencia journal_transactions',
+    'Cada sesión crea un tenant distinto',
+    'token limitado a ese tenant',
+    'sandbox_sessions registra el tenant sintético y su vencimiento',
+  ]) {
+    expect(narrationText).toContain(dataModelClaim);
+  }
+  expect(narrationText).not.toContain('La tabla tenants contiene accounts y transfers');
+  expect(narrationText).not.toContain('sandbox_sessions aísla');
+  expect(narrationText).not.toContain('sandbox_sessions solo');
+
   for (const sandboxStep of [
     'POST /v1/sandbox/sessions',
     'transferencia exitosa',
