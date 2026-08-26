@@ -34,8 +34,8 @@ The walkthrough stays in Spanish and uses the Enrique M. Nieto voice. It contain
 6. The data model around tenants, accounts, transfers, journals, postings, audit events, and sandbox sessions.
 7. The reviewer sandbox workflow. It explains session creation, success, replay, conflict, insufficient funds, race, entries, and reconciliation.
 8. The captured PostgreSQL evidence.
-9. The AWS deployment topology and migration boundary.
-10. The review path through the live sandbox, API reference, tests, and source.
+9. The observability boundary across logs, metrics, traces, and unexpected errors.
+10. The AWS deployment topology, migration boundary, and review path through the live sandbox, API reference, tests, and source.
 
 The final artifact uses an audio playback rate of exactly `1.5`. The scene and caption ranges use the shortened playback duration. The preview page still waits for an explicit play action.
 
@@ -46,7 +46,7 @@ Terraform under `infra/aws` describes one deployable AWS environment.
 The environment contains:
 
 1. A VPC across two availability zones.
-2. Public subnets for an Application Load Balancer and one cost aware NAT gateway.
+2. Public subnets for an Application Load Balancer and one NAT gateway in each availability zone.
 3. Private application subnets for ECS Fargate tasks.
 4. Private database subnets for RDS PostgreSQL 17.
 5. An ECR repository with immutable image tags and image scanning.
@@ -75,4 +75,4 @@ The repository must prove these properties:
 
 ## Documentation
 
-Update the README, cloud deployment guide, video guide, release verification, and technical references. The docs must state that EFEX supplied the visual reference, while the service remains the fictional SuperCool Finances assessment project.
+Update the README, cloud deployment guide, video guide, release verification, and technical references. The docs must state that EFEX supplied the visual reference, while the service remains the fictional SuperCool Ledger assessment project.

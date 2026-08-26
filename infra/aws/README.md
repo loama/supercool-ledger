@@ -1,6 +1,6 @@
 # AWS production deployment
 
-This Terraform root creates one SuperCool Ledger environment in AWS. It has a VPC across two availability zones, a public Application Load Balancer, private ECS Fargate tasks, private RDS PostgreSQL 17, ECR, Secrets Manager, CloudWatch, and target tracking scaling from two tasks to six tasks.
+This Terraform root creates one SuperCool Ledger environment in AWS. It has a VPC across two availability zones, one NAT gateway in each zone, a public Application Load Balancer, private ECS Fargate tasks, private RDS PostgreSQL 17, ECR, Secrets Manager, CloudWatch, and target tracking scaling from two tasks to six tasks.
 
 Terraform creates no read replica. Every balance read goes to the PostgreSQL writer so a completed transfer is immediately visible without replica lag.
 
@@ -57,7 +57,7 @@ aws ecr describe-images \
   --output text
 ```
 
-Copy the returned digest into `image_digest`. Task definitions reference that digest, never a mutable tag.
+Copy the returned digest into `image_digest`. Task definitions reference that digest, never a mutable tag. The lifecycle policy removes only untagged images after 30 days. Keep every release tag needed for roll back. Removing that tag makes its untagged digest eligible for later cleanup.
 
 ## Apply the bootstrap state
 
@@ -73,7 +73,7 @@ The bootstrap apply produces the cluster, migration task, private subnet, and se
 
 ## Run and verify the migration
 
-Run the migration task before enabling or updating the service. The migration task runs `bun run db:migrate` with the same image digest and database URL as the application.
+Run the migration task before enabling or updating the service. The migration task runs `bun run db:migrate` with the same image digest as the application. It receives the RDS owner URL, applies schema migrations, and provisions the constrained application login. The service receives a separate URL for that login. The application role can use the runtime tables but cannot read migration history, create schema objects, or delete ledger postings.
 
 Run these commands from the repository root:
 
@@ -162,11 +162,19 @@ aws ecs wait services-stable \
 
 The public listener redirects HTTP to HTTPS and uses the supplied ACM certificate. Check the application and migration log groups before retrying a failed release.
 
+## Rotate credentials without a mixed fleet
+
+Every ECS secret reference includes an explicit Secrets Manager version identifier. A Terraform apply registers a new task definition, but the service changes only after the explicit `aws ecs update-service` command. This keeps every running deployment on one reviewed set of secret versions.
+
+Rotate `AUTH_SECRET` and `METRICS_TOKEN` in three stable deployments. First, keep the old value as primary and add the new value through `auth_secret_secondary` or `metrics_token_secondary`. Apply Terraform, update the service to the returned application task definition, and wait for stability. Second, make the new value primary and keep the old value as secondary, then repeat the apply and stable service update. Third, remove the secondary value and repeat the deployment. Do not advance until the previous service update is stable.
+
+Rotate the application database credential with a new `database_application_username` and password. Apply Terraform to register the migration and application task definitions. Run the new migration task so it creates the new constrained role, verify its zero exit code, then deploy the new application task definition and wait for every old task to drain. Revoke and remove the old role only after no running task uses it. The RDS owner credential remains confined to the migration task and can be rotated separately through RDS and a new migration task definition.
+
 ## Availability and cost
 
 The load balancer, application tasks, and database subnets span two availability zones. Multi AZ RDS keeps one synchronous standby and moves the writer endpoint during managed failover. The application continues to use that writer endpoint. It never sends balance reads to a lagging replica.
 
-The enabled deployment uses two Fargate tasks, one cost aware NAT gateway, a `db.t4g.medium` writer, 50 GiB of storage, and 30 days of logs. One NAT gateway reduces cost but leaves private image pulls and external calls dependent on its availability zone. A stricter production recovery target should use one NAT gateway per availability zone or VPC endpoints. Set an AWS Budget outside this root, review log retention, and remove unused environments.
+The enabled deployment uses two Fargate tasks, two NAT gateways, a `db.t4g.medium` writer, 50 GiB of storage, and 30 days of logs. Each private application subnet routes through the NAT gateway in its own availability zone. Set an AWS Budget outside this root, review log retention, and remove unused environments. Private VPC endpoints can replace some NAT traffic if their extra policy and operating cost fit the environment.
 
 RDS deletion protection and the load balancer deletion protection are enabled. The RDS lifecycle also prevents Terraform destroy. A deliberate retirement requires a reviewed configuration change and a verified final snapshot.
 
